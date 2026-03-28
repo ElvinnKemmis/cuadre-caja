@@ -135,7 +135,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 <div class="app-header">
   <div class="app-logo">
     <div class="logo-icon">💰</div>
-    <div><div class="logo-text">EL MAS GAUCHITO</div><div class="logo-sub">SISTEMA DE CUADRE DE CAJA</div></div>
+    <div><div class="logo-text">EL MAS GAUCHITO</div><div class="logo-sub">Sistema de cuadre</div></div>
   </div>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">📋 Registro</button>
@@ -292,7 +292,8 @@ function loadConfigUI() {
   if (cfg.apiKey) document.getElementById('cfg-apikey').value = cfg.apiKey;
   if (cfg.dbId) document.getElementById('cfg-dbid').value = cfg.dbId;
   else document.getElementById('cfg-dbid').value = 'a342af22a291468 8bf5e68826b06d710';
-  if (cfg.proxy) document.getElementById('cfg-proxy').value = cfg.proxy;
+  // Pre-fill proxy with the user's Vercel deployment
+  document.getElementById('cfg-proxy').value = cfg.proxy || 'https://cuadre-caja-alpha.vercel.app/api/notion';
 }
 
 // ══ NOTION API ══
