@@ -3,138 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CUADRE DE CAJA</title>
+<title>Sistema Cuadre de Caja</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy: #0f2540;
-  --navy2: #1a3a5c;
-  --navy3: #254f7a;
-  --accent: #2e9e6e;
-  --accent2: #25845c;
-  --red: #c0392b;
-  --gold: #d4a017;
-  --bg: #f0f3f7;
-  --surface: #ffffff;
-  --surface2: #f7f9fc;
-  --border: #dde3ec;
-  --text: #0f2540;
-  --muted: #7a8ba0;
-  --font: 'DM Sans', sans-serif;
-  --mono: 'DM Mono', monospace;
+  --navy:#0f2540; --navy2:#1a3a5c; --navy3:#254f7a;
+  --accent:#2e9e6e; --accent2:#25845c;
+  --red:#c0392b; --gold:#d4a017;
+  --bg:#f0f3f7; --surface:#fff; --surface2:#f7f9fc;
+  --border:#dde3ec; --text:#0f2540; --muted:#7a8ba0;
+  --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
 
-.app-header {
-  background: var(--navy); padding: 0 32px;
-  display: flex; align-items: stretch; height: 64px;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 14px rgba(15,37,64,0.22);
-}
-.app-logo { display: flex; align-items: center; gap: 12px; padding-right: 28px; border-right: 1px solid rgba(255,255,255,0.1); }
-.logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
-.logo-text { font-size: 15px; font-weight: 600; color: white; line-height: 1.2; }
-.logo-sub { font-size: 10px; font-weight: 400; opacity: 0.5; letter-spacing: 0.6px; text-transform: uppercase; }
-.tabs { display: flex; align-items: stretch; margin-left: 16px; }
-.tab-btn {
-  background: none; border: none; color: rgba(255,255,255,0.45);
-  padding: 0 22px; font-family: var(--font); font-size: 13px; font-weight: 500;
-  cursor: pointer; border-bottom: 3px solid transparent;
-  transition: color 0.18s, border-color 0.18s;
-  display: flex; align-items: center; gap: 8px;
-}
-.tab-btn:hover { color: rgba(255,255,255,0.8); }
-.tab-btn.active { color: white; border-bottom-color: var(--accent); }
-.hdr-right { margin-left: auto; display: flex; align-items: center; }
-.day-pill { font-family: var(--mono); font-size: 11px; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+/* ── HEADER ── */
+.app-header{background:var(--navy);padding:0 32px;display:flex;align-items:stretch;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 14px rgba(15,37,64,.22);}
+.app-logo{display:flex;align-items:center;gap:12px;padding-right:28px;border-right:1px solid rgba(255,255,255,.1);}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.logo-text{font-size:15px;font-weight:600;color:#fff;line-height:1.2;}
+.logo-sub{font-size:10px;font-weight:400;opacity:.5;letter-spacing:.6px;text-transform:uppercase;}
+.tabs{display:flex;align-items:stretch;margin-left:16px;}
+.tab-btn{background:none;border:none;color:rgba(255,255,255,.45);padding:0 22px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;transition:color .18s,border-color .18s;display:flex;align-items:center;gap:8px;}
+.tab-btn:hover{color:rgba(255,255,255,.8);}
+.tab-btn.active{color:#fff;border-bottom-color:var(--accent);}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.day-pill{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.1);}
+.sync-indicator{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.5);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#666;}
+.sync-dot.ok{background:var(--accent);}
+.sync-dot.loading{background:var(--gold);animation:pulse 1s infinite;}
+.sync-dot.err{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-.view { display: none; padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
-.view.active { display: block; }
+/* ── VIEWS ── */
+.view{display:none;padding:28px 32px;max-width:1200px;margin:0 auto;}
+.view.active{display:block;}
 
-/* RESUMEN TOP */
-.total-banner { background: var(--navy); border-radius: 12px; padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.total-lbl { font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.4px; margin-bottom: 3px; }
-.total-val { font-family: var(--mono); font-size: 34px; font-weight: 500; color: white; }
-.total-badge { font-size: 12px; color: rgba(255,255,255,0.4); font-family: var(--mono); }
+/* ── FORM SUMMARY ── */
+.total-banner{background:var(--navy);border-radius:12px;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.total-lbl{font-size:12px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.4px;margin-bottom:3px;}
+.total-val{font-family:var(--mono);font-size:34px;font-weight:500;color:#fff;}
+.total-badge{font-size:12px;color:rgba(255,255,255,.4);font-family:var(--mono);}
+.sum-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.sc{background:var(--surface);border-radius:11px;border:1px solid var(--border);padding:15px 18px;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sc.ef::after{background:var(--navy2)}.sc.ch::after{background:var(--navy3)}.sc.pr::after{background:var(--gold)}.sc.gs::after{background:var(--red)}
+.sc-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:5px;}
+.sc-val{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--text);}
+.sc-val.r{color:var(--red);}
 
-.sum-bar { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
-.sc { background: var(--surface); border-radius: 11px; border: 1px solid var(--border); padding: 15px 18px; position: relative; overflow: hidden; }
-.sc::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-.sc.ef::after { background: var(--navy2); }
-.sc.ch::after { background: var(--navy3); }
-.sc.pr::after { background: var(--gold); }
-.sc.gs::after { background: var(--red); }
-.sc-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); margin-bottom: 5px; }
-.sc-val { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--text); }
-.sc-val.r { color: var(--red); }
+/* ── CARDS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.card{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:20px 22px;}
+.card-ttl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:16px;padding-bottom:11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.cdot{width:6px;height:6px;border-radius:50%;}
+.db{background:var(--navy2)}.dg{background:var(--accent)}.do{background:#d4731c}
+.field{margin-bottom:13px;}
+label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+input[type=text],input[type=number],input[type=date]{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);color:var(--text);background:var(--surface2);transition:border .15s;outline:none;}
+input:focus{border-color:var(--navy2);background:var(--surface);box-shadow:0 0 0 3px rgba(26,58,92,.07);}
+input[readonly]{background:var(--surface2);color:var(--muted);}
+input[readonly]:focus{box-shadow:none;border-color:var(--border);}
+.colh{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:5px;}
+.ch{font-size:10px;color:#aab5c4;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.erow,.mrow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;}
+.add-btn{background:none;border:1.5px dashed var(--border);color:var(--muted);padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-family:var(--font);width:100%;margin-top:4px;transition:all .15s;}
+.add-btn:hover{border-color:var(--navy2);color:var(--navy2);background:rgba(26,58,92,.04);}
+.rm{background:none;border:none;color:#bbb;cursor:pointer;font-size:19px;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.rm:hover{background:#fdeaea;color:var(--red);}
+.sub{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:8px;padding:9px 12px;margin-top:12px;border:1px solid var(--border);}
+.sl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.sv{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--navy2);}
+.sv.r{color:var(--red);}
+.full{grid-column:1/-1;}
+.save-note{text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px;}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-family:var(--font);font-weight:600;cursor:pointer;width:100%;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-save:hover{background:var(--accent2);}
+.btn-save:disabled{background:#aaa;cursor:not-allowed;}
 
-/* FORM */
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 20px 22px; }
-.card-ttl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 16px; padding-bottom: 11px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-.cdot { width: 6px; height: 6px; border-radius: 50%; }
-.db { background: var(--navy2); } .dg { background: var(--accent); } .do { background: #d4731c; }
+/* ── REPORT ── */
+.rep-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.rep-title{font-size:20px;font-weight:600;}
+.rep-title span{font-size:13px;font-weight:400;color:var(--muted);margin-left:8px;}
+.rep-actions{display:flex;gap:10px;}
+.btn-refresh{background:var(--surface);color:var(--navy2);border:1px solid var(--border);padding:10px 18px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;}
+.btn-refresh:hover{background:var(--surface2);}
+.btn-export{background:var(--navy);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;}
+.btn-export:hover{background:var(--navy2);}
+.tbl-wrap{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--navy);}
+thead th{padding:13px 16px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.55);white-space:nowrap;}
+thead th:first-child{padding-left:22px;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:13px 16px;font-size:13px;}
+tbody td:first-child{padding-left:22px;font-family:var(--mono);}
+.tn{font-family:var(--mono);}
+.tr{color:var(--red);}
+.tg{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--navy2);}
+.btn-del{background:none;border:1px solid #e0cccc;color:#b07070;padding:5px 12px;border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-del:hover{background:#fdeaea;border-color:var(--red);color:var(--red);}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
+.empty-ico{font-size:42px;margin-bottom:12px;opacity:.35;}
 
-.field { margin-bottom: 13px; }
-label { display: block; font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-input[type=text], input[type=number], input[type=date] {
-  width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
-  font-size: 14px; font-family: var(--font); color: var(--text);
-  background: var(--surface2); transition: border 0.15s; outline: none;
-}
-input:focus { border-color: var(--navy2); background: var(--surface); box-shadow: 0 0 0 3px rgba(26,58,92,0.07); }
-input[readonly] { background: var(--surface2); color: var(--muted); }
-input[readonly]:focus { box-shadow: none; border-color: var(--border); }
+/* ── CONFIG ── */
+.config-panel{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:24px;margin-bottom:20px;}
+.config-title{font-size:14px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.btn-config-save{background:var(--navy);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;margin-top:14px;transition:background .15s;}
+.btn-config-save:hover{background:var(--navy2);}
+.config-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+.banner-warn{background:#fffbe6;border:1px solid #f5d76e;border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#7a6000;display:flex;align-items:center;gap:10px;}
 
-.colh { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 5px; }
-.ch { font-size: 10px; color: #aab5c4; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.erow, .mrow { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
-.add-btn { background: none; border: 1.5px dashed var(--border); color: var(--muted); padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: var(--font); width: 100%; margin-top: 4px; transition: all 0.15s; }
-.add-btn:hover { border-color: var(--navy2); color: var(--navy2); background: rgba(26,58,92,0.04); }
-.rm { background: none; border: none; color: #bbb; cursor: pointer; font-size: 19px; width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.rm:hover { background: #fdeaea; color: var(--red); }
-.sub { display: flex; justify-content: space-between; align-items: center; background: var(--surface2); border-radius: 8px; padding: 9px 12px; margin-top: 12px; border: 1px solid var(--border); }
-.sl { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.sv { font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--navy2); }
-.sv.r { color: var(--red); }
-.full { grid-column: 1/-1; }
-.save-note { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-.btn-save { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-family: var(--font); font-weight: 600; cursor: pointer; width: 100%; transition: background 0.15s; }
-.btn-save:hover { background: var(--accent2); }
-
-/* REPORT */
-.rep-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
-.rep-title { font-size: 20px; font-weight: 600; }
-.rep-title span { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 8px; }
-.btn-export { background: var(--navy); color: white; border: none; padding: 10px 22px; border-radius: 8px; font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
-.btn-export:hover { background: var(--navy2); }
-.tbl-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; }
-thead tr { background: var(--navy); }
-thead th { padding: 13px 16px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.55); white-space: nowrap; }
-thead th:first-child { padding-left: 22px; }
-tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--surface2); }
-tbody td { padding: 13px 16px; font-size: 13px; }
-tbody td:first-child { padding-left: 22px; font-family: var(--mono); }
-.tn { font-family: var(--mono); }
-.tr { color: var(--red); }
-.tg { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--navy2); }
-.btn-del { background: none; border: 1px solid #e0cccc; color: #b07070; padding: 5px 12px; border-radius: 6px; font-family: var(--font); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-.btn-del:hover { background: #fdeaea; border-color: var(--red); color: var(--red); }
-.empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
-.empty-ico { font-size: 42px; margin-bottom: 12px; opacity: 0.35; }
-
-.toast { position: fixed; bottom: 28px; right: 28px; background: var(--accent); color: white; padding: 12px 22px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; z-index: 999; box-shadow: 0 4px 18px rgba(0,0,0,0.2); }
-.toast.err { background: var(--red); }
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--accent);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:500;display:none;z-index:999;box-shadow:0 4px 18px rgba(0,0,0,.2);}
+.toast.err{background:var(--red);}
 
 @media(max-width:700px){
-  .form-grid, .sum-bar { grid-template-columns: 1fr; }
-  .view { padding: 18px 14px; }
-  .app-header { padding: 0 14px; }
+  .form-grid,.sum-bar,.config-grid{grid-template-columns:1fr;}
+  .view{padding:18px 14px;}
+  .app-header{padding:0 14px;}
 }
 </style>
 </head>
@@ -143,19 +135,27 @@ tbody td:first-child { padding-left: 22px; font-family: var(--mono); }
 <div class="app-header">
   <div class="app-logo">
     <div class="logo-icon">💰</div>
-    <div><div class="logo-text">EL MAS GAUCHITO </div><div class="logo-sub">Sistema de cuadre</div></div>
+    <div><div class="logo-text">EL MAS GAUCHITO</div><div class="logo-sub">SISTEMA DE CUADRE DE CAJA</div></div>
   </div>
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">📋 REGISTRO DEL DIA</button>
-    <button class="tab-btn" onclick="switchTab('report')" id="tab-report">📊 REPORTE</button>
+    <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">📋 Registro</button>
+    <button class="tab-btn" onclick="switchTab('report')" id="tab-report">📊 Reporte</button>
+    <button class="tab-btn" onclick="switchTab('config')" id="tab-config">⚙️ Config</button>
   </div>
   <div class="hdr-right">
+    <div class="sync-indicator">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Sin conexión</span>
+    </div>
     <span class="day-pill" id="day-pill"></span>
   </div>
 </div>
 
 <!-- ════ FORMULARIO ════ -->
 <div class="view active" id="view-form">
+  <div id="warn-config" class="banner-warn" style="display:none">
+    ⚠️ Configura tu API Key de Notion y el ID de la base de datos en la pestaña <strong>Config</strong> para activar la sincronización.
+  </div>
 
   <div class="total-banner">
     <div>
@@ -173,20 +173,18 @@ tbody td:first-child { padding-left: 22px; font-family: var(--mono); }
   </div>
 
   <div class="form-grid">
-
     <div class="card">
       <div class="card-ttl"><div class="cdot db"></div>Información del día</div>
-      <div class="field"><label>Fecha</label><input type="date" id="fecha" oninput="updateBadge()" /></div>
-      <div class="field"><label>Cuadre de Caja (automático)</label><input type="number" id="cuadreCaja" placeholder="El monto de caja cuadrado se mostrara automaticamente" readonly /></div>
+      <div class="field"><label>Fecha</label><input type="date" id="fecha" oninput="updateBadge()"/></div>
+      <div class="field"><label>Cuadre de Caja (automático)</label><input type="number" id="cuadreCaja" placeholder="0.00" readonly/></div>
     </div>
-
     <div class="card">
       <div class="card-ttl"><div class="cdot db"></div>Efectivo</div>
-      <div class="field"><label>Efectivo</label><input type="number" id="efectivo" placeholder="0.00" step="0.01" oninput="calc()" /></div>
-      <div class="field"><label>Caja Hoy</label><input type="number" id="cajaHoy" placeholder="0.00" step="0.01" oninput="calc()" /></div>
-      <div class="field"><label>Caja Ayer</label><input type="number" id="cajaAyer" placeholder="0.00" step="0.01" /></div>
-    </div>
+      <div class="field"><label>Efectivo</label><input type="number" id="efectivo" placeholder="0.00" step="0.01" oninput="calc()"/></div>
+      <div class="field"><label>Caja Hoy</label><input type="number" id="cajaHoy" placeholder="0.00" step="0.01" oninput="calc()"/></div>
+      <div class="field"><label>Caja Ayer</label><input type="number" id="cajaAyer" placeholder="0.00" step="0.01"/></div>
 
+    </div>
     <div class="card">
       <div class="card-ttl"><div class="cdot dg"></div>Mozos y propinas</div>
       <div class="colh"><div class="ch">Nombre</div><div class="ch">Propina</div><div></div></div>
@@ -194,7 +192,6 @@ tbody td:first-child { padding-left: 22px; font-family: var(--mono); }
       <button class="add-btn" onclick="addMozo()">+ Agregar mozo</button>
       <div class="sub"><span class="sl">Total propinas</span><span class="sv" id="sub-pr">S/ 0.00</span></div>
     </div>
-
     <div class="card">
       <div class="card-ttl"><div class="cdot do"></div>Gastos</div>
       <div class="colh"><div class="ch">Concepto</div><div class="ch">Monto</div><div></div></div>
@@ -202,12 +199,10 @@ tbody td:first-child { padding-left: 22px; font-family: var(--mono); }
       <button class="add-btn" onclick="addGasto()">+ Agregar gasto</button>
       <div class="sub"><span class="sl">Total gastos</span><span class="sv r" id="sub-gs">S/ 0.00</span></div>
     </div>
-
     <div class="full">
-      <div class="save-note">Al guardar, el registro queda disponible en el Reporte y podrás descargarlo como Excel.</div>
-      <button class="btn-save" onclick="guardar()">💾 Guardar registro del día</button>
+      <div class="save-note">Al guardar, el registro se sincroniza con Notion y queda disponible en el Reporte.</div>
+      <button class="btn-save" id="btn-guardar" onclick="guardar()">💾 Guardar registro del día</button>
     </div>
-
   </div>
 </div>
 
@@ -215,44 +210,180 @@ tbody td:first-child { padding-left: 22px; font-family: var(--mono); }
 <div class="view" id="view-report">
   <div class="rep-hdr">
     <div class="rep-title">Reporte <span id="rep-count"></span></div>
-    <button class="btn-export" onclick="exportExcel()">⬇ Descargar Excel</button>
+    <div class="rep-actions">
+      <button class="btn-refresh" onclick="loadReport()">↺ Actualizar</button>
+      <button class="btn-export" onclick="exportExcel()">⬇ Descargar Excel</button>
+    </div>
   </div>
   <div class="tbl-wrap">
     <table>
       <thead>
         <tr>
-          <th>Fecha</th>
-          <th>Efectivo</th>
-          <th>Caja hoy</th>
-          <th>Caja ayer</th>
-          <th>Propinas</th>
-          <th>Gastos</th>
-          <th>Cuadre de caja</th>
-          <th style="text-align:center">Acción</th>
+          <th>Fecha</th><th>Efectivo</th><th>Caja hoy</th><th>Caja ayer</th>
+          <th>Propinas</th><th>Gastos</th><th>Cuadre de caja</th><th style="text-align:center">Acción</th>
         </tr>
       </thead>
       <tbody id="rep-body"></tbody>
     </table>
     <div class="empty" id="empty-state">
       <div class="empty-ico">📋</div>
-      <div>Aún no hay registros. Llena el formulario y guarda el primer día.</div>
+      <div id="empty-msg">Cargando registros...</div>
     </div>
+  </div>
+</div>
+
+<!-- ════ CONFIG ════ -->
+<div class="view" id="view-config">
+  <div class="config-panel">
+    <div class="config-title">🔑 Conexión con Notion</div>
+    <div class="config-grid">
+      <div class="field">
+        <label>Notion API Key (Integration Token)</label>
+        <input type="text" id="cfg-apikey" placeholder="secret_xxxxxxxxxxxxxxxxxxxxxxxx"/>
+        <div class="config-hint">Obtén tu token en: notion.so/my-integrations → Nueva integración → Copiar "Internal Integration Token"</div>
+      </div>
+      <div class="field">
+        <label>ID de la Base de Datos</label>
+        <input type="text" id="cfg-dbid" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"/>
+        <div class="config-hint">ID de la base de datos "Registros Cuadre de Caja" ya creada en tu Notion.</div>
+      </div>
+    </div>
+    <button class="btn-config-save" onclick="saveConfig()">Guardar configuración</button>
+    <div style="margin-top:20px; padding:16px; background:var(--surface2); border-radius:8px; font-size:12px; color:var(--muted); line-height:1.7;">
+      <strong style="color:var(--text);">⚠️ Importante — CORS / Proxy:</strong><br>
+      Los navegadores bloquean llamadas directas a la API de Notion por seguridad (CORS). Para que funcione correctamente al abrirlo desde un archivo local o GitHub Pages, necesitas un proxy. Lee la guía de despliegue incluida con este archivo.<br><br>
+      <strong style="color:var(--text);">URL del Proxy:</strong><br>
+      <input type="text" id="cfg-proxy" placeholder="https://tu-proxy.vercel.app/api/notion" style="margin-top:6px; font-family:var(--mono); font-size:12px;"/>
+      <div class="config-hint" style="margin-top:4px;">Déjalo vacío si usas el proxy local incluido en la guía de despliegue.</div>
+    </div>
+    <button class="btn-config-save" onclick="testConnection()" style="background:var(--navy3); margin-top:12px;">🔌 Probar conexión</button>
+  </div>
+
+  <div class="config-panel">
+    <div class="config-title">📋 Tu base de datos en Notion</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;">
+      Ya creé la base de datos <strong>"Registros Cuadre de Caja"</strong> en tu Notion.<br>
+      ID de la base de datos: <code style="font-family:var(--mono);background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:12px;">a342af22a29146 88bf5e68826b06d710</code><br><br>
+      Ingresa ese ID en el campo de arriba junto con tu API Key para activar la sincronización.
+    </p>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var STORE = 'cajaDiariaRecords';
-var records = [];
-try { records = JSON.parse(localStorage.getItem(STORE)) || []; } catch(e) { records = []; }
-function save() { localStorage.setItem(STORE, JSON.stringify(records)); }
+// ══ CONFIG ══
+var CFG_KEY = 'cajaDiaria_config';
+var cfg = {};
+try { cfg = JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch(e) { cfg = {}; }
 
-// fecha hoy
+var DB_ID = 'a342af22a291468 8bf5e68826b06d710'; // Pre-cargado
+
+function saveConfig() {
+  cfg.apiKey = document.getElementById('cfg-apikey').value.trim();
+  cfg.dbId = document.getElementById('cfg-dbid').value.trim() || DB_ID;
+  cfg.proxy = document.getElementById('cfg-proxy').value.trim();
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  showToast('Configuración guardada');
+  updateSyncStatus();
+}
+
+function loadConfigUI() {
+  if (cfg.apiKey) document.getElementById('cfg-apikey').value = cfg.apiKey;
+  if (cfg.dbId) document.getElementById('cfg-dbid').value = cfg.dbId;
+  else document.getElementById('cfg-dbid').value = 'a342af22a291468 8bf5e68826b06d710';
+  if (cfg.proxy) document.getElementById('cfg-proxy').value = cfg.proxy;
+}
+
+// ══ NOTION API ══
+// Usamos un proxy CORS para poder llamar a Notion desde el browser.
+// Si no hay proxy configurado, intentamos directo (funciona en algunos entornos).
+async function notionRequest(method, path, body) {
+  var apiKey = cfg.apiKey;
+  if (!apiKey) throw new Error('Sin API Key');
+  var dbId = (cfg.dbId || DB_ID).replace(/\s/g,'').replace(/-/g,'');
+
+  // Proxy URL — si está configurado lo usamos como prefijo
+  var baseUrl = cfg.proxy
+    ? cfg.proxy.replace(/\/$/, '') + path
+    : 'https://api.notion.com/v1' + path;
+
+  var headers = {
+    'Authorization': 'Bearer ' + apiKey,
+    'Notion-Version': '2022-06-28',
+    'Content-Type': 'application/json'
+  };
+
+  var options = { method: method, headers: headers };
+  if (body) options.body = JSON.stringify(body);
+
+  var res = await fetch(baseUrl, options);
+  if (!res.ok) {
+    var err = await res.json().catch(function(){ return {}; });
+    throw new Error(err.message || 'Error ' + res.status);
+  }
+  return await res.json();
+}
+
+async function testConnection() {
+  setSyncStatus('loading','Probando...');
+  try {
+    var dbId = (cfg.dbId || DB_ID).replace(/\s/g,'').replace(/-/g,'');
+    await notionRequest('GET', '/databases/' + dbId, null);
+    setSyncStatus('ok','Conectado');
+    showToast('✓ Conexión exitosa con Notion');
+  } catch(e) {
+    setSyncStatus('err','Error: '+e.message);
+    showToast('Error: ' + e.message, true);
+  }
+}
+
+// ══ SYNC STATUS ══
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+  document.getElementById('sync-label').textContent = label;
+}
+function updateSyncStatus() {
+  if (!cfg.apiKey) {
+    setSyncStatus('','Sin conexión');
+    document.getElementById('warn-config').style.display='flex';
+  } else {
+    setSyncStatus('ok','Notion conectado');
+    document.getElementById('warn-config').style.display='none';
+  }
+}
+
+// ══ LOCAL FALLBACK ══
+var LOCAL_KEY = 'cajaDiaria_local';
+var localRecords = [];
+try { localRecords = JSON.parse(localStorage.getItem(LOCAL_KEY)) || []; } catch(e) {}
+function saveLocal(rec) {
+  localRecords = localRecords.filter(function(r){ return r.fecha !== rec.fecha; });
+  localRecords.push(rec);
+  localRecords.sort(function(a,b){ return a.fecha.localeCompare(b.fecha); });
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(localRecords));
+}
+function deleteLocal(fecha) {
+  localRecords = localRecords.filter(function(r){ return r.fecha !== fecha; });
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(localRecords));
+}
+
+// ══ INIT ══
 var hoy = new Date().toISOString().split('T')[0];
 document.getElementById('fecha').value = hoy;
 document.getElementById('day-pill').textContent = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
 updateBadge();
+loadConfigUI();
+updateSyncStatus();
+
+// ══ TABS ══
+function switchTab(t) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('view-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if (t === 'report') loadReport();
+}
 
 function updateBadge() {
   var fv = document.getElementById('fecha').value;
@@ -261,19 +392,9 @@ function updateBadge() {
   document.getElementById('fecha-badge').textContent = d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
 }
 
-// ── TABS ──
-function switchTab(t) {
-  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('view-'+t).classList.add('active');
-  document.getElementById('tab-'+t).classList.add('active');
-  if (t==='report') renderReport();
-}
-
-// ── MOZOS ──
+// ══ MOZOS ══
 var mzC=0;
-['ALEXIS','WILDER','ONAN','LUIS','EDUARD','COCO'].forEach(function(n){ addMozo(n,''); });
-
+['ALEXIS','WILDER','ONAN','LUIS','CRISTHIAN','EDUARD','COCO'].forEach(function(n){ addMozo(n,''); });
 function addMozo(nm,mn) {
   nm=nm||''; mn=mn||''; mzC++;
   var id='mz'+mzC, d=document.createElement('div');
@@ -288,9 +409,9 @@ function sumMz(){
   document.getElementById('sub-pr').textContent='S/ '+s.toFixed(2); calc();
 }
 
-// ── GASTOS ──
+// ══ GASTOS ══
 var gsC=0;
-function addGasto(cn,mn){
+function addGasto(cn,mn) {
   cn=cn||''; mn=mn||''; gsC++;
   var id='gs'+gsC, d=document.createElement('div');
   d.id=id; d.className='erow';
@@ -304,7 +425,7 @@ function sumGs(){
   document.getElementById('sub-gs').textContent='S/ '+s.toFixed(2); calc();
 }
 
-// ── CALC ──
+// ══ CALC ══
 function calc(){
   var ef=parseFloat(document.getElementById('efectivo').value)||0;
   var ch=parseFloat(document.getElementById('cajaHoy').value)||0;
@@ -319,11 +440,10 @@ function calc(){
   document.getElementById('cuadreCaja').value=tot.toFixed(2);
 }
 
-// ── GUARDAR ──
-function guardar(){
+// ══ GUARDAR ══
+async function guardar() {
   var fv=document.getElementById('fecha').value;
   if(!fv){showToast('Ingresa la fecha',true);return;}
-  if(records.some(function(r){return r.fecha===fv;})){showToast('Ya existe registro para esa fecha',true);return;}
 
   var d=new Date(fv+'T12:00:00');
   var lbl=d.toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
@@ -346,11 +466,52 @@ function guardar(){
   var ca=parseFloat(document.getElementById('cajaAyer').value)||0;
   var pr=mozos.reduce(function(a,m){return a+m.monto;},0);
   var gs=glist.reduce(function(a,g){return a+g.monto;},0);
+  var total=ef+ch-gs;
 
-  records.push({fecha:fv,fechaLabel:lbl,efectivo:ef,cajaHoy:ch,cajaAyer:ca,propinas:pr,gastos:gs,cuadreCaja:ef+ch-gs,mozos:mozos,glist:glist});
-  records.sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
-  save();
-  showToast('✓ Registro guardado: '+lbl);
+  var rec = {
+    fecha:fv, fechaLabel:lbl,
+    efectivo:ef, cajaHoy:ch, cajaAyer:ca,
+    propinas:pr, gastos:gs, cuadreCaja:total,
+    mozos:mozos, glist:glist
+  };
+
+  var btn=document.getElementById('btn-guardar');
+  btn.disabled=true; btn.textContent='Guardando...';
+
+  // Guardar local siempre
+  saveLocal(rec);
+
+  // Intentar guardar en Notion
+  if (cfg.apiKey) {
+    try {
+      setSyncStatus('loading','Guardando...');
+      var dbId=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
+      await notionRequest('POST','/pages',{
+        parent:{database_id:dbId},
+        properties:{
+          'Fecha':{title:[{text:{content:lbl}}]},
+          'Fecha ISO':{rich_text:[{text:{content:fv}}]},
+          'Efectivo':{number:ef},
+          'Caja Hoy':{number:ch},
+          'Caja Ayer':{number:ca},
+          'Propinas':{number:pr},
+          'Gastos':{number:gs},
+          'Cuadre de Caja':{number:total},
+          'Mozos':{rich_text:[{text:{content:JSON.stringify(mozos)}}]},
+          'Gastos Detalle':{rich_text:[{text:{content:JSON.stringify(glist)}}]}
+        }
+      });
+      setSyncStatus('ok','Sincronizado');
+      showToast('✓ Guardado en Notion: '+lbl);
+    } catch(e) {
+      setSyncStatus('err','Error sync');
+      showToast('Guardado local. Error Notion: '+e.message, true);
+    }
+  } else {
+    showToast('Guardado localmente (sin Notion configurado)');
+  }
+
+  btn.disabled=false; btn.innerHTML='💾 Guardar registro del día';
   resetForm();
 }
 
@@ -369,16 +530,68 @@ function resetForm(){
   updateBadge(); calc();
 }
 
-// ── REPORTE ──
-function renderReport(){
+// ══ REPORTE ══
+var reportRecords = [];
+
+async function loadReport() {
+  document.getElementById('rep-body').innerHTML='';
+  document.getElementById('empty-state').style.display='block';
+  document.getElementById('empty-msg').textContent='Cargando registros...';
+  document.getElementById('rep-count').textContent='';
+
+  if (cfg.apiKey) {
+    try {
+      setSyncStatus('loading','Cargando...');
+      var dbId=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
+      var result = await notionRequest('POST','/databases/'+dbId+'/query',{
+        sorts:[{property:'Fecha ISO',direction:'ascending'}]
+      });
+
+      reportRecords = result.results.map(function(page){
+        var p=page.properties;
+        var mozos=[], glist=[];
+        try{ mozos=JSON.parse(p.Mozos.rich_text[0]&&p.Mozos.rich_text[0].text.content||'[]'); }catch(e){}
+        try{ glist=JSON.parse(p['Gastos Detalle'].rich_text[0]&&p['Gastos Detalle'].rich_text[0].text.content||'[]'); }catch(e){}
+        return {
+          pageId: page.id,
+          fecha: p['Fecha ISO'].rich_text[0]&&p['Fecha ISO'].rich_text[0].text.content||'',
+          fechaLabel: p.Fecha.title[0]&&p.Fecha.title[0].text.content||'',
+          efectivo: p.Efectivo.number||0,
+          cajaHoy: p['Caja Hoy'].number||0,
+          cajaAyer: p['Caja Ayer'].number||0,
+          propinas: p.Propinas.number||0,
+          gastos: p.Gastos.number||0,
+          cuadreCaja: p['Cuadre de Caja'].number||0,
+          mozos: mozos, glist: glist
+        };
+      });
+      setSyncStatus('ok','Sincronizado');
+      renderTable();
+    } catch(e) {
+      setSyncStatus('err','Error');
+      showToast('Error cargando Notion: '+e.message+'. Mostrando datos locales.', true);
+      reportRecords = localRecords;
+      renderTable();
+    }
+  } else {
+    // Fallback local
+    reportRecords = localRecords;
+    renderTable();
+  }
+}
+
+function renderTable() {
   var body=document.getElementById('rep-body');
   var empty=document.getElementById('empty-state');
-  var cnt=document.getElementById('rep-count');
   body.innerHTML='';
-  cnt.textContent=records.length>0?'— '+records.length+' día'+(records.length>1?'s':''):'';
-  if(!records.length){empty.style.display='block';return;}
+  document.getElementById('rep-count').textContent = reportRecords.length>0 ? '— '+reportRecords.length+' día'+(reportRecords.length>1?'s':'') : '';
+  if(!reportRecords.length){
+    empty.style.display='block';
+    document.getElementById('empty-msg').textContent='No hay registros aún.';
+    return;
+  }
   empty.style.display='none';
-  records.forEach(function(r,i){
+  reportRecords.forEach(function(r,i){
     var tr=document.createElement('tr');
     tr.innerHTML=
       '<td>'+r.fechaLabel+'</td>'+
@@ -388,31 +601,40 @@ function renderReport(){
       '<td class="tn">S/ '+r.propinas.toFixed(2)+'</td>'+
       '<td class="tn tr">S/ '+r.gastos.toFixed(2)+'</td>'+
       '<td class="tg">S/ '+r.cuadreCaja.toFixed(2)+'</td>'+
-      '<td style="text-align:center"><button class="btn-del" onclick="delRec('+i+')">🗑 Eliminar</button></td>';
+      '<td style="text-align:center"><button class="btn-del" onclick="delRecord('+i+')">🗑 Eliminar</button></td>';
     body.appendChild(tr);
   });
 }
 
-function delRec(i){
-  if(!confirm('¿Eliminar el registro del '+records[i].fechaLabel+'?'))return;
-  records.splice(i,1); save(); renderReport();
+async function delRecord(i) {
+  var r=reportRecords[i];
+  if(!confirm('¿Eliminar el registro del '+r.fechaLabel+'?')) return;
+
+  if(cfg.apiKey && r.pageId){
+    try{
+      await notionRequest('DELETE','/blocks/'+r.pageId, null);
+    } catch(e){
+      // Si falla PATCH archive
+      try{ await notionRequest('PATCH','/pages/'+r.pageId,{archived:true}); }catch(e2){}
+    }
+  }
+  deleteLocal(r.fecha);
+  reportRecords.splice(i,1);
+  renderTable();
   showToast('Registro eliminado');
 }
 
-// ── EXPORT EXCEL ──
+// ══ EXPORT EXCEL ══
 function exportExcel(){
-  if(!records.length){showToast('No hay registros',true);return;}
+  if(!reportRecords.length){showToast('No hay registros',true);return;}
   var wb=XLSX.utils.book_new();
-
-  // Hoja resumen
   var rows=[['FECHA','EFECTIVO','CAJA HOY','CAJA AYER','PROPINAS','GASTOS','CUADRE DE CAJA']];
-  records.forEach(function(r){rows.push([r.fechaLabel,r.efectivo,r.cajaHoy,r.cajaAyer,r.propinas,r.gastos,r.cuadreCaja]);});
+  reportRecords.forEach(function(r){rows.push([r.fechaLabel,r.efectivo,r.cajaHoy,r.cajaAyer,r.propinas,r.gastos,r.cuadreCaja]);});
   var wsR=XLSX.utils.aoa_to_sheet(rows);
   wsR['!cols']=[{wch:24},{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:16}];
   XLSX.utils.book_append_sheet(wb,wsR,'RESUMEN');
 
-  // Hoja por día
-  records.forEach(function(r){
+  reportRecords.forEach(function(r){
     var d=new Date(r.fecha+'T12:00:00');
     var sn=String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+d.getFullYear();
     var aoa=[];
@@ -428,21 +650,21 @@ function exportExcel(){
     for(var i=2;i<r.glist.length;i++) aoa.push(['','','','','',r.glist[i].concepto,r.glist[i].monto,'']);
     aoa.push(['','','','','','','','']);
     aoa.push(['','MOZO','MONTO','TOTAL PROPINAS','','','','']);
-    r.mozos.forEach(function(m,mi){ aoa.push(['',m.nombre,m.monto,mi===0?r.propinas:'','','','','']); });
+    r.mozos.forEach(function(m,mi){aoa.push(['',m.nombre,m.monto,mi===0?r.propinas:'','','','','']);});
     var ws=XLSX.utils.aoa_to_sheet(aoa);
     ws['!cols']=[{wch:4},{wch:28},{wch:12},{wch:16},{wch:4},{wch:14},{wch:10},{wch:10}];
     XLSX.utils.book_append_sheet(wb,ws,sn);
   });
 
   XLSX.writeFile(wb,'Reporte_Cuadre_Caja.xlsx');
-  showToast('✓ Excel descargado — '+records.length+' día(s)');
+  showToast('✓ Excel descargado — '+reportRecords.length+' día(s)');
 }
 
-// ── TOAST ──
+// ══ TOAST ══
 function showToast(msg,err){
   var t=document.getElementById('toast');
   t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block';
-  clearTimeout(t._t); t._t=setTimeout(function(){t.style.display='none';},4200);
+  clearTimeout(t._t); t._t=setTimeout(function(){t.style.display='none';},4500);
 }
 </script>
 </body>
