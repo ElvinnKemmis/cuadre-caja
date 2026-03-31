@@ -19,8 +19,8 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* LOGIN */
-#screen-login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0a1a2e 0%,#0f2540 50%,#1a3a5c 100%);}
-.login-box{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+#screen-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px;background:linear-gradient(135deg,#0a1a2e 0%,#0f2540 50%,#1a3a5c 100%);}
+.login-box{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.3);box-sizing:border-box;}
 .login-logo{text-align:center;margin-bottom:28px;}
 .login-logo .ico{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;}
 .login-logo h1{font-size:20px;font-weight:600;color:var(--navy);}
@@ -116,7 +116,7 @@ select:focus{border-color:var(--navy2);}
 .btn-refresh:hover{background:var(--surface2);}
 .btn-export{background:var(--navy);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;}
 .btn-export:hover{background:var(--navy2);}
-.tbl-wrap{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+.tbl-wrap{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;}
 thead tr{background:var(--navy);}
 thead th{padding:13px 16px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.55);white-space:nowrap;}
@@ -136,7 +136,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 
 /* PROFILE / CONFIG / USERS */
 .panel{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:24px;margin-bottom:20px;}
-.panel-title{font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.panel-title{font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
 .profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:#fff;margin:0 auto 16px;}
 .profile-info{text-align:center;margin-bottom:24px;}
 .profile-name{font-size:18px;font-weight:600;}
@@ -144,6 +144,9 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 .role-admin{background:#dbeafe;color:#1e40af;}
 .role-cajero{background:#dcfce7;color:#166534;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.cortes-grid, #cortes-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.fecha-save-bar{display:flex;align-items:center;gap:16px;margin-bottom:18px;background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:16px 22px;}
+.fecha-save-bar input[type=date]{width:220px;}
 .btn-primary{background:var(--navy);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;}
 .btn-primary:hover{background:var(--navy2);}
 .btn-success{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;}
@@ -152,7 +155,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 .config-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;}
 .badge-admin{background:#dbeafe;color:#1e40af;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;letter-spacing:.3px;}
 .badge-cajero{background:#dcfce7;color:#166534;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;letter-spacing:.3px;}
-.users-tbl-wrap{background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-top:16px;}
+.users-tbl-wrap{background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:16px;}
 .btn-edit{background:none;border:1px solid var(--border);color:var(--navy2);padding:5px 12px;border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
 .btn-edit:hover{background:var(--surface2);border-color:var(--navy2);}
 
@@ -168,10 +171,125 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 .toast{position:fixed;bottom:28px;right:28px;background:var(--accent);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:500;display:none;z-index:999;box-shadow:0 4px 18px rgba(0,0,0,.2);}
 .toast.err{background:var(--red);}
 
-@media(max-width:700px){
-  .form-grid,.sum-bar,.config-grid,.two-col{grid-template-columns:1fr;}
-  .view{padding:18px 14px;}
-  .app-header{padding:0 14px;}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — TABLET (≤900px)
+══════════════════════════════════════ */
+@media(max-width:900px){
+  .sum-bar{grid-template-columns:repeat(2,1fr);}
+  .form-grid{grid-template-columns:1fr;}
+  .config-grid{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+  /* Cortes side-by-side -> stack */
+  #cortes-grid{grid-template-columns:1fr!important;}
+  /* Cortesias */
+  #view-cortesias .panel div[style*="grid-template-columns:140px"]{
+    grid-template-columns:120px 1fr auto!important;
+  }
+  /* Report table scroll */
+  .tbl-wrap{overflow-x:auto;}
+  table{min-width:600px;}
+  /* Header tabs scroll */
+  .tabs{overflow-x:auto;overflow-y:hidden;}
+  .tab-btn{padding:0 12px;font-size:12px;white-space:nowrap;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — MOBILE (≤600px)
+══════════════════════════════════════ */
+@media(max-width:600px){
+  /* Header */
+  .app-header{padding:0 12px;height:auto;min-height:56px;flex-wrap:wrap;gap:0;}
+  .app-logo{padding-right:12px;border-right:none;}
+  .logo-text{font-size:13px;}
+  .logo-sub{display:none;}
+  .tabs{width:100%;order:3;border-top:1px solid rgba(255,255,255,.08);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab-btn{padding:10px 12px;font-size:11px;border-bottom-width:2px;}
+  .hdr-right{gap:6px;}
+  .sync-indicator{display:none;}
+  .day-pill{display:none;}
+  .user-name{display:none;}
+  .user-role{display:none;}
+  .user-pill{padding:4px 8px 4px 4px;}
+  .btn-logout{padding:4px 8px;font-size:10px;}
+
+  /* Views */
+  .view{padding:14px 12px;}
+
+  /* Summary */
+  .total-banner{padding:14px 16px;flex-direction:column;align-items:flex-start;gap:6px;}
+  .total-val{font-size:26px;}
+  .total-badge{font-size:11px;}
+  .sum-bar{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .sc{padding:12px 14px;}
+  .sc-val{font-size:17px;}
+
+  /* Form cards */
+  .form-grid{gap:14px;}
+  .card{padding:16px;}
+  .card-ttl{font-size:9px;}
+
+  /* Grids */
+  .config-grid{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+
+  /* Cortes full stack */
+  #cortes-grid{grid-template-columns:1fr!important;gap:14px!important;}
+
+  /* Cortesias fila */
+  #view-cortesias .panel div[style*="grid-template-columns"]{
+    grid-template-columns:90px 1fr auto!important;gap:6px!important;
+  }
+
+  /* Fecha+boton header blocks -> stack */
+  div[style*="display:flex;align-items:center;gap:16px"]{
+    flex-direction:column!important;align-items:stretch!important;gap:10px!important;
+  }
+  input[type=date]{width:100%!important;}
+  #btn-guardar-corte,#btn-guardar-cortesia{width:100%!important;justify-content:center;}
+
+  /* Tables */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:480px;}
+  thead th{padding:10px 10px;font-size:9px;}
+  tbody td{padding:10px 10px;font-size:12px;}
+
+  /* Report header */
+  .rep-hdr{flex-direction:column;align-items:stretch;gap:10px;}
+  .rep-actions{display:flex;gap:8px;}
+  .btn-refresh,.btn-export{flex:1;justify-content:center;padding:10px 8px;font-size:12px;}
+
+  /* Profile */
+  .panel{padding:16px;}
+  .profile-avatar{width:58px;height:58px;font-size:22px;}
+  .profile-name{font-size:15px;}
+
+  /* Users table */
+  .users-tbl-wrap table{min-width:480px;}
+
+  /* Login */
+  .login-box{padding:28px 22px;margin:16px;}
+
+  /* Modal */
+  .modal{padding:20px;margin:16px;}
+
+  /* Botones guardar */
+  .btn-save{padding:13px;font-size:14px;}
+
+  /* Neto resumen cortes */
+  div[style*="grid-template-columns:repeat(3,1fr)"]{
+    grid-template-columns:repeat(3,1fr)!important;gap:6px!important;
+  }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — XS (≤400px)
+══════════════════════════════════════ */
+@media(max-width:400px){
+  .sum-bar{grid-template-columns:1fr;}
+  .tab-btn{padding:9px 10px;font-size:10px;}
+  .total-val{font-size:22px;}
 }
 </style>
 </head>
@@ -208,7 +326,9 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   </div>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">📋 Registro</button>
+    <button class="tab-btn" onclick="switchTab('cortesias')" id="tab-cortesias">🎁 Cortesías</button>
     <button class="tab-btn" onclick="switchTab('report')" id="tab-report">📊 Reporte</button>
+    <button class="tab-btn" onclick="switchTab('cortes')" id="tab-cortes">🥩 Cortes</button>
     <button class="tab-btn" onclick="switchTab('profile')" id="tab-profile">👤 Perfil</button>
     <!-- Solo visibles para administrador — ocultas por defecto, se muestran en initApp() -->
     <button class="tab-btn" onclick="switchTab('users')" id="tab-users" style="display:none">👥 Usuarios</button>
@@ -289,6 +409,192 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     </table>
     <div class="empty" id="empty-state"><div class="empty-ico">📋</div><div id="empty-msg">Cargando...</div></div>
   </div>
+
+</div>
+
+<!-- CORTESÍAS -->
+<div class="view" id="view-cortesias">
+
+  <!-- Encabezado: fecha + botón guardar -->
+  <div class="fecha-save-bar">
+    <div style="flex:1;">
+      <label style="display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Fecha del registro</label>
+      <input type="date" id="cortesia-fecha" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:220px;"/>
+    </div>
+    <button class="btn-save" id="btn-guardar-cortesia" onclick="guardarCortesias()" style="width:auto;padding:12px 32px;font-size:14px;">🎁 Guardar todas las cortesías</button>
+  </div>
+
+  <!-- Tabla de ingreso dinámico -->
+  <div class="panel">
+    <div class="panel-title" style="justify-content:space-between;">
+      <span>🎁 Cortesías del día</span>
+      <button class="add-btn" onclick="addFilaCortesia()" style="width:auto;padding:7px 20px;font-size:12px;margin:0;">+ Agregar cortesía</button>
+    </div>
+    <!-- Cabeceras -->
+    <div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;margin-bottom:6px;padding:0 4px;">
+      <div style="font-size:10px;color:#aab5c4;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Cantidad</div>
+      <div style="font-size:10px;color:#aab5c4;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Detalle</div>
+      <div style="width:30px;"></div>
+    </div>
+    <!-- Filas dinámicas -->
+    <div id="cortesias-filas"></div>
+  </div>
+
+
+  <!-- ── HISTORIAL DE CORTESÍAS ── -->
+  <div class="panel" style="margin-top:24px;">
+    <div class="panel-title" style="justify-content:space-between;">
+      <span>🎁 Resumen de cortesías</span>
+      <button class="btn-refresh" onclick="loadCortesias()" style="padding:7px 16px;font-size:12px;">↺ Actualizar</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Cantidad</th>
+            <th>Detalle</th>
+            <th style="text-align:center">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="cortesias-body"></tbody>
+      </table>
+      <div class="empty" id="cortesias-empty">
+        <div class="empty-ico">🎁</div>
+        <div id="cortesias-empty-msg">No hay cortesías registradas.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CORTES -->
+<div class="view" id="view-cortes">
+  <!-- Fecha + botón guardado arriba -->
+  <div class="fecha-save-bar">
+    <div style="flex:1;">
+      <label style="display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Fecha del corte</label>
+      <input type="date" id="corte-fecha" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:220px;"/>
+    </div>
+    <button class="btn-save" id="btn-guardar-corte" onclick="guardarCorte()" style="width:auto;padding:12px 32px;font-size:14px;">💾 Guardar Ingresos y Cortes</button>
+  </div>
+
+  <div id="cortes-grid">
+
+    <!-- TABLA INGRESOS -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>📦 Ingresos</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--navy);">
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Tipo</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Cantidad</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Peso merma</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Unidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Biffe</td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-biffe-cant" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('biffe')"/></td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-biffe-merma" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('biffe')"/></td>
+            <td style="padding:6px 10px;">
+              <select id="ing-biffe-unidad" style="width:100%;padding:7px 10px;font-size:13px;">
+                <option value="kg">Kg</option>
+                <option value="gr">gr</option>
+              </select>
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Lomo de cerdo</td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-cerdo-cant" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('cerdo')"/></td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-cerdo-merma" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('cerdo')"/></td>
+            <td style="padding:6px 10px;">
+              <select id="ing-cerdo-unidad" style="width:100%;padding:7px 10px;font-size:13px;">
+                <option value="kg">Kg</option>
+                <option value="gr">gr</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Lomo fino</td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-fino-cant" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('fino')"/></td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-fino-merma" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('fino')"/></td>
+            <td style="padding:6px 10px;">
+              <select id="ing-fino-unidad" style="width:100%;padding:7px 10px;font-size:13px;">
+                <option value="kg">Kg</option>
+                <option value="gr">gr</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Resumen neto -->
+      <div style="margin-top:16px;padding:12px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Neto por producto (Cantidad − Merma)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;">
+          <div><div style="font-size:10px;color:var(--muted);">Biffe</div><div id="neto-biffe" style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--navy2);">0.00</div></div>
+          <div><div style="font-size:10px;color:var(--muted);">Lomo cerdo</div><div id="neto-cerdo" style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--navy2);">0.00</div></div>
+          <div><div style="font-size:10px;color:var(--muted);">Lomo fino</div><div id="neto-fino" style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--navy2);">0.00</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLA CORTES -->
+    <div class="panel">
+      <div class="panel-title">🔪 Cortes</div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--navy);">
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Tipo de corte</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Cantidad</th>
+          </tr>
+        </thead>
+        <tbody id="cortes-tbody">
+          <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Churrasco</td><td style="padding:6px 10px;"><input type="number" id="corte-churrasco" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Chuleta</td><td style="padding:6px 10px;"><input type="number" id="corte-chuleta" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Chorizo</td><td style="padding:6px 10px;"><input type="number" id="corte-chorizo" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Biffe</td><td style="padding:6px 10px;"><input type="number" id="corte-biffe" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Pollo</td><td style="padding:6px 10px;"><input type="number" id="corte-pollo" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Lomo de cerdo</td><td style="padding:6px 10px;"><input type="number" id="corte-cerdo" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
+          <tr><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Lomo fino</td><td style="padding:6px 10px;"><input type="number" id="corte-fino" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+
+  <!-- ── HISTORIAL DE CORTES ── -->
+  <div class="panel" style="margin-top:24px;">
+    <div class="panel-title" style="justify-content:space-between;">
+      <span>🥩 Historial de cortes</span>
+      <button class="btn-refresh" onclick="loadCortes()" style="padding:7px 16px;font-size:12px;">↺ Actualizar</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <div class="tbl-wrap">
+        <table style="min-width:1100px;">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Biffe cant.</th><th>Biffe merma</th>
+              <th>Cerdo cant.</th><th>Cerdo merma</th>
+              <th>Fino cant.</th><th>Fino merma</th>
+              <th>Churrasco</th><th>Chuleta</th><th>Chorizo</th>
+              <th>Biffe c.</th><th>Pollo</th><th>Cerdo c.</th><th>Fino c.</th>
+              <th style="text-align:center">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="cortes-history-body"></tbody>
+        </table>
+        <div class="empty" id="cortes-empty">
+          <div class="empty-ico">🥩</div>
+          <div id="cortes-empty-msg">No hay cortes registrados.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- PERFIL -->
@@ -348,6 +654,16 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
         <div class="config-hint">ID de "Usuarios del Sistema"</div>
       </div>
       <div class="field">
+        <label>ID Base de Datos (Cortes)</label>
+        <input type="text" id="cfg-cortesdbid"/>
+        <div class="config-hint">ID de "Cortes Diarios"</div>
+      </div>
+      <div class="field">
+        <label>ID Base de Datos (Cortesías)</label>
+        <input type="text" id="cfg-cortesiasdbid"/>
+        <div class="config-hint">ID de "Cortesías"</div>
+      </div>
+      <div class="field">
         <label>URL del Proxy</label>
         <input type="text" id="cfg-proxy"/>
         <div class="config-hint">Proxy CORS para conectar con Notion</div>
@@ -393,8 +709,12 @@ var cfg = {};
 try { cfg = JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch(e) { cfg = {}; }
 cfg.dbId = '970859ae413d48b285c581c64a27758a';
 cfg.usersDbId = cfg.usersDbId || '9c02cca25d884f0eb41ccda0a9be827d';
+cfg.cortesDbId = '47dbf845b3774f04b637cf617e3f0978';
+cfg.cortesiasDbId = '4bbc15b5b14a4ca4880f671a90843f82';
 var DB_ID = '970859ae413d48b285c581c64a27758a';
 var USERS_DB_ID = '9c02cca25d884f0eb41ccda0a9be827d';
+var CORTES_DB_ID = '47dbf845b3774f04b637cf617e3f0978';
+var CORTEIAS_DB_ID = '4bbc15b5b14a4ca4880f671a90843f82';
 
 // ══ SESIÓN ══
 var currentUser = null;
@@ -518,8 +838,20 @@ function switchTab(t) {
   document.getElementById('view-'+t).classList.add('active');
   var tabEl = document.getElementById('tab-'+t);
   if (tabEl) tabEl.classList.add('active');
-  if (t === 'report') loadReport();
+  if (t === 'report') { loadReport(); }
   if (t === 'users') loadUsers();
+  if (t === 'cortes') {
+    var cf=document.getElementById('corte-fecha');
+    if(cf&&!cf.value) cf.value=new Date().toISOString().split('T')[0];
+    loadCortes();
+  }
+  if (t === 'cortesias') {
+    var cf2=document.getElementById('cortesia-fecha');
+    if(cf2&&!cf2.value) cf2.value=new Date().toISOString().split('T')[0];
+    // Add initial row if none exist
+    if(!document.querySelector('#cortesias-filas > div')) addFilaCortesia();
+    loadCortesias();
+  }
 }
 
 function updateBadge() {
@@ -844,6 +1176,8 @@ function saveConfig(){
   cfg.apiKey=document.getElementById('cfg-apikey').value.trim();
   cfg.dbId=document.getElementById('cfg-dbid').value.trim()||DB_ID;
   cfg.usersDbId=document.getElementById('cfg-usersdbid').value.trim()||USERS_DB_ID;
+  cfg.cortesDbId=document.getElementById('cfg-cortesdbid').value.trim()||CORTES_DB_ID;
+  cfg.cortesiasDbId=document.getElementById('cfg-cortesiasdbid').value.trim()||CORTEIAS_DB_ID;
   cfg.proxy=document.getElementById('cfg-proxy').value.trim();
   localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
   showToast('Configuración guardada');
@@ -853,6 +1187,8 @@ function loadConfigUI(){
   if(cfg.apiKey) document.getElementById('cfg-apikey').value=cfg.apiKey;
   document.getElementById('cfg-dbid').value=cfg.dbId||DB_ID;
   document.getElementById('cfg-usersdbid').value=cfg.usersDbId||USERS_DB_ID;
+  document.getElementById('cfg-cortesdbid').value=cfg.cortesDbId||CORTES_DB_ID;
+  document.getElementById('cfg-cortesiasdbid').value=cfg.cortesiasDbId||CORTEIAS_DB_ID;
   document.getElementById('cfg-proxy').value=cfg.proxy||'https://cajacaja-proxy.vercel.app/api/notion';
 }
 async function testConnection(){
@@ -881,6 +1217,348 @@ function showToast(msg,err){
   var t=document.getElementById('toast');
   t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block';
   clearTimeout(t._t); t._t=setTimeout(function(){t.style.display='none';},4500);
+}
+
+
+// ══ CORTES ══
+function calcMerma(tipo){
+  var cant=parseFloat(document.getElementById('ing-'+tipo+'-cant').value)||0;
+  var merma=parseFloat(document.getElementById('ing-'+tipo+'-merma').value)||0;
+  document.getElementById('neto-'+tipo).textContent=Math.max(0,cant-merma).toFixed(2);
+}
+var cortesRecords=[];
+async function guardarCorte(){
+  var fechaInput=document.getElementById('corte-fecha').value;
+  if(!fechaInput){showToast('Selecciona la fecha del corte',true);return;}
+  var hoyCorte=fechaInput;
+  var d=new Date(hoyCorte+'T12:00:00');
+  var lbl=d.toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
+  var data={
+    fecha:hoyCorte,fechaLabel:lbl,
+    ing:{
+      biffe:{cant:parseFloat(document.getElementById('ing-biffe-cant').value)||0,merma:parseFloat(document.getElementById('ing-biffe-merma').value)||0,unidad:document.getElementById('ing-biffe-unidad').value},
+      cerdo:{cant:parseFloat(document.getElementById('ing-cerdo-cant').value)||0,merma:parseFloat(document.getElementById('ing-cerdo-merma').value)||0,unidad:document.getElementById('ing-cerdo-unidad').value},
+      fino:{cant:parseFloat(document.getElementById('ing-fino-cant').value)||0,merma:parseFloat(document.getElementById('ing-fino-merma').value)||0,unidad:document.getElementById('ing-fino-unidad').value}
+    },
+    cortes:{
+      churrasco:parseFloat(document.getElementById('corte-churrasco').value)||0,
+      chuleta:parseFloat(document.getElementById('corte-chuleta').value)||0,
+      chorizo:parseFloat(document.getElementById('corte-chorizo').value)||0,
+      biffe:parseFloat(document.getElementById('corte-biffe').value)||0,
+      pollo:parseFloat(document.getElementById('corte-pollo').value)||0,
+      cerdo:parseFloat(document.getElementById('corte-cerdo').value)||0,
+      fino:parseFloat(document.getElementById('corte-fino').value)||0
+    }
+  };
+  // Guardar local siempre como respaldo
+  var btn=document.getElementById('btn-guardar-corte');
+  if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  var local=[];
+  try{local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e){}
+  local.push(data);
+  localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));
+  // Guardar en Notion si está configurado
+  if(cfg.apiKey){
+    try{
+      setSyncStatus('loading','Guardando corte...');
+      var dbId=(cfg.cortesDbId||CORTES_DB_ID).replace(/-/g,'');
+      await notionRequest('POST','/pages',{
+        parent:{database_id:dbId},
+        properties:{
+          'Fecha':{title:[{text:{content:lbl}}]},
+          'Fecha ISO':{rich_text:[{text:{content:hoyCorte}}]},
+          'Biffe Cant':{number:data.ing.biffe.cant},
+          'Biffe Merma':{number:data.ing.biffe.merma},
+          'Biffe Unidad':{rich_text:[{text:{content:data.ing.biffe.unidad}}]},
+          'Cerdo Cant':{number:data.ing.cerdo.cant},
+          'Cerdo Merma':{number:data.ing.cerdo.merma},
+          'Cerdo Unidad':{rich_text:[{text:{content:data.ing.cerdo.unidad}}]},
+          'Fino Cant':{number:data.ing.fino.cant},
+          'Fino Merma':{number:data.ing.fino.merma},
+          'Fino Unidad':{rich_text:[{text:{content:data.ing.fino.unidad}}]},
+          'Churrasco':{number:data.cortes.churrasco},
+          'Chuleta':{number:data.cortes.chuleta},
+          'Chorizo':{number:data.cortes.chorizo},
+          'Biffe Corte':{number:data.cortes.biffe},
+          'Pollo':{number:data.cortes.pollo},
+          'Cerdo Corte':{number:data.cortes.cerdo},
+          'Fino Corte':{number:data.cortes.fino}
+        }
+      });
+      setSyncStatus('ok','Sincronizado');
+      showToast('✓ Corte guardado en Notion: '+lbl);
+    }catch(e){
+      setSyncStatus('err','Error sync');
+      showToast('Guardado local. Error Notion: '+e.message,true);
+    }
+  }else{
+    showToast('Corte guardado localmente');
+  }
+  if(btn){btn.disabled=false;btn.innerHTML='💾 Guardar Ingresos y Cortes';}
+  resetCorteForm();
+  loadCortes();
+}
+function resetCorteForm(){
+  // Reset fecha a hoy
+  document.getElementById('corte-fecha').value=new Date().toISOString().split('T')[0];
+  ['biffe','cerdo','fino'].forEach(function(t){
+    document.getElementById('ing-'+t+'-cant').value='';
+    document.getElementById('ing-'+t+'-merma').value='';
+    document.getElementById('ing-'+t+'-unidad').value='kg';
+    document.getElementById('neto-'+t).textContent='0.00';
+  });
+  ['churrasco','chuleta','chorizo','biffe','pollo','cerdo','fino'].forEach(function(c){
+    document.getElementById('corte-'+c).value='';
+  });
+}
+async function loadCortes(){
+  document.getElementById('cortes-history-body').innerHTML='';
+  document.getElementById('cortes-empty').style.display='block';
+  document.getElementById('cortes-empty-msg').textContent='Cargando...';
+  if(cfg.apiKey){
+    try{
+      var dbId=(cfg.cortesDbId||CORTES_DB_ID).replace(/-/g,'');
+      var result=await notionRequest('POST','/databases/'+dbId+'/query',{sorts:[{property:'Fecha ISO',direction:'descending'}]});
+      cortesRecords=result.results.map(function(page){
+        var p=page.properties;
+        function n(k){return p[k]&&p[k].number!=null?p[k].number:0;}
+        function t(k){return p[k]&&p[k].rich_text&&p[k].rich_text[0]?p[k].rich_text[0].text.content:'';}
+        return{
+          pageId:page.id,
+          fechaLabel:p.Fecha.title[0]?p.Fecha.title[0].text.content:'',
+          fecha:t('Fecha ISO'),
+          ing:{
+            biffe:{cant:n('Biffe Cant'),merma:n('Biffe Merma'),unidad:t('Biffe Unidad')||'kg'},
+            cerdo:{cant:n('Cerdo Cant'),merma:n('Cerdo Merma'),unidad:t('Cerdo Unidad')||'kg'},
+            fino:{cant:n('Fino Cant'),merma:n('Fino Merma'),unidad:t('Fino Unidad')||'kg'}
+          },
+          cortes:{churrasco:n('Churrasco'),chuleta:n('Chuleta'),chorizo:n('Chorizo'),biffe:n('Biffe Corte'),pollo:n('Pollo'),cerdo:n('Cerdo Corte'),fino:n('Fino Corte')}
+        };
+      });
+      renderCortesHistory();
+    }catch(e){
+      try{cortesRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e2){cortesRecords=[];}
+      renderCortesHistory();
+      showToast('Datos locales. Error Notion: '+e.message,true);
+    }
+  }else{
+    try{cortesRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e){cortesRecords=[];}
+    renderCortesHistory();
+  }
+}
+function renderCortesHistory(){
+  var body=document.getElementById('cortes-history-body');
+  body.innerHTML='';
+  if(!cortesRecords.length){
+    document.getElementById('cortes-empty').style.display='block';
+    document.getElementById('cortes-empty-msg').textContent='No hay cortes registrados.';
+    return;
+  }
+  document.getElementById('cortes-empty').style.display='none';
+  var esAdmin=currentUser&&currentUser.rol==='administrador';
+  cortesRecords.slice().reverse().forEach(function(r,i){
+    var ri=cortesRecords.length-1-i;
+    var tr=document.createElement('tr');
+    var delBtn=esAdmin?'<button class="btn-del" onclick="delCorte('+ri+')">🗑 Eliminar</button>':'<span style="color:var(--muted);font-size:11px;">—</span>';
+    tr.innerHTML='<td style="padding:10px 14px;font-size:12px;">'+r.fechaLabel+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.biffe.cant+' '+r.ing.biffe.unidad+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.biffe.merma+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.cerdo.cant+' '+r.ing.cerdo.unidad+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.cerdo.merma+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.fino.cant+' '+r.ing.fino.unidad+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.fino.merma+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.churrasco+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.chuleta+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.chorizo+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.biffe+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.pollo+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.cerdo+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.fino+'</td>'+
+      '<td style="text-align:center;padding:10px 14px;">'+delBtn+'</td>';
+    body.appendChild(tr);
+  });
+}
+async function delCorte(i){
+  var r=cortesRecords[i];
+  if(!confirm('¿Eliminar el corte del '+r.fechaLabel+'?')) return;
+  if(cfg.apiKey&&r.pageId){
+    try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});}catch(e){}
+  }
+  cortesRecords.splice(i,1);
+  try{
+    var local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];
+    local=local.filter(function(x){return x.fecha!==r.fecha;});
+    localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));
+  }catch(e){}
+  renderCortesHistory();
+  showToast('Corte eliminado');
+}
+
+
+// ══ CORTESÍAS ══
+var cortesiasRecords = [];
+
+// ── Filas dinámicas de cortesías ──
+var cortesiaFilaCount = 0;
+
+function addFilaCortesia(cantidad, detalle) {
+  cantidad = cantidad || ''; detalle = detalle || '';
+  cortesiaFilaCount++;
+  var id = 'cfila-' + cortesiaFilaCount;
+  var div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:8px;';
+  div.innerHTML =
+    '<input type="number" placeholder="0" value="' + cantidad + '" step="1" min="0" ' +
+    'style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>' +
+    '<input type="text" placeholder="Describe la cortesia..." value="' + detalle + '" ' +
+    'style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>' +
+    '<button class="rm" onclick="document.getElementById(\'' + id + '\').remove()" ' +
+    'style="width:30px;height:30px;font-size:18px;">×</button>';
+  document.getElementById('cortesias-filas').appendChild(div);
+}
+
+function getCortesiasFilas() {
+  var filas = [];
+  document.querySelectorAll('#cortesias-filas > div').forEach(function(row) {
+    var inputs = row.querySelectorAll('input');
+    var cant = parseFloat(inputs[0].value) || 0;
+    var det = inputs[1].value.trim();
+    if (cant > 0 || det) filas.push({ cantidad: cant, detalle: det });
+  });
+  return filas;
+}
+
+async function guardarCortesias() {
+  var fechaInput = document.getElementById('cortesia-fecha').value;
+  if (!fechaInput) { showToast('Selecciona la fecha', true); return; }
+  var filas = getCortesiasFilas();
+  if (!filas.length) { showToast('Agrega al menos una cortesía', true); return; }
+
+  var d = new Date(fechaInput + 'T12:00:00');
+  var lbl = d.toLocaleDateString('es-PE', {day:'2-digit', month:'long', year:'numeric'});
+
+  var btn = document.getElementById('btn-guardar-cortesia');
+  if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
+
+  var errores = 0;
+  for (var i = 0; i < filas.length; i++) {
+    var fila = filas[i];
+    // Guardar local
+    var local = [];
+    try { local = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || []; } catch(e) {}
+    local.push({ fecha: fechaInput, fechaLabel: lbl, cantidad: fila.cantidad, detalle: fila.detalle });
+    localStorage.setItem('cajaDiaria_cortesias', JSON.stringify(local));
+    // Guardar en Notion
+    if (cfg.apiKey) {
+      try {
+        setSyncStatus('loading', 'Guardando ' + (i+1) + '/' + filas.length + '...');
+        var dbId = (cfg.cortesiasDbId || CORTEIAS_DB_ID).replace(/-/g, '');
+        await notionRequest('POST', '/pages', {
+          parent: { database_id: dbId },
+          properties: {
+            'Fecha':     { title: [{ text: { content: lbl } }] },
+            'Fecha ISO': { rich_text: [{ text: { content: fechaInput } }] },
+            'Cantidad':  { number: fila.cantidad },
+            'Detalle':   { rich_text: [{ text: { content: fila.detalle } }] }
+          }
+        });
+      } catch(e) {
+        errores++;
+        setSyncStatus('err', 'Error sync');
+      }
+    }
+  }
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '🎁 Guardar todas las cortesías'; }
+  if (errores > 0) {
+    showToast('Guardado local con ' + errores + ' error(es) en Notion', true);
+  } else if (cfg.apiKey) {
+    setSyncStatus('ok', 'Sincronizado');
+    showToast('✓ ' + filas.length + ' cortesía(s) guardadas: ' + lbl);
+  } else {
+    showToast(filas.length + ' cortesía(s) guardadas localmente');
+  }
+  // Limpiar filas y reiniciar con una vacía
+  document.getElementById('cortesias-filas').innerHTML = '';
+  cortesiaFilaCount = 0;
+  document.getElementById('cortesia-fecha').value = new Date().toISOString().split('T')[0];
+  addFilaCortesia();
+  loadCortesias();
+}
+
+async function loadCortesias() {
+  document.getElementById('cortesias-body').innerHTML = '';
+  document.getElementById('cortesias-empty').style.display = 'block';
+  document.getElementById('cortesias-empty-msg').textContent = 'Cargando...';
+
+  if (cfg.apiKey) {
+    try {
+      var dbId = (cfg.cortesiasDbId || CORTEIAS_DB_ID).replace(/-/g, '');
+      var result = await notionRequest('POST', '/databases/' + dbId + '/query', {
+        sorts: [{ property: 'Fecha ISO', direction: 'descending' }]
+      });
+      cortesiasRecords = result.results.map(function(page) {
+        var p = page.properties;
+        function t(k) { return p[k] && p[k].rich_text && p[k].rich_text[0] ? p[k].rich_text[0].text.content : ''; }
+        return {
+          pageId: page.id,
+          fechaLabel: p.Fecha.title[0] ? p.Fecha.title[0].text.content : '',
+          fecha: t('Fecha ISO'),
+          cantidad: p.Cantidad && p.Cantidad.number != null ? p.Cantidad.number : 0,
+          detalle: t('Detalle')
+        };
+      });
+      renderCortesias();
+    } catch(e) {
+      try { cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || []; } catch(e2) { cortesiasRecords = []; }
+      renderCortesias();
+      showToast('Datos locales. Error: ' + e.message, true);
+    }
+  } else {
+    try { cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || []; } catch(e) { cortesiasRecords = []; }
+    renderCortesias();
+  }
+}
+
+function renderCortesias() {
+  var body = document.getElementById('cortesias-body');
+  body.innerHTML = '';
+  if (!cortesiasRecords.length) {
+    document.getElementById('cortesias-empty').style.display = 'block';
+    document.getElementById('cortesias-empty-msg').textContent = 'No hay cortesías registradas.';
+    return;
+  }
+  document.getElementById('cortesias-empty').style.display = 'none';
+  var esAdmin = currentUser && currentUser.rol === 'administrador';
+  cortesiasRecords.forEach(function(r, i) {
+    var tr = document.createElement('tr');
+    var delBtn = esAdmin
+      ? '<button class="btn-del" onclick="delCortesia(' + i + ')">🗑 Eliminar</button>'
+      : '<span style="color:var(--muted);font-size:11px;">—</span>';
+    tr.innerHTML =
+      '<td style="padding:12px 16px;font-size:13px;">' + r.fechaLabel + '</td>' +
+      '<td class="tn" style="padding:12px 16px;font-size:13px;font-weight:600;">' + r.cantidad + '</td>' +
+      '<td style="padding:12px 16px;font-size:13px;">' + (r.detalle || '—') + '</td>' +
+      '<td style="text-align:center;padding:12px 16px;">' + delBtn + '</td>';
+    body.appendChild(tr);
+  });
+}
+
+async function delCortesia(i) {
+  var r = cortesiasRecords[i];
+  if (!confirm('¿Eliminar la cortesía del ' + r.fechaLabel + '?')) return;
+  if (cfg.apiKey && r.pageId) {
+    try { await notionRequest('PATCH', '/pages/' + r.pageId, { archived: true }); } catch(e) {}
+  }
+  cortesiasRecords.splice(i, 1);
+  try {
+    var local = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || [];
+    local = local.filter(function(x) { return x.fecha !== r.fecha || x.detalle !== r.detalle; });
+    localStorage.setItem('cajaDiaria_cortesias', JSON.stringify(local));
+  } catch(e) {}
+  renderCortesias();
+  showToast('Cortesía eliminada');
 }
 
 // ══ AUTO-INICIO: si ya hay sesión activa ══
