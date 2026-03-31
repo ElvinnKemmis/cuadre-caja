@@ -467,7 +467,7 @@ async function guardar() {
   var ca=parseFloat(document.getElementById('cajaAyer').value)||0;
   var pr=mozos.reduce(function(a,m){return a+m.monto;},0);
   var gs=glist.reduce(function(a,g){return a+g.monto;},0);
-  var total=ef+ch-gs;
+  var total = ((ef + ch) + gs + pr) - (ca || 0);
 
   var rec = {
     fecha:fv, fechaLabel:lbl,
