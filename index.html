@@ -135,7 +135,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 <div class="app-header">
   <div class="app-logo">
     <div class="logo-icon">💰</div>
-    <div><div class="logo-text">EL MAS GAUCHITO</div><div class="logo-sub">Sistema de cuadre</div></div>
+    <div><div class="logo-text">EL MÁS GAUCHITO</div><div class="logo-sub">Sistema de cuadre</div></div>
   </div>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">📋 Registro</button>
@@ -182,8 +182,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
       <div class="card-ttl"><div class="cdot db"></div>Efectivo</div>
       <div class="field"><label>Efectivo</label><input type="number" id="efectivo" placeholder="0.00" step="0.01" oninput="calc()"/></div>
       <div class="field"><label>Caja Hoy</label><input type="number" id="cajaHoy" placeholder="0.00" step="0.01" oninput="calc()"/></div>
-      <div class="field"><label>Caja Ayer</label><input type="number" id="cajaAyer" placeholder="0.00" step="0.01"/></div>
-
+      <div class="field"><label>Caja Ayer</label><input type="number" id="cajaAyer" placeholder="0.00" step="0.01" oninput="calc()"/></div>
     </div>
     <div class="card">
       <div class="card-ttl"><div class="cdot dg"></div>Mozos y propinas</div>
@@ -263,7 +262,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <div class="config-title">📋 Tu base de datos en Notion</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.7;">
       Ya creé la base de datos <strong>"Registros Cuadre de Caja"</strong> en tu Notion.<br>
-      ID de la base de datos: <code style="font-family:var(--mono);background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:12px;">a342af22a29146 88bf5e68826b06d710</code><br><br>
+      ID de la base de datos: <code style="font-family:var(--mono);background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:12px;">970859ae413d48b285c581c64a27758a</code><br><br>
       Ingresa ese ID en el campo de arriba junto con tu API Key para activar la sincronización.
     </p>
   </div>
@@ -276,8 +275,9 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 var CFG_KEY = 'cajaDiaria_config';
 var cfg = {};
 try { cfg = JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch(e) { cfg = {}; }
+cfg.dbId = '970859ae413d48b285c581c64a27758a'; // ID correcto siempre forzado
 
-var DB_ID = 'a342af22a291468 8bf5e68826b06d710'; // Pre-cargado
+var DB_ID = '970859ae413d48b285c581c64a27758a'; // Pre-cargado
 
 function saveConfig() {
   cfg.apiKey = document.getElementById('cfg-apikey').value.trim();
@@ -291,9 +291,9 @@ function saveConfig() {
 function loadConfigUI() {
   if (cfg.apiKey) document.getElementById('cfg-apikey').value = cfg.apiKey;
   if (cfg.dbId) document.getElementById('cfg-dbid').value = cfg.dbId;
-  else document.getElementById('cfg-dbid').value = 'a342af22a291468 8bf5e68826b06d710';
+  else document.getElementById('cfg-dbid').value = '970859ae413d48b285c581c64a27758a';
   // Pre-fill proxy with the user's Vercel deployment
-  document.getElementById('cfg-proxy').value = cfg.proxy || 'https://cuadre-caja-alpha.vercel.app/api/notion';
+  document.getElementById('cfg-proxy').value = cfg.proxy || 'https://cajacaja-proxy.vercel.app/api/notion';
 }
 
 // ══ NOTION API ══
@@ -432,7 +432,8 @@ function calc(){
   var ch=parseFloat(document.getElementById('cajaHoy').value)||0;
   var pr=0; document.querySelectorAll('#mozos-list input[type=number]').forEach(function(i){pr+=parseFloat(i.value)||0;});
   var gs=0; document.querySelectorAll('#gastos-list input[type=number]').forEach(function(i){gs+=parseFloat(i.value)||0;});
-  var tot=((ef + ch) + gs + pr) - (parseFloat(document.getElementById('cajaAyer').value) || 0);
+  var ca=parseFloat(document.getElementById('cajaAyer').value)||0;
+  var tot=(ef+ch+gs+pr)-ca;
   document.getElementById('s-ef').textContent='S/ '+ef.toFixed(2);
   document.getElementById('s-ch').textContent='S/ '+ch.toFixed(2);
   document.getElementById('s-pr').textContent='S/ '+pr.toFixed(2);
@@ -467,7 +468,7 @@ async function guardar() {
   var ca=parseFloat(document.getElementById('cajaAyer').value)||0;
   var pr=mozos.reduce(function(a,m){return a+m.monto;},0);
   var gs=glist.reduce(function(a,g){return a+g.monto;},0);
-  var total = ((ef + ch) + gs + pr) - ca;
+  var total=(ef+ch+gs+pr)-ca;
 
   var rec = {
     fecha:fv, fechaLabel:lbl,
