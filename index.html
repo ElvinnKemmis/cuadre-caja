@@ -432,7 +432,7 @@ function calc(){
   var ch=parseFloat(document.getElementById('cajaHoy').value)||0;
   var pr=0; document.querySelectorAll('#mozos-list input[type=number]').forEach(function(i){pr+=parseFloat(i.value)||0;});
   var gs=0; document.querySelectorAll('#gastos-list input[type=number]').forEach(function(i){gs+=parseFloat(i.value)||0;});
-  var tot=((ef + ch) + gs + pr) - ca;
+  var tot=((ef + ch) + gs + pr) - (parseFloat(document.getElementById('cajaAyer').value) || 0);
   document.getElementById('s-ef').textContent='S/ '+ef.toFixed(2);
   document.getElementById('s-ch').textContent='S/ '+ch.toFixed(2);
   document.getElementById('s-pr').textContent='S/ '+pr.toFixed(2);
