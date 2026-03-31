@@ -45,7 +45,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .tabs{display:flex;align-items:stretch;margin-left:16px;}
 .tab-btn{background:none;border:none;color:rgba(255,255,255,.45);padding:0 18px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;transition:color .18s,border-color .18s;display:flex;align-items:center;gap:7px;}
 .tab-btn:hover{color:rgba(255,255,255,.8);}
-.tab-btn.active{color:#fff;border-bottom-color:var(--accent);}
+.tab-btn.active{color:#fff;border-bottom-color:var(--accent3);}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
 .user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 12px 4px 6px;cursor:pointer;}
 .user-avatar{width:26px;height:26px;border-radius:50%;background:var(--accent3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
@@ -81,7 +81,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .card{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:20px 22px;}
 .card-ttl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:16px;padding-bottom:11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
 .cdot{width:6px;height:6px;border-radius:50%;}
-.db{background:var(--navy2)}.dg{background:var(--accent)}.do{background:#d4731c}.dp{background:#7c3aed}
+.db{background:var(--navy2)}.dg{background:var(--accent2)}.do{background:#d4731c}.dp{background:#7c3aed}
 .field{margin-bottom:13px;}
 label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
 input[type=text],input[type=number],input[type=date],input[type=password]{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);color:var(--text);background:var(--surface2);transition:border .15s;outline:none;}
@@ -144,13 +144,13 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 .role-admin{background:#dbeafe;color:#1e40af;}
 .role-cajero{background:#dcfce7;color:#166534;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.cortes-grid, #cortes-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+#cortes-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
 .fecha-save-bar{display:flex;align-items:center;gap:16px;margin-bottom:18px;background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:16px 22px;}
 .fecha-save-bar input[type=date]{width:220px;}
 .btn-primary{background:var(--navy);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;}
 .btn-primary:hover{background:var(--navy2);}
 .btn-success{background:var(--accent3);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;}
-.btn-success:hover{background:var(--accent3);}
+.btn-success:hover{background:var(--accent4);}
 .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .config-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;}
 .badge-admin{background:#dbeafe;color:#1e40af;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;letter-spacing:.3px;}
@@ -168,37 +168,24 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 .btn-cancel{background:none;border:1px solid var(--border);color:var(--muted);padding:9px 20px;border-radius:8px;font-family:var(--font);font-size:13px;cursor:pointer;}
 
 /* TOAST */
-.toast{position:fixed;bottom:28px;right:28px;background:var(--accent);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:500;display:none;z-index:999;box-shadow:0 4px 18px rgba(0,0,0,.2);}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--accent2);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:500;display:none;z-index:999;box-shadow:0 4px 18px rgba(0,0,0,.2);}
 .toast.err{background:var(--red);}
 
-
-/* ══════════════════════════════════════
-   RESPONSIVE — TABLET (≤900px)
-══════════════════════════════════════ */
+/* RESPONSIVE — TABLET */
 @media(max-width:900px){
   .sum-bar{grid-template-columns:repeat(2,1fr);}
   .form-grid{grid-template-columns:1fr;}
   .config-grid{grid-template-columns:1fr;}
   .two-col{grid-template-columns:1fr;}
-  /* Cortes side-by-side -> stack */
   #cortes-grid{grid-template-columns:1fr!important;}
-  /* Cortesias */
-  #view-cortesias .panel div[style*="grid-template-columns:140px"]{
-    grid-template-columns:120px 1fr auto!important;
-  }
-  /* Report table scroll */
   .tbl-wrap{overflow-x:auto;}
   table{min-width:600px;}
-  /* Header tabs scroll */
   .tabs{overflow-x:auto;overflow-y:hidden;}
   .tab-btn{padding:0 12px;font-size:12px;white-space:nowrap;}
 }
 
-/* ══════════════════════════════════════
-   RESPONSIVE — MOBILE (≤600px)
-══════════════════════════════════════ */
+/* RESPONSIVE — MOBILE */
 @media(max-width:600px){
-  /* Header */
   .app-header{padding:0 12px;height:auto;min-height:56px;flex-wrap:wrap;gap:0;}
   .app-logo{padding-right:12px;border-right:none;}
   .logo-text{font-size:13px;}
@@ -209,83 +196,37 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   .hdr-right{gap:6px;}
   .sync-indicator{display:none;}
   .day-pill{display:none;}
-  .user-name{display:none;}
-  .user-role{display:none;}
+  .user-name,.user-role{display:none;}
   .user-pill{padding:4px 8px 4px 4px;}
   .btn-logout{padding:4px 8px;font-size:10px;}
-
-  /* Views */
   .view{padding:14px 12px;}
-
-  /* Summary */
   .total-banner{padding:14px 16px;flex-direction:column;align-items:flex-start;gap:6px;}
   .total-val{font-size:26px;}
-  .total-badge{font-size:11px;}
   .sum-bar{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
   .sc{padding:12px 14px;}
   .sc-val{font-size:17px;}
-
-  /* Form cards */
   .form-grid{gap:14px;}
   .card{padding:16px;}
-  .card-ttl{font-size:9px;}
-
-  /* Grids */
   .config-grid{grid-template-columns:1fr;}
   .two-col{grid-template-columns:1fr;}
-
-  /* Cortes full stack */
   #cortes-grid{grid-template-columns:1fr!important;gap:14px!important;}
-
-  /* Cortesias fila */
-  #view-cortesias .panel div[style*="grid-template-columns"]{
-    grid-template-columns:90px 1fr auto!important;gap:6px!important;
-  }
-
-  /* Fecha+boton header blocks -> stack */
-  div[style*="display:flex;align-items:center;gap:16px"]{
-    flex-direction:column!important;align-items:stretch!important;gap:10px!important;
-  }
+  .fecha-save-bar{flex-direction:column!important;align-items:stretch!important;gap:10px!important;}
   input[type=date]{width:100%!important;}
   #btn-guardar-corte,#btn-guardar-cortesia{width:100%!important;justify-content:center;}
-
-  /* Tables */
   .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   table{min-width:480px;}
   thead th{padding:10px 10px;font-size:9px;}
   tbody td{padding:10px 10px;font-size:12px;}
-
-  /* Report header */
   .rep-hdr{flex-direction:column;align-items:stretch;gap:10px;}
   .rep-actions{display:flex;gap:8px;}
   .btn-refresh,.btn-export{flex:1;justify-content:center;padding:10px 8px;font-size:12px;}
-
-  /* Profile */
   .panel{padding:16px;}
   .profile-avatar{width:58px;height:58px;font-size:22px;}
-  .profile-name{font-size:15px;}
-
-  /* Users table */
-  .users-tbl-wrap table{min-width:480px;}
-
-  /* Login */
   .login-box{padding:28px 22px;margin:16px;}
-
-  /* Modal */
   .modal{padding:20px;margin:16px;}
-
-  /* Botones guardar */
   .btn-save{padding:13px;font-size:14px;}
-
-  /* Neto resumen cortes */
-  div[style*="grid-template-columns:repeat(3,1fr)"]{
-    grid-template-columns:repeat(3,1fr)!important;gap:6px!important;
-  }
 }
 
-/* ══════════════════════════════════════
-   RESPONSIVE — XS (≤400px)
-══════════════════════════════════════ */
 @media(max-width:400px){
   .sum-bar{grid-template-columns:1fr;}
   .tab-btn{padding:9px 10px;font-size:10px;}
@@ -330,7 +271,6 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <button class="tab-btn" onclick="switchTab('report')" id="tab-report">📊 Reporte</button>
     <button class="tab-btn" onclick="switchTab('cortes')" id="tab-cortes">🥩 Cortes</button>
     <button class="tab-btn" onclick="switchTab('profile')" id="tab-profile">👤 Perfil</button>
-    <!-- Solo visibles para administrador — ocultas por defecto, se muestran en initApp() -->
     <button class="tab-btn" onclick="switchTab('users')" id="tab-users" style="display:none">👥 Usuarios</button>
     <button class="tab-btn" onclick="switchTab('config')" id="tab-config" style="display:none">⚙️ Config</button>
   </div>
@@ -401,47 +341,45 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   </div>
   <div class="tbl-wrap">
     <table>
-      <thead><tr>
-        <th>Fecha</th><th>Efectivo</th><th>Caja hoy</th><th>Caja ayer</th>
-        <th>Propinas</th><th>Gastos</th><th>Cuadre de caja</th><th style="text-align:center">Acción</th>
+      <!-- CAMBIO 3: cabeceras con clase col-admin para ocultar según rol -->
+      <thead><tr id="rep-thead-row">
+        <th>Fecha</th>
+        <th class="col-admin">Efectivo</th>
+        <th>Caja hoy</th>
+        <th>Caja ayer</th>
+        <th>Propinas</th>
+        <th class="col-admin">Gastos</th>
+        <th class="col-admin">Cuadre de caja</th>
+        <th style="text-align:center">Acción</th>
       </tr></thead>
       <tbody id="rep-body"></tbody>
     </table>
     <div class="empty" id="empty-state"><div class="empty-ico">📋</div><div id="empty-msg">Cargando...</div></div>
   </div>
-
 </div>
 
 <!-- CORTESÍAS -->
 <div class="view" id="view-cortesias">
-
-  <!-- Encabezado: fecha + botón guardar -->
   <div class="fecha-save-bar">
     <div style="flex:1;">
       <label style="display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Fecha del registro</label>
-      <input type="date" id="cortesia-fecha" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:220px;"/>
+      <input type="date" id="cortesia-fecha"/>
     </div>
     <button class="btn-save" id="btn-guardar-cortesia" onclick="guardarCortesias()" style="width:auto;padding:12px 32px;font-size:14px;">🎁 Guardar todas las cortesías</button>
   </div>
-
-  <!-- Tabla de ingreso dinámico -->
   <div class="panel">
     <div class="panel-title" style="justify-content:space-between;">
       <span>🎁 Cortesías del día</span>
       <button class="add-btn" onclick="addFilaCortesia()" style="width:auto;padding:7px 20px;font-size:12px;margin:0;">+ Agregar cortesía</button>
     </div>
-    <!-- Cabeceras -->
     <div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;margin-bottom:6px;padding:0 4px;">
       <div style="font-size:10px;color:#aab5c4;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Cantidad</div>
       <div style="font-size:10px;color:#aab5c4;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Detalle</div>
       <div style="width:30px;"></div>
     </div>
-    <!-- Filas dinámicas -->
     <div id="cortesias-filas"></div>
   </div>
-
-
-  <!-- ── HISTORIAL DE CORTESÍAS ── -->
+  <!-- Historial cortesías -->
   <div class="panel" style="margin-top:24px;">
     <div class="panel-title" style="justify-content:space-between;">
       <span>🎁 Resumen de cortesías</span>
@@ -449,90 +387,60 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     </div>
     <div class="tbl-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Cantidad</th>
-            <th>Detalle</th>
-            <th style="text-align:center">Acción</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Fecha</th><th>Cantidad</th><th>Detalle</th><th style="text-align:center">Acción</th></tr></thead>
         <tbody id="cortesias-body"></tbody>
       </table>
-      <div class="empty" id="cortesias-empty">
-        <div class="empty-ico">🎁</div>
-        <div id="cortesias-empty-msg">No hay cortesías registradas.</div>
-      </div>
+      <div class="empty" id="cortesias-empty"><div class="empty-ico">🎁</div><div id="cortesias-empty-msg">No hay cortesías registradas.</div></div>
     </div>
   </div>
 </div>
 
 <!-- CORTES -->
 <div class="view" id="view-cortes">
-  <!-- Fecha + botón guardado arriba -->
   <div class="fecha-save-bar">
     <div style="flex:1;">
       <label style="display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Fecha del corte</label>
-      <input type="date" id="corte-fecha" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:220px;"/>
+      <input type="date" id="corte-fecha"/>
     </div>
     <button class="btn-save" id="btn-guardar-corte" onclick="guardarCorte()" style="width:auto;padding:12px 32px;font-size:14px;">💾 Guardar Ingresos y Cortes</button>
   </div>
 
   <div id="cortes-grid">
-
-    <!-- TABLA INGRESOS -->
+    <!-- TABLA INGRESOS — CAMBIO 1: Unidades (entero) + Peso merma (kg/gr) separados -->
     <div class="panel">
-      <div class="panel-title">
-        <span>📦 Ingresos</span>
-      </div>
+      <div class="panel-title"><span>📦 Ingresos</span></div>
       <table style="width:100%;border-collapse:collapse;">
         <thead>
           <tr style="background:var(--navy);">
             <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Tipo</th>
-            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Cantidad</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Unidades</th>
             <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Peso merma</th>
-            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Unidad</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Unidad merma</th>
           </tr>
         </thead>
         <tbody>
           <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Biffe</td>
-            <td style="padding:6px 10px;"><input type="number" id="ing-biffe-cant" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('biffe')"/></td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-biffe-cant" placeholder="0" step="1" min="0" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('biffe')"/></td>
             <td style="padding:6px 10px;"><input type="number" id="ing-biffe-merma" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('biffe')"/></td>
-            <td style="padding:6px 10px;">
-              <select id="ing-biffe-unidad" style="width:100%;padding:7px 10px;font-size:13px;">
-                <option value="kg">Kg</option>
-                <option value="gr">gr</option>
-              </select>
-            </td>
+            <td style="padding:6px 10px;"><select id="ing-biffe-unidad" style="width:100%;padding:7px 10px;font-size:13px;"><option value="kg">Kg</option><option value="gr">gr</option></select></td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Lomo de cerdo</td>
-            <td style="padding:6px 10px;"><input type="number" id="ing-cerdo-cant" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('cerdo')"/></td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-cerdo-cant" placeholder="0" step="1" min="0" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('cerdo')"/></td>
             <td style="padding:6px 10px;"><input type="number" id="ing-cerdo-merma" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('cerdo')"/></td>
-            <td style="padding:6px 10px;">
-              <select id="ing-cerdo-unidad" style="width:100%;padding:7px 10px;font-size:13px;">
-                <option value="kg">Kg</option>
-                <option value="gr">gr</option>
-              </select>
-            </td>
+            <td style="padding:6px 10px;"><select id="ing-cerdo-unidad" style="width:100%;padding:7px 10px;font-size:13px;"><option value="kg">Kg</option><option value="gr">gr</option></select></td>
           </tr>
           <tr>
             <td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Lomo fino</td>
-            <td style="padding:6px 10px;"><input type="number" id="ing-fino-cant" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('fino')"/></td>
+            <td style="padding:6px 10px;"><input type="number" id="ing-fino-cant" placeholder="0" step="1" min="0" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('fino')"/></td>
             <td style="padding:6px 10px;"><input type="number" id="ing-fino-merma" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;" oninput="calcMerma('fino')"/></td>
-            <td style="padding:6px 10px;">
-              <select id="ing-fino-unidad" style="width:100%;padding:7px 10px;font-size:13px;">
-                <option value="kg">Kg</option>
-                <option value="gr">gr</option>
-              </select>
-            </td>
+            <td style="padding:6px 10px;"><select id="ing-fino-unidad" style="width:100%;padding:7px 10px;font-size:13px;"><option value="kg">Kg</option><option value="gr">gr</option></select></td>
           </tr>
         </tbody>
       </table>
-      <!-- Resumen neto -->
       <div style="margin-top:16px;padding:12px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-        <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Neto por producto (Cantidad − Merma)</div>
+        <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Neto por producto (Unidades − Merma)</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;">
           <div><div style="font-size:10px;color:var(--muted);">Biffe</div><div id="neto-biffe" style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--navy2);">0.00</div></div>
           <div><div style="font-size:10px;color:var(--muted);">Lomo cerdo</div><div id="neto-cerdo" style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--navy2);">0.00</div></div>
@@ -551,7 +459,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
             <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);">Cantidad</th>
           </tr>
         </thead>
-        <tbody id="cortes-tbody">
+        <tbody>
           <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Churrasco</td><td style="padding:6px 10px;"><input type="number" id="corte-churrasco" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
           <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Chuleta</td><td style="padding:6px 10px;"><input type="number" id="corte-chuleta" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
           <tr style="border-bottom:1px solid var(--border);"><td style="padding:10px 14px;font-size:13px;font-weight:500;color:var(--navy2);">Chorizo</td><td style="padding:6px 10px;"><input type="number" id="corte-chorizo" placeholder="0" step="0.01" style="width:100%;padding:7px 10px;font-size:13px;"/></td></tr>
@@ -562,11 +470,9 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
         </tbody>
       </table>
     </div>
-
   </div>
 
-
-  <!-- ── HISTORIAL DE CORTES ── -->
+  <!-- Historial cortes -->
   <div class="panel" style="margin-top:24px;">
     <div class="panel-title" style="justify-content:space-between;">
       <span>🥩 Historial de cortes</span>
@@ -578,9 +484,9 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
           <thead>
             <tr>
               <th>Fecha</th>
-              <th>Biffe cant.</th><th>Biffe merma</th>
-              <th>Cerdo cant.</th><th>Cerdo merma</th>
-              <th>Fino cant.</th><th>Fino merma</th>
+              <th>Biffe u.</th><th>Biffe merma</th>
+              <th>Cerdo u.</th><th>Cerdo merma</th>
+              <th>Fino u.</th><th>Fino merma</th>
               <th>Churrasco</th><th>Chuleta</th><th>Chorizo</th>
               <th>Biffe c.</th><th>Pollo</th><th>Cerdo c.</th><th>Fino c.</th>
               <th style="text-align:center">Acción</th>
@@ -588,10 +494,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
           </thead>
           <tbody id="cortes-history-body"></tbody>
         </table>
-        <div class="empty" id="cortes-empty">
-          <div class="empty-ico">🥩</div>
-          <div id="cortes-empty-msg">No hay cortes registrados.</div>
-        </div>
+        <div class="empty" id="cortes-empty"><div class="empty-ico">🥩</div><div id="cortes-empty-msg">No hay cortes registrados.</div></div>
       </div>
     </div>
   </div>
@@ -616,7 +519,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   </div>
 </div>
 
-<!-- USUARIOS (solo admin) -->
+<!-- USUARIOS -->
 <div class="view" id="view-users">
   <div class="rep-hdr">
     <div class="rep-title">👥 Gestión de Usuarios</div>
@@ -633,41 +536,17 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   </div>
 </div>
 
-<!-- CONFIG (solo admin) -->
+<!-- CONFIG -->
 <div class="view" id="view-config">
   <div class="panel">
     <div class="panel-title">🔑 Conexión con Notion</div>
     <div class="config-grid">
-      <div class="field">
-        <label>Notion API Key (Integration Token)</label>
-        <input type="text" id="cfg-apikey" placeholder="secret_..."/>
-        <div class="config-hint">notion.so/my-integrations → Nueva integración → Copiar token</div>
-      </div>
-      <div class="field">
-        <label>ID Base de Datos (Registros)</label>
-        <input type="text" id="cfg-dbid"/>
-        <div class="config-hint">ID de "Registros Cuadre de Caja"</div>
-      </div>
-      <div class="field">
-        <label>ID Base de Datos (Usuarios)</label>
-        <input type="text" id="cfg-usersdbid"/>
-        <div class="config-hint">ID de "Usuarios del Sistema"</div>
-      </div>
-      <div class="field">
-        <label>ID Base de Datos (Cortes)</label>
-        <input type="text" id="cfg-cortesdbid"/>
-        <div class="config-hint">ID de "Cortes Diarios"</div>
-      </div>
-      <div class="field">
-        <label>ID Base de Datos (Cortesías)</label>
-        <input type="text" id="cfg-cortesiasdbid"/>
-        <div class="config-hint">ID de "Cortesías"</div>
-      </div>
-      <div class="field">
-        <label>URL del Proxy</label>
-        <input type="text" id="cfg-proxy"/>
-        <div class="config-hint">Proxy CORS para conectar con Notion</div>
-      </div>
+      <div class="field"><label>Notion API Key</label><input type="text" id="cfg-apikey" placeholder="secret_..."/><div class="config-hint">notion.so/my-integrations → Copiar token</div></div>
+      <div class="field"><label>ID BD Registros</label><input type="text" id="cfg-dbid"/><div class="config-hint">ID de "Registros Cuadre de Caja"</div></div>
+      <div class="field"><label>ID BD Usuarios</label><input type="text" id="cfg-usersdbid"/><div class="config-hint">ID de "Usuarios del Sistema"</div></div>
+      <div class="field"><label>ID BD Cortes</label><input type="text" id="cfg-cortesdbid"/><div class="config-hint">ID de "Cortes Diarios"</div></div>
+      <div class="field"><label>ID BD Cortesías</label><input type="text" id="cfg-cortesiasdbid"/><div class="config-hint">ID de "Cortesías"</div></div>
+      <div class="field"><label>URL del Proxy</label><input type="text" id="cfg-proxy"/><div class="config-hint">Proxy CORS para conectar con Notion</div></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:14px;">
       <button class="btn-primary" onclick="saveConfig()">Guardar configuración</button>
@@ -684,14 +563,9 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <input type="hidden" id="modal-user-pageid"/>
     <div class="field"><label>Usuario</label><input type="text" id="modal-usuario" placeholder="nombre de usuario"/></div>
     <div class="field"><label>Nombre completo</label><input type="text" id="modal-nombre" placeholder="Nombre visible"/></div>
-    <div class="field"><label>Rol</label>
-      <select id="modal-rol"><option value="cajero">Cajero</option><option value="administrador">Administrador</option></select>
-    </div>
-    <div class="field"><label>Nueva contraseña <span style="color:var(--muted);font-weight:400;text-transform:none">(vacío = no cambiar)</span></label>
-      <input type="password" id="modal-pass" placeholder="Nueva contraseña"/></div>
-    <div class="field"><label>Estado</label>
-      <select id="modal-activo"><option value="yes">Activo</option><option value="no">Inactivo</option></select>
-    </div>
+    <div class="field"><label>Rol</label><select id="modal-rol"><option value="cajero">Cajero</option><option value="administrador">Administrador</option></select></div>
+    <div class="field"><label>Nueva contraseña <span style="color:var(--muted);font-weight:400;text-transform:none">(vacío = no cambiar)</span></label><input type="password" id="modal-pass" placeholder="Nueva contraseña"/></div>
+    <div class="field"><label>Estado</label><select id="modal-activo"><option value="yes">Activo</option><option value="no">Inactivo</option></select></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('modal-user')">Cancelar</button>
       <button class="btn-success" onclick="saveUser()">Guardar</button>
@@ -703,202 +577,153 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 
 <script>
 // ══ CONFIG ══
-var CFG_KEY = 'cajaDiaria_config';
-var SESSION_KEY = 'cajaDiaria_session';
-var cfg = {};
-try { cfg = JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch(e) { cfg = {}; }
-cfg.dbId = '970859ae413d48b285c581c64a27758a';
-cfg.usersDbId = cfg.usersDbId || '9c02cca25d884f0eb41ccda0a9be827d';
-cfg.cortesDbId = '47dbf845b3774f04b637cf617e3f0978';
-cfg.cortesiasDbId = '4bbc15b5b14a4ca4880f671a90843f82';
-var DB_ID = '970859ae413d48b285c581c64a27758a';
-var USERS_DB_ID = '9c02cca25d884f0eb41ccda0a9be827d';
-var CORTES_DB_ID = '47dbf845b3774f04b637cf617e3f0978';
-var CORTEIAS_DB_ID = '4bbc15b5b14a4ca4880f671a90843f82';
+var CFG_KEY='cajaDiaria_config', SESSION_KEY='cajaDiaria_session';
+var cfg={};
+try{cfg=JSON.parse(localStorage.getItem(CFG_KEY))||{};}catch(e){cfg={};}
+cfg.dbId='970859ae413d48b285c581c64a27758a';
+cfg.usersDbId=cfg.usersDbId||'9c02cca25d884f0eb41ccda0a9be827d';
+cfg.cortesDbId='47dbf845b3774f04b637cf617e3f0978';
+cfg.cortesiasDbId='4bbc15b5b14a4ca4880f671a90843f82';
+var DB_ID='970859ae413d48b285c581c64a27758a';
+var USERS_DB_ID='9c02cca25d884f0eb41ccda0a9be827d';
+var CORTES_DB_ID='47dbf845b3774f04b637cf617e3f0978';
+var CORTEIAS_DB_ID='4bbc15b5b14a4ca4880f671a90843f82';
 
 // ══ SESIÓN ══
-var currentUser = null;
-try { currentUser = JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch(e) {}
+var currentUser=null;
+try{currentUser=JSON.parse(sessionStorage.getItem(SESSION_KEY));}catch(e){}
 
 // ══ SHA-256 ══
-async function sha256(msg) {
-  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+async function sha256(msg){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
 }
 
 // ══ NOTION API ══
-async function notionRequest(method, path, body) {
-  if (!cfg.apiKey) throw new Error('Sin API Key configurada');
-  var baseUrl = (cfg.proxy || 'https://cajacaja-proxy.vercel.app/api/notion').replace(/\/$/, '') + path;
-  var options = {
-    method: method,
-    headers: {'Authorization':'Bearer '+cfg.apiKey,'Notion-Version':'2022-06-28','Content-Type':'application/json'}
-  };
-  if (body) options.body = JSON.stringify(body);
-  var res = await fetch(baseUrl, options);
-  if (!res.ok) {
-    var err = await res.json().catch(function(){ return {}; });
-    throw new Error(err.message || 'Error '+res.status);
-  }
+async function notionRequest(method,path,body){
+  if(!cfg.apiKey) throw new Error('Sin API Key configurada');
+  var baseUrl=(cfg.proxy||'https://cajacaja-proxy.vercel.app/api/notion').replace(/\/$/,'')+path;
+  var options={method:method,headers:{'Authorization':'Bearer '+cfg.apiKey,'Notion-Version':'2022-06-28','Content-Type':'application/json'}};
+  if(body) options.body=JSON.stringify(body);
+  var res=await fetch(baseUrl,options);
+  if(!res.ok){var err=await res.json().catch(function(){return{};});throw new Error(err.message||'Error '+res.status);}
   return await res.json();
 }
 
 // ══ LOGIN ══
-async function doLogin() {
-  var usuario = document.getElementById('inp-user').value.trim().toLowerCase();
-  var password = document.getElementById('inp-pass').value;
-  if (!usuario || !password) { showLoginError('Completa todos los campos.'); return; }
+async function doLogin(){
+  var usuario=document.getElementById('inp-user').value.trim().toLowerCase();
+  var password=document.getElementById('inp-pass').value;
+  if(!usuario||!password){showLoginError('Completa todos los campos.');return;}
   setLoginLoading(true);
-  try {
-    var hash = await sha256(password);
-    var usersDbId = (cfg.usersDbId || USERS_DB_ID).replace(/-/g,'');
-    var result = await notionRequest('POST', '/databases/'+usersDbId+'/query', {
-      filter: {property:'Usuario', title:{equals: usuario}}
-    });
-    if (!result.results || !result.results.length) { showLoginError('Usuario o contraseña incorrectos.'); return; }
-    var page = result.results[0];
-    var p = page.properties;
-    var storedHash = p.Password.rich_text[0] && p.Password.rich_text[0].text.content || '';
-    var activo = p.Activo.checkbox;
-    var rol = p.Rol.select && p.Rol.select.name || 'cajero';
-    var nombre = p.Nombre.rich_text[0] && p.Nombre.rich_text[0].text.content || usuario;
-    if (!activo) { showLoginError('Tu cuenta está inactiva. Contacta al administrador.'); return; }
-    if (storedHash !== hash) { showLoginError('Usuario o contraseña incorrectos.'); return; }
-    currentUser = {pageId: page.id, usuario: usuario, nombre: nombre, rol: rol};
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+  try{
+    var hash=await sha256(password);
+    var usersDbId=(cfg.usersDbId||USERS_DB_ID).replace(/-/g,'');
+    var result=await notionRequest('POST','/databases/'+usersDbId+'/query',{filter:{property:'Usuario',title:{equals:usuario}}});
+    if(!result.results||!result.results.length){showLoginError('Usuario o contraseña incorrectos.');return;}
+    var page=result.results[0], p=page.properties;
+    var storedHash=p.Password.rich_text[0]&&p.Password.rich_text[0].text.content||'';
+    var activo=p.Activo.checkbox;
+    var rol=p.Rol.select&&p.Rol.select.name||'cajero';
+    var nombre=p.Nombre.rich_text[0]&&p.Nombre.rich_text[0].text.content||usuario;
+    if(!activo){showLoginError('Tu cuenta está inactiva. Contacta al administrador.');return;}
+    if(storedHash!==hash){showLoginError('Usuario o contraseña incorrectos.');return;}
+    currentUser={pageId:page.id,usuario:usuario,nombre:nombre,rol:rol};
+    sessionStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));
     initApp();
-  } catch(e) {
-    showLoginError('Error al conectar: ' + e.message);
-  } finally {
-    setLoginLoading(false);
-  }
+  }catch(e){showLoginError('Error al conectar: '+e.message);}
+  finally{setLoginLoading(false);}
 }
-
-function showLoginError(msg) {
-  var el = document.getElementById('login-error');
-  el.textContent = msg; el.style.display = 'block';
-}
-function setLoginLoading(on) {
-  document.getElementById('login-loading').style.display = on ? 'block' : 'none';
-  document.getElementById('btn-login').disabled = on;
-}
-
-function doLogout() {
-  currentUser = null;
-  sessionStorage.removeItem(SESSION_KEY);
-  document.getElementById('screen-app').style.display = 'none';
-  document.getElementById('screen-login').style.display = 'flex';
-  document.getElementById('inp-user').value = '';
-  document.getElementById('inp-pass').value = '';
-  document.getElementById('login-error').style.display = 'none';
+function showLoginError(msg){var el=document.getElementById('login-error');el.textContent=msg;el.style.display='block';}
+function setLoginLoading(on){document.getElementById('login-loading').style.display=on?'block':'none';document.getElementById('btn-login').disabled=on;}
+function doLogout(){
+  currentUser=null;sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('screen-app').style.display='none';
+  document.getElementById('screen-login').style.display='flex';
+  document.getElementById('inp-user').value='';document.getElementById('inp-pass').value='';
+  document.getElementById('login-error').style.display='none';
 }
 
 // ══ INIT APP ══
-function initApp() {
-  document.getElementById('screen-login').style.display = 'none';
-  document.getElementById('screen-app').style.display = 'block';
-
-  // Header usuario
-  var initials = currentUser.nombre.split(' ').map(function(w){ return w[0]||''; }).join('').substring(0,2).toUpperCase();
-  document.getElementById('hdr-avatar').textContent = initials;
-  document.getElementById('hdr-username').textContent = currentUser.nombre;
-  document.getElementById('hdr-role').textContent = currentUser.rol;
-  document.getElementById('day-pill').textContent = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
-
-  // ── Control de visibilidad por rol ──
-  var esAdmin = currentUser.rol === 'administrador';
-  document.getElementById('tab-users').style.display = esAdmin ? 'flex' : 'none';
-  document.getElementById('tab-config').style.display = esAdmin ? 'flex' : 'none';
-
-  // Perfil
-  document.getElementById('prof-avatar').textContent = initials;
-  document.getElementById('prof-nombre').textContent = currentUser.nombre;
-  document.getElementById('prof-usuario').textContent = currentUser.usuario;
-  var rolBadge = document.getElementById('prof-role-badge');
-  rolBadge.textContent = currentUser.rol;
-  rolBadge.className = 'profile-role ' + (esAdmin ? 'role-admin' : 'role-cajero');
-
-  // Formulario
-  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-  updateBadge();
-  resetMozosGastos();
-  loadConfigUI();
-  updateSyncStatus();
-  switchTab('form');
+function initApp(){
+  document.getElementById('screen-login').style.display='none';
+  document.getElementById('screen-app').style.display='block';
+  var initials=currentUser.nombre.split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
+  document.getElementById('hdr-avatar').textContent=initials;
+  document.getElementById('hdr-username').textContent=currentUser.nombre;
+  document.getElementById('hdr-role').textContent=currentUser.rol;
+  document.getElementById('day-pill').textContent=new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
+  var esAdmin=currentUser.rol==='administrador';
+  document.getElementById('tab-users').style.display=esAdmin?'flex':'none';
+  document.getElementById('tab-config').style.display=esAdmin?'flex':'none';
+  document.getElementById('prof-avatar').textContent=initials;
+  document.getElementById('prof-nombre').textContent=currentUser.nombre;
+  document.getElementById('prof-usuario').textContent=currentUser.usuario;
+  var rolBadge=document.getElementById('prof-role-badge');
+  rolBadge.textContent=currentUser.rol;
+  rolBadge.className='profile-role '+(esAdmin?'role-admin':'role-cajero');
+  document.getElementById('fecha').value=new Date().toISOString().split('T')[0];
+  updateBadge();resetMozosGastos();loadConfigUI();updateSyncStatus();switchTab('form');
 }
 
 // ══ TABS ══
-function switchTab(t) {
-  // Protección: si un cajero intenta acceder a pestañas de admin, redirigir
-  if ((t === 'users' || t === 'config') && currentUser && currentUser.rol !== 'administrador') {
-    switchTab('form'); return;
-  }
-  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+function switchTab(t){
+  if((t==='users'||t==='config')&&currentUser&&currentUser.rol!=='administrador'){switchTab('form');return;}
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('view-'+t).classList.add('active');
-  var tabEl = document.getElementById('tab-'+t);
-  if (tabEl) tabEl.classList.add('active');
-  if (t === 'report') { loadReport(); }
-  if (t === 'users') loadUsers();
-  if (t === 'cortes') {
-    var cf=document.getElementById('corte-fecha');
-    if(cf&&!cf.value) cf.value=new Date().toISOString().split('T')[0];
-    loadCortes();
-  }
-  if (t === 'cortesias') {
-    var cf2=document.getElementById('cortesia-fecha');
-    if(cf2&&!cf2.value) cf2.value=new Date().toISOString().split('T')[0];
-    // Add initial row if none exist
+  var tabEl=document.getElementById('tab-'+t);if(tabEl) tabEl.classList.add('active');
+  if(t==='report'){loadReport();}
+  if(t==='users') loadUsers();
+  if(t==='cortes'){var cf=document.getElementById('corte-fecha');if(cf&&!cf.value)cf.value=new Date().toISOString().split('T')[0];loadCortes();}
+  if(t==='cortesias'){
+    var cf2=document.getElementById('cortesia-fecha');if(cf2&&!cf2.value)cf2.value=new Date().toISOString().split('T')[0];
     if(!document.querySelector('#cortesias-filas > div')) addFilaCortesia();
     loadCortesias();
   }
 }
 
-function updateBadge() {
-  var fv = document.getElementById('fecha').value;
-  if (!fv) { document.getElementById('fecha-badge').textContent = '—'; return; }
-  var d = new Date(fv+'T12:00:00');
-  document.getElementById('fecha-badge').textContent = d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
+function updateBadge(){
+  var fv=document.getElementById('fecha').value;
+  if(!fv){document.getElementById('fecha-badge').textContent='—';return;}
+  var d=new Date(fv+'T12:00:00');
+  document.getElementById('fecha-badge').textContent=d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
 }
 
 // ══ MOZOS & GASTOS ══
-var mzC=0, gsC=0;
-function resetMozosGastos() {
-  document.getElementById('mozos-list').innerHTML = '';
-  document.getElementById('gastos-list').innerHTML = '';
-  mzC=0; gsC=0;
-  ['ALEXIS','WILDER','ONAN','LUIS','CRISTHIAN','EDUARD','COCO'].forEach(function(n){ addMozo(n,''); });
-  document.getElementById('sub-pr').textContent = 'S/ 0.00';
-  document.getElementById('sub-gs').textContent = 'S/ 0.00';
+var mzC=0,gsC=0;
+function resetMozosGastos(){
+  document.getElementById('mozos-list').innerHTML='';document.getElementById('gastos-list').innerHTML='';
+  mzC=0;gsC=0;
+  ['ALEXIS','WILDER','ONAN','LUIS','CRISTHIAN','EDUARD','COCO'].forEach(function(n){addMozo(n,'');});
+  document.getElementById('sub-pr').textContent='S/ 0.00';document.getElementById('sub-gs').textContent='S/ 0.00';
 }
-function addMozo(nm,mn) {
-  nm=nm||''; mn=mn||''; mzC++;
-  var id='mz'+mzC, d=document.createElement('div');
-  d.id=id; d.className='mrow';
+function addMozo(nm,mn){
+  nm=nm||'';mn=mn||'';mzC++;var id='mz'+mzC,d=document.createElement('div');
+  d.id=id;d.className='mrow';
   d.innerHTML='<input type="text" placeholder="Nombre" value="'+nm+'" style="text-transform:uppercase">'+
     '<input type="number" placeholder="0.00" value="'+mn+'" step="0.01" oninput="sumMz()">'+
     '<button class="rm" onclick="document.getElementById(\''+id+'\').remove();sumMz()">×</button>';
   document.getElementById('mozos-list').appendChild(d);
 }
-function sumMz(){ var s=0; document.querySelectorAll('#mozos-list input[type=number]').forEach(function(i){s+=parseFloat(i.value)||0;}); document.getElementById('sub-pr').textContent='S/ '+s.toFixed(2); calc(); }
-function addGasto(cn,mn) {
-  cn=cn||''; mn=mn||''; gsC++;
-  var id='gs'+gsC, d=document.createElement('div');
-  d.id=id; d.className='erow';
+function sumMz(){var s=0;document.querySelectorAll('#mozos-list input[type=number]').forEach(function(i){s+=parseFloat(i.value)||0;});document.getElementById('sub-pr').textContent='S/ '+s.toFixed(2);calc();}
+function addGasto(cn,mn){
+  cn=cn||'';mn=mn||'';gsC++;var id='gs'+gsC,d=document.createElement('div');
+  d.id=id;d.className='erow';
   d.innerHTML='<input type="text" placeholder="Concepto" value="'+cn+'" style="text-transform:uppercase">'+
     '<input type="number" placeholder="0.00" value="'+mn+'" step="0.01" oninput="sumGs()">'+
     '<button class="rm" onclick="document.getElementById(\''+id+'\').remove();sumGs()">×</button>';
   document.getElementById('gastos-list').appendChild(d);
 }
-function sumGs(){ var s=0; document.querySelectorAll('#gastos-list input[type=number]').forEach(function(i){s+=parseFloat(i.value)||0;}); document.getElementById('sub-gs').textContent='S/ '+s.toFixed(2); calc(); }
+function sumGs(){var s=0;document.querySelectorAll('#gastos-list input[type=number]').forEach(function(i){s+=parseFloat(i.value)||0;});document.getElementById('sub-gs').textContent='S/ '+s.toFixed(2);calc();}
 
-// ══ CALC: ((efectivo + caja hoy) + gastos + propinas) - caja ayer ══
+// ══ CALC ══
 function calc(){
   var ef=parseFloat(document.getElementById('efectivo').value)||0;
   var ch=parseFloat(document.getElementById('cajaHoy').value)||0;
   var ca=parseFloat(document.getElementById('cajaAyer').value)||0;
-  var pr=0; document.querySelectorAll('#mozos-list input[type=number]').forEach(function(i){pr+=parseFloat(i.value)||0;});
-  var gs=0; document.querySelectorAll('#gastos-list input[type=number]').forEach(function(i){gs+=parseFloat(i.value)||0;});
+  var pr=0;document.querySelectorAll('#mozos-list input[type=number]').forEach(function(i){pr+=parseFloat(i.value)||0;});
+  var gs=0;document.querySelectorAll('#gastos-list input[type=number]').forEach(function(i){gs+=parseFloat(i.value)||0;});
   var tot=(ef+ch+gs+pr)-ca;
   document.getElementById('s-ef').textContent='S/ '+ef.toFixed(2);
   document.getElementById('s-ch').textContent='S/ '+ch.toFixed(2);
@@ -909,23 +734,15 @@ function calc(){
 }
 
 // ══ GUARDAR REGISTRO ══
-async function guardar() {
+async function guardar(){
   var fv=document.getElementById('fecha').value;
   if(!fv){showToast('Ingresa la fecha',true);return;}
   var d=new Date(fv+'T12:00:00');
   var lbl=d.toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
   var mozos=[];
-  document.querySelectorAll('#mozos-list .mrow').forEach(function(row){
-    var inp=row.querySelectorAll('input');
-    var nm=inp[0].value.trim().toUpperCase(), mn=parseFloat(inp[1].value)||0;
-    if(nm) mozos.push({nombre:nm,monto:mn});
-  });
+  document.querySelectorAll('#mozos-list .mrow').forEach(function(row){var inp=row.querySelectorAll('input');var nm=inp[0].value.trim().toUpperCase(),mn=parseFloat(inp[1].value)||0;if(nm)mozos.push({nombre:nm,monto:mn});});
   var glist=[];
-  document.querySelectorAll('#gastos-list .erow').forEach(function(row){
-    var inp=row.querySelectorAll('input');
-    var cn=inp[0].value.trim().toUpperCase(), mn=parseFloat(inp[1].value)||0;
-    if(cn) glist.push({concepto:cn,monto:mn});
-  });
+  document.querySelectorAll('#gastos-list .erow').forEach(function(row){var inp=row.querySelectorAll('input');var cn=inp[0].value.trim().toUpperCase(),mn=parseFloat(inp[1].value)||0;if(cn)glist.push({concepto:cn,monto:mn});});
   var ef=parseFloat(document.getElementById('efectivo').value)||0;
   var ch=parseFloat(document.getElementById('cajaHoy').value)||0;
   var ca=parseFloat(document.getElementById('cajaAyer').value)||0;
@@ -933,100 +750,82 @@ async function guardar() {
   var gs=glist.reduce(function(a,g){return a+g.monto;},0);
   var total=(ef+ch+gs+pr)-ca;
   var btn=document.getElementById('btn-guardar');
-  btn.disabled=true; btn.textContent='Guardando...';
-  try {
+  btn.disabled=true;btn.textContent='Guardando...';
+  try{
     setSyncStatus('loading','Guardando...');
     var dbId=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
-    await notionRequest('POST','/pages',{
-      parent:{database_id:dbId},
-      properties:{
-        'Fecha':{title:[{text:{content:lbl}}]},
-        'Fecha ISO':{rich_text:[{text:{content:fv}}]},
-        'Efectivo':{number:ef},'Caja Hoy':{number:ch},'Caja Ayer':{number:ca},
-        'Propinas':{number:pr},'Gastos':{number:gs},'Cuadre de Caja':{number:total},
-        'Mozos':{rich_text:[{text:{content:JSON.stringify(mozos)}}]},
-        'Gastos Detalle':{rich_text:[{text:{content:JSON.stringify(glist)}}]}
-      }
-    });
-    setSyncStatus('ok','Sincronizado');
-    showToast('✓ Guardado: '+lbl);
-    document.getElementById('efectivo').value='';
-    document.getElementById('cajaHoy').value='';
-    document.getElementById('cajaAyer').value='';
-    document.getElementById('cuadreCaja').value='';
-    resetMozosGastos();
-    document.getElementById('fecha').value=new Date().toISOString().split('T')[0];
-    updateBadge(); calc();
-  } catch(e) {
-    setSyncStatus('err','Error');
-    showToast('Error: '+e.message, true);
-  }
-  btn.disabled=false; btn.innerHTML='💾 Guardar registro del día';
+    await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:{
+      'Fecha':{title:[{text:{content:lbl}}]},'Fecha ISO':{rich_text:[{text:{content:fv}}]},
+      'Efectivo':{number:ef},'Caja Hoy':{number:ch},'Caja Ayer':{number:ca},
+      'Propinas':{number:pr},'Gastos':{number:gs},'Cuadre de Caja':{number:total},
+      'Mozos':{rich_text:[{text:{content:JSON.stringify(mozos)}}]},
+      'Gastos Detalle':{rich_text:[{text:{content:JSON.stringify(glist)}}]}
+    }});
+    setSyncStatus('ok','Sincronizado');showToast('✓ Guardado: '+lbl);
+    document.getElementById('efectivo').value='';document.getElementById('cajaHoy').value='';
+    document.getElementById('cajaAyer').value='';document.getElementById('cuadreCaja').value='';
+    resetMozosGastos();document.getElementById('fecha').value=new Date().toISOString().split('T')[0];
+    updateBadge();calc();
+  }catch(e){setSyncStatus('err','Error');showToast('Error: '+e.message,true);}
+  btn.disabled=false;btn.innerHTML='💾 Guardar registro del día';
 }
 
 // ══ REPORTE ══
 var reportRecords=[];
-async function loadReport() {
+async function loadReport(){
   document.getElementById('rep-body').innerHTML='';
   document.getElementById('empty-state').style.display='block';
   document.getElementById('empty-msg').textContent='Cargando registros...';
   document.getElementById('rep-count').textContent='';
-  try {
+  try{
     setSyncStatus('loading','Cargando...');
     var dbId=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
     var result=await notionRequest('POST','/databases/'+dbId+'/query',{sorts:[{property:'Fecha ISO',direction:'ascending'}]});
     reportRecords=result.results.map(function(page){
-      var p=page.properties, mozos=[], glist=[];
-      try{ mozos=JSON.parse(p.Mozos.rich_text[0]&&p.Mozos.rich_text[0].text.content||'[]'); }catch(e){}
-      try{ glist=JSON.parse(p['Gastos Detalle'].rich_text[0]&&p['Gastos Detalle'].rich_text[0].text.content||'[]'); }catch(e){}
-      return {
-        pageId:page.id, fecha:p['Fecha ISO'].rich_text[0]&&p['Fecha ISO'].rich_text[0].text.content||'',
+      var p=page.properties,mozos=[],glist=[];
+      try{mozos=JSON.parse(p.Mozos.rich_text[0]&&p.Mozos.rich_text[0].text.content||'[]');}catch(e){}
+      try{glist=JSON.parse(p['Gastos Detalle'].rich_text[0]&&p['Gastos Detalle'].rich_text[0].text.content||'[]');}catch(e){}
+      return{pageId:page.id,fecha:p['Fecha ISO'].rich_text[0]&&p['Fecha ISO'].rich_text[0].text.content||'',
         fechaLabel:p.Fecha.title[0]&&p.Fecha.title[0].text.content||'',
-        efectivo:p.Efectivo.number||0, cajaHoy:p['Caja Hoy'].number||0, cajaAyer:p['Caja Ayer'].number||0,
-        propinas:p.Propinas.number||0, gastos:p.Gastos.number||0, cuadreCaja:p['Cuadre de Caja'].number||0,
-        mozos:mozos, glist:glist
-      };
+        efectivo:p.Efectivo.number||0,cajaHoy:p['Caja Hoy'].number||0,cajaAyer:p['Caja Ayer'].number||0,
+        propinas:p.Propinas.number||0,gastos:p.Gastos.number||0,cuadreCaja:p['Cuadre de Caja'].number||0,
+        mozos:mozos,glist:glist};
     });
-    setSyncStatus('ok','Sincronizado');
-    renderTable();
-  } catch(e) {
-    setSyncStatus('err','Error');
-    document.getElementById('empty-msg').textContent='Error: '+e.message;
-    showToast('Error cargando datos: '+e.message, true);
-  }
+    setSyncStatus('ok','Sincronizado');renderTable();
+  }catch(e){setSyncStatus('err','Error');document.getElementById('empty-msg').textContent='Error: '+e.message;showToast('Error: '+e.message,true);}
 }
-function renderTable() {
-  var body=document.getElementById('rep-body'), empty=document.getElementById('empty-state');
+
+// ══ RENDER TABLE — CAMBIO 3: columnas según rol ══
+function renderTable(){
+  var body=document.getElementById('rep-body'),empty=document.getElementById('empty-state');
   body.innerHTML='';
   document.getElementById('rep-count').textContent=reportRecords.length?'— '+reportRecords.length+' día'+(reportRecords.length>1?'s':''):'';
-  if(!reportRecords.length){ empty.style.display='block'; document.getElementById('empty-msg').textContent='No hay registros.'; return; }
+  if(!reportRecords.length){empty.style.display='block';document.getElementById('empty-msg').textContent='No hay registros.';return;}
   empty.style.display='none';
-  var esAdmin = currentUser && currentUser.rol === 'administrador';
+  var esAdmin=currentUser&&currentUser.rol==='administrador';
+  // Mostrar/ocultar cabeceras admin
+  document.querySelectorAll('.col-admin').forEach(function(el){el.style.display=esAdmin?'':'none';});
   reportRecords.forEach(function(r,i){
     var tr=document.createElement('tr');
-    var accion = esAdmin
-      ? '<button class="btn-del" onclick="delRecord('+i+')">🗑 Eliminar</button>'
-      : '<span style="color:var(--muted);font-size:11px;">—</span>';
+    var accion=esAdmin?'<button class="btn-del" onclick="delRecord('+i+')">🗑 Eliminar</button>':'<span style="color:var(--muted);font-size:11px;">—</span>';
+    var efCol=esAdmin?'<td class="tn">S/ '+r.efectivo.toFixed(2)+'</td>':'';
+    var gsCol=esAdmin?'<td class="tn tr-red">S/ '+r.gastos.toFixed(2)+'</td>':'';
+    var ccCol=esAdmin?'<td class="tg">S/ '+r.cuadreCaja.toFixed(2)+'</td>':'';
     tr.innerHTML=
-      '<td>'+r.fechaLabel+'</td>'+
-      '<td class="tn">S/ '+r.efectivo.toFixed(2)+'</td>'+
+      '<td>'+r.fechaLabel+'</td>'+efCol+
       '<td class="tn">S/ '+r.cajaHoy.toFixed(2)+'</td>'+
       '<td class="tn">S/ '+r.cajaAyer.toFixed(2)+'</td>'+
       '<td class="tn">S/ '+r.propinas.toFixed(2)+'</td>'+
-      '<td class="tn tr-red">S/ '+r.gastos.toFixed(2)+'</td>'+
-      '<td class="tg">S/ '+r.cuadreCaja.toFixed(2)+'</td>'+
+      gsCol+ccCol+
       '<td style="text-align:center">'+accion+'</td>';
     body.appendChild(tr);
   });
 }
-async function delRecord(i) {
+async function delRecord(i){
   var r=reportRecords[i];
   if(!confirm('¿Eliminar el registro del '+r.fechaLabel+'?')) return;
-  try {
-    await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});
-    reportRecords.splice(i,1); renderTable();
-    showToast('Registro eliminado');
-  } catch(e) { showToast('Error al eliminar: '+e.message,true); }
+  try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});reportRecords.splice(i,1);renderTable();showToast('Registro eliminado');}
+  catch(e){showToast('Error al eliminar: '+e.message,true);}
 }
 
 // ══ EXPORT EXCEL ══
@@ -1042,7 +841,6 @@ function exportExcel(){
     var d=new Date(r.fecha+'T12:00:00');
     var sn=String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+d.getFullYear();
     var aoa=[];
-    aoa.push(['','','','','','','','']);
     aoa.push(['','CUADRE DE CAJA =','','','','','',r.cuadreCaja]);
     aoa.push(['','EFECTIVO',r.efectivo,'','','GASTO','MONTO','GASTOS']);
     aoa.push(['','CAJA HOY',r.cajaHoy,'','',r.glist[0]?r.glist[0].concepto:'',r.glist[0]?r.glist[0].monto:'',r.gastos||'']);
@@ -1058,15 +856,15 @@ function exportExcel(){
   showToast('✓ Excel descargado — '+reportRecords.length+' día(s)');
 }
 
-// ══ PERFIL: CAMBIAR CONTRASEÑA ══
-async function cambiarPassword() {
+// ══ PERFIL ══
+async function cambiarPassword(){
   var actual=document.getElementById('pass-actual').value;
   var nueva=document.getElementById('pass-nueva').value;
   var conf=document.getElementById('pass-confirm').value;
   if(!actual||!nueva||!conf){showToast('Completa todos los campos',true);return;}
   if(nueva.length<6){showToast('Mínimo 6 caracteres',true);return;}
   if(nueva!==conf){showToast('Las contraseñas no coinciden',true);return;}
-  try {
+  try{
     var hashActual=await sha256(actual);
     var page=await notionRequest('GET','/pages/'+currentUser.pageId,null);
     var stored=page.properties.Password.rich_text[0]&&page.properties.Password.rich_text[0].text.content||'';
@@ -1074,32 +872,26 @@ async function cambiarPassword() {
     var hashNueva=await sha256(nueva);
     await notionRequest('PATCH','/pages/'+currentUser.pageId,{properties:{'Password':{rich_text:[{text:{content:hashNueva}}]}}});
     showToast('✓ Contraseña actualizada');
-    document.getElementById('pass-actual').value='';
-    document.getElementById('pass-nueva').value='';
-    document.getElementById('pass-confirm').value='';
-  } catch(e){showToast('Error: '+e.message,true);}
+    document.getElementById('pass-actual').value='';document.getElementById('pass-nueva').value='';document.getElementById('pass-confirm').value='';
+  }catch(e){showToast('Error: '+e.message,true);}
 }
 
-// ══ GESTIÓN DE USUARIOS ══
+// ══ USUARIOS — CAMBIO 2: incluye botón eliminar ══
 var allUsers=[];
-async function loadUsers() {
+async function loadUsers(){
   document.getElementById('users-body').innerHTML='';
   document.getElementById('users-empty').style.display='block';
-  try {
+  try{
     var usersDbId=(cfg.usersDbId||USERS_DB_ID).replace(/-/g,'');
     var result=await notionRequest('POST','/databases/'+usersDbId+'/query',{sorts:[{property:'Usuario',direction:'ascending'}]});
     allUsers=result.results.map(function(page){
       var p=page.properties;
-      return {
-        pageId:page.id,
-        usuario:p.Usuario.title[0]&&p.Usuario.title[0].text.content||'',
+      return{pageId:page.id,usuario:p.Usuario.title[0]&&p.Usuario.title[0].text.content||'',
         nombre:p.Nombre.rich_text[0]&&p.Nombre.rich_text[0].text.content||'',
-        rol:p.Rol.select&&p.Rol.select.name||'cajero',
-        activo:p.Activo.checkbox
-      };
+        rol:p.Rol.select&&p.Rol.select.name||'cajero',activo:p.Activo.checkbox};
     });
     renderUsers();
-  } catch(e){ showToast('Error cargando usuarios: '+e.message,true); }
+  }catch(e){showToast('Error cargando usuarios: '+e.message,true);}
 }
 function renderUsers(){
   var body=document.getElementById('users-body');
@@ -1114,31 +906,30 @@ function renderUsers(){
       '<td>'+u.nombre+'</td>'+
       '<td>'+rolBadge+'</td>'+
       '<td>'+estadoBadge+'</td>'+
-      '<td style="text-align:center"><button class="btn-edit" onclick="openModalEditUser('+i+')">✏️ Editar</button></td>';
+      '<td style="text-align:center;padding:8px 16px;">'+
+        '<div style="display:flex;gap:6px;justify-content:center;">'+
+          '<button class="btn-edit" onclick="openModalEditUser('+i+')">✏️ Editar</button>'+
+          '<button class="btn-del" onclick="delUser('+i+')" style="padding:5px 12px;">🗑 Eliminar</button>'+
+        '</div>'+
+      '</td>';
     body.appendChild(tr);
   });
 }
 function openModalNuevoUsuario(){
   document.getElementById('modal-user-title').textContent='➕ Nuevo usuario';
   document.getElementById('modal-user-pageid').value='';
-  document.getElementById('modal-usuario').value='';
-  document.getElementById('modal-usuario').disabled=false;
-  document.getElementById('modal-nombre').value='';
-  document.getElementById('modal-rol').value='cajero';
-  document.getElementById('modal-pass').value='';
-  document.getElementById('modal-activo').value='yes';
+  document.getElementById('modal-usuario').value='';document.getElementById('modal-usuario').disabled=false;
+  document.getElementById('modal-nombre').value='';document.getElementById('modal-rol').value='cajero';
+  document.getElementById('modal-pass').value='';document.getElementById('modal-activo').value='yes';
   openModal('modal-user');
 }
 function openModalEditUser(i){
   var u=allUsers[i];
   document.getElementById('modal-user-title').textContent='✏️ Editar: '+u.usuario;
   document.getElementById('modal-user-pageid').value=u.pageId;
-  document.getElementById('modal-usuario').value=u.usuario;
-  document.getElementById('modal-usuario').disabled=true;
-  document.getElementById('modal-nombre').value=u.nombre;
-  document.getElementById('modal-rol').value=u.rol;
-  document.getElementById('modal-pass').value='';
-  document.getElementById('modal-activo').value=u.activo?'yes':'no';
+  document.getElementById('modal-usuario').value=u.usuario;document.getElementById('modal-usuario').disabled=true;
+  document.getElementById('modal-nombre').value=u.nombre;document.getElementById('modal-rol').value=u.rol;
+  document.getElementById('modal-pass').value='';document.getElementById('modal-activo').value=u.activo?'yes':'no';
   openModal('modal-user');
 }
 async function saveUser(){
@@ -1150,15 +941,10 @@ async function saveUser(){
   var activo=document.getElementById('modal-activo').value==='yes';
   if(!usuario||!nombre){showToast('Usuario y nombre son requeridos',true);return;}
   var props={'Nombre':{rich_text:[{text:{content:nombre}}]},'Rol':{select:{name:rol}},'Activo':{checkbox:activo}};
-  if(pass){
-    if(pass.length<6){showToast('Mínimo 6 caracteres',true);return;}
-    props['Password']={rich_text:[{text:{content:await sha256(pass)}}]};
-  }
-  try {
-    if(pageId){
-      await notionRequest('PATCH','/pages/'+pageId,{properties:props});
-      showToast('✓ Usuario actualizado');
-    } else {
+  if(pass){if(pass.length<6){showToast('Mínimo 6 caracteres',true);return;}props['Password']={rich_text:[{text:{content:await sha256(pass)}}]};}
+  try{
+    if(pageId){await notionRequest('PATCH','/pages/'+pageId,{properties:props});showToast('✓ Usuario actualizado');}
+    else{
       if(!pass){showToast('La contraseña es requerida',true);return;}
       props['Password']={rich_text:[{text:{content:await sha256(pass)}}]};
       props['Usuario']={title:[{text:{content:usuario}}]};
@@ -1166,9 +952,18 @@ async function saveUser(){
       await notionRequest('POST','/pages',{parent:{database_id:usersDbId},properties:props});
       showToast('✓ Usuario creado: '+usuario);
     }
-    closeModal('modal-user');
-    loadUsers();
-  } catch(e){showToast('Error: '+e.message,true);}
+    closeModal('modal-user');loadUsers();
+  }catch(e){showToast('Error: '+e.message,true);}
+}
+async function delUser(i){
+  var u=allUsers[i];
+  if(u.usuario===currentUser.usuario){showToast('No puedes eliminar tu propio usuario',true);return;}
+  if(!confirm('¿Eliminar el usuario "'+u.usuario+'"? Esta acción no se puede deshacer.')) return;
+  try{
+    await notionRequest('PATCH','/pages/'+u.pageId,{archived:true});
+    allUsers.splice(i,1);renderUsers();
+    showToast('✓ Usuario "'+u.usuario+'" eliminado');
+  }catch(e){showToast('Error al eliminar: '+e.message,true);}
 }
 
 // ══ CONFIG ══
@@ -1179,9 +974,7 @@ function saveConfig(){
   cfg.cortesDbId=document.getElementById('cfg-cortesdbid').value.trim()||CORTES_DB_ID;
   cfg.cortesiasDbId=document.getElementById('cfg-cortesiasdbid').value.trim()||CORTEIAS_DB_ID;
   cfg.proxy=document.getElementById('cfg-proxy').value.trim();
-  localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
-  showToast('Configuración guardada');
-  updateSyncStatus();
+  localStorage.setItem(CFG_KEY,JSON.stringify(cfg));showToast('Configuración guardada');updateSyncStatus();
 }
 function loadConfigUI(){
   if(cfg.apiKey) document.getElementById('cfg-apikey').value=cfg.apiKey;
@@ -1193,32 +986,22 @@ function loadConfigUI(){
 }
 async function testConnection(){
   setSyncStatus('loading','Probando...');
-  try {
-    var dbId=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
-    await notionRequest('GET','/databases/'+dbId,null);
-    setSyncStatus('ok','Conectado');
-    showToast('✓ Conexión exitosa con Notion');
-  } catch(e){ setSyncStatus('err','Error'); showToast('Error: '+e.message,true); }
+  try{var dbId=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');await notionRequest('GET','/databases/'+dbId,null);setSyncStatus('ok','Conectado');showToast('✓ Conexión exitosa con Notion');}
+  catch(e){setSyncStatus('err','Error');showToast('Error: '+e.message,true);}
 }
-function setSyncStatus(state,label){
-  document.getElementById('sync-dot').className='sync-dot '+state;
-  document.getElementById('sync-label').textContent=label;
-}
-function updateSyncStatus(){
-  setSyncStatus(cfg.apiKey?'ok':'','Notion '+(cfg.apiKey?'conectado':'sin configurar'));
-}
+function setSyncStatus(state,label){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-label').textContent=label;}
+function updateSyncStatus(){setSyncStatus(cfg.apiKey?'ok':'','Notion '+(cfg.apiKey?'conectado':'sin configurar'));}
 
 // ══ MODAL ══
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 // ══ TOAST ══
 function showToast(msg,err){
   var t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block';
-  clearTimeout(t._t); t._t=setTimeout(function(){t.style.display='none';},4500);
+  t.textContent=msg;t.className='toast'+(err?' err':'');t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},4500);
 }
-
 
 // ══ CORTES ══
 function calcMerma(tipo){
@@ -1230,11 +1013,9 @@ var cortesRecords=[];
 async function guardarCorte(){
   var fechaInput=document.getElementById('corte-fecha').value;
   if(!fechaInput){showToast('Selecciona la fecha del corte',true);return;}
-  var hoyCorte=fechaInput;
-  var d=new Date(hoyCorte+'T12:00:00');
+  var d=new Date(fechaInput+'T12:00:00');
   var lbl=d.toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
-  var data={
-    fecha:hoyCorte,fechaLabel:lbl,
+  var data={fecha:fechaInput,fechaLabel:lbl,
     ing:{
       biffe:{cant:parseFloat(document.getElementById('ing-biffe-cant').value)||0,merma:parseFloat(document.getElementById('ing-biffe-merma').value)||0,unidad:document.getElementById('ing-biffe-unidad').value},
       cerdo:{cant:parseFloat(document.getElementById('ing-cerdo-cant').value)||0,merma:parseFloat(document.getElementById('ing-cerdo-merma').value)||0,unidad:document.getElementById('ing-cerdo-unidad').value},
@@ -1250,56 +1031,29 @@ async function guardarCorte(){
       fino:parseFloat(document.getElementById('corte-fino').value)||0
     }
   };
-  // Guardar local siempre como respaldo
   var btn=document.getElementById('btn-guardar-corte');
   if(btn){btn.disabled=true;btn.textContent='Guardando...';}
-  var local=[];
-  try{local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e){}
-  local.push(data);
-  localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));
-  // Guardar en Notion si está configurado
+  var local=[];try{local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e){}
+  local.push(data);localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));
   if(cfg.apiKey){
     try{
       setSyncStatus('loading','Guardando corte...');
       var dbId=(cfg.cortesDbId||CORTES_DB_ID).replace(/-/g,'');
-      await notionRequest('POST','/pages',{
-        parent:{database_id:dbId},
-        properties:{
-          'Fecha':{title:[{text:{content:lbl}}]},
-          'Fecha ISO':{rich_text:[{text:{content:hoyCorte}}]},
-          'Biffe Cant':{number:data.ing.biffe.cant},
-          'Biffe Merma':{number:data.ing.biffe.merma},
-          'Biffe Unidad':{rich_text:[{text:{content:data.ing.biffe.unidad}}]},
-          'Cerdo Cant':{number:data.ing.cerdo.cant},
-          'Cerdo Merma':{number:data.ing.cerdo.merma},
-          'Cerdo Unidad':{rich_text:[{text:{content:data.ing.cerdo.unidad}}]},
-          'Fino Cant':{number:data.ing.fino.cant},
-          'Fino Merma':{number:data.ing.fino.merma},
-          'Fino Unidad':{rich_text:[{text:{content:data.ing.fino.unidad}}]},
-          'Churrasco':{number:data.cortes.churrasco},
-          'Chuleta':{number:data.cortes.chuleta},
-          'Chorizo':{number:data.cortes.chorizo},
-          'Biffe Corte':{number:data.cortes.biffe},
-          'Pollo':{number:data.cortes.pollo},
-          'Cerdo Corte':{number:data.cortes.cerdo},
-          'Fino Corte':{number:data.cortes.fino}
-        }
-      });
-      setSyncStatus('ok','Sincronizado');
-      showToast('✓ Corte guardado en Notion: '+lbl);
-    }catch(e){
-      setSyncStatus('err','Error sync');
-      showToast('Guardado local. Error Notion: '+e.message,true);
-    }
-  }else{
-    showToast('Corte guardado localmente');
-  }
+      await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:{
+        'Fecha':{title:[{text:{content:lbl}}]},'Fecha ISO':{rich_text:[{text:{content:fechaInput}}]},
+        'Biffe Cant':{number:data.ing.biffe.cant},'Biffe Merma':{number:data.ing.biffe.merma},'Biffe Unidad':{rich_text:[{text:{content:data.ing.biffe.unidad}}]},
+        'Cerdo Cant':{number:data.ing.cerdo.cant},'Cerdo Merma':{number:data.ing.cerdo.merma},'Cerdo Unidad':{rich_text:[{text:{content:data.ing.cerdo.unidad}}]},
+        'Fino Cant':{number:data.ing.fino.cant},'Fino Merma':{number:data.ing.fino.merma},'Fino Unidad':{rich_text:[{text:{content:data.ing.fino.unidad}}]},
+        'Churrasco':{number:data.cortes.churrasco},'Chuleta':{number:data.cortes.chuleta},'Chorizo':{number:data.cortes.chorizo},
+        'Biffe Corte':{number:data.cortes.biffe},'Pollo':{number:data.cortes.pollo},'Cerdo Corte':{number:data.cortes.cerdo},'Fino Corte':{number:data.cortes.fino}
+      }});
+      setSyncStatus('ok','Sincronizado');showToast('✓ Corte guardado: '+lbl);
+    }catch(e){setSyncStatus('err','Error sync');showToast('Guardado local. Error: '+e.message,true);}
+  }else{showToast('Corte guardado localmente');}
   if(btn){btn.disabled=false;btn.innerHTML='💾 Guardar Ingresos y Cortes';}
-  resetCorteForm();
-  loadCortes();
+  resetCorteForm();loadCortes();
 }
 function resetCorteForm(){
-  // Reset fecha a hoy
   document.getElementById('corte-fecha').value=new Date().toISOString().split('T')[0];
   ['biffe','cerdo','fino'].forEach(function(t){
     document.getElementById('ing-'+t+'-cant').value='';
@@ -1307,9 +1061,7 @@ function resetCorteForm(){
     document.getElementById('ing-'+t+'-unidad').value='kg';
     document.getElementById('neto-'+t).textContent='0.00';
   });
-  ['churrasco','chuleta','chorizo','biffe','pollo','cerdo','fino'].forEach(function(c){
-    document.getElementById('corte-'+c).value='';
-  });
+  ['churrasco','chuleta','chorizo','biffe','pollo','cerdo','fino'].forEach(function(c){document.getElementById('corte-'+c).value='';});
 }
 async function loadCortes(){
   document.getElementById('cortes-history-body').innerHTML='';
@@ -1323,50 +1075,32 @@ async function loadCortes(){
         var p=page.properties;
         function n(k){return p[k]&&p[k].number!=null?p[k].number:0;}
         function t(k){return p[k]&&p[k].rich_text&&p[k].rich_text[0]?p[k].rich_text[0].text.content:'';}
-        return{
-          pageId:page.id,
-          fechaLabel:p.Fecha.title[0]?p.Fecha.title[0].text.content:'',
-          fecha:t('Fecha ISO'),
-          ing:{
-            biffe:{cant:n('Biffe Cant'),merma:n('Biffe Merma'),unidad:t('Biffe Unidad')||'kg'},
-            cerdo:{cant:n('Cerdo Cant'),merma:n('Cerdo Merma'),unidad:t('Cerdo Unidad')||'kg'},
-            fino:{cant:n('Fino Cant'),merma:n('Fino Merma'),unidad:t('Fino Unidad')||'kg'}
-          },
-          cortes:{churrasco:n('Churrasco'),chuleta:n('Chuleta'),chorizo:n('Chorizo'),biffe:n('Biffe Corte'),pollo:n('Pollo'),cerdo:n('Cerdo Corte'),fino:n('Fino Corte')}
-        };
+        return{pageId:page.id,fechaLabel:p.Fecha.title[0]?p.Fecha.title[0].text.content:'',fecha:t('Fecha ISO'),
+          ing:{biffe:{cant:n('Biffe Cant'),merma:n('Biffe Merma'),unidad:t('Biffe Unidad')||'kg'},
+               cerdo:{cant:n('Cerdo Cant'),merma:n('Cerdo Merma'),unidad:t('Cerdo Unidad')||'kg'},
+               fino:{cant:n('Fino Cant'),merma:n('Fino Merma'),unidad:t('Fino Unidad')||'kg'}},
+          cortes:{churrasco:n('Churrasco'),chuleta:n('Chuleta'),chorizo:n('Chorizo'),biffe:n('Biffe Corte'),pollo:n('Pollo'),cerdo:n('Cerdo Corte'),fino:n('Fino Corte')}};
       });
       renderCortesHistory();
-    }catch(e){
-      try{cortesRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e2){cortesRecords=[];}
-      renderCortesHistory();
-      showToast('Datos locales. Error Notion: '+e.message,true);
-    }
-  }else{
-    try{cortesRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e){cortesRecords=[];}
-    renderCortesHistory();
-  }
+    }catch(e){try{cortesRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e2){cortesRecords=[];}renderCortesHistory();showToast('Datos locales. Error: '+e.message,true);}
+  }else{try{cortesRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e){cortesRecords=[];}renderCortesHistory();}
 }
 function renderCortesHistory(){
   var body=document.getElementById('cortes-history-body');
   body.innerHTML='';
-  if(!cortesRecords.length){
-    document.getElementById('cortes-empty').style.display='block';
-    document.getElementById('cortes-empty-msg').textContent='No hay cortes registrados.';
-    return;
-  }
+  if(!cortesRecords.length){document.getElementById('cortes-empty').style.display='block';document.getElementById('cortes-empty-msg').textContent='No hay cortes registrados.';return;}
   document.getElementById('cortes-empty').style.display='none';
   var esAdmin=currentUser&&currentUser.rol==='administrador';
-  cortesRecords.slice().reverse().forEach(function(r,i){
-    var ri=cortesRecords.length-1-i;
+  cortesRecords.forEach(function(r,i){
     var tr=document.createElement('tr');
-    var delBtn=esAdmin?'<button class="btn-del" onclick="delCorte('+ri+')">🗑 Eliminar</button>':'<span style="color:var(--muted);font-size:11px;">—</span>';
+    var delBtn=esAdmin?'<button class="btn-del" onclick="delCorte('+i+')">🗑 Eliminar</button>':'<span style="color:var(--muted);font-size:11px;">—</span>';
     tr.innerHTML='<td style="padding:10px 14px;font-size:12px;">'+r.fechaLabel+'</td>'+
-      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.biffe.cant+' '+r.ing.biffe.unidad+'</td>'+
-      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.biffe.merma+'</td>'+
-      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.cerdo.cant+' '+r.ing.cerdo.unidad+'</td>'+
-      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.cerdo.merma+'</td>'+
-      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.fino.cant+' '+r.ing.fino.unidad+'</td>'+
-      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.fino.merma+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.biffe.cant+' u.</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.biffe.merma+' '+r.ing.biffe.unidad+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.cerdo.cant+' u.</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.cerdo.merma+' '+r.ing.cerdo.unidad+'</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.fino.cant+' u.</td>'+
+      '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.ing.fino.merma+' '+r.ing.fino.unidad+'</td>'+
       '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.churrasco+'</td>'+
       '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.chuleta+'</td>'+
       '<td class="tn" style="padding:10px 14px;font-size:12px;">'+r.cortes.chorizo+'</td>'+
@@ -1381,188 +1115,112 @@ function renderCortesHistory(){
 async function delCorte(i){
   var r=cortesRecords[i];
   if(!confirm('¿Eliminar el corte del '+r.fechaLabel+'?')) return;
-  if(cfg.apiKey&&r.pageId){
-    try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});}catch(e){}
-  }
+  if(cfg.apiKey&&r.pageId){try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});}catch(e){}}
   cortesRecords.splice(i,1);
-  try{
-    var local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];
-    local=local.filter(function(x){return x.fecha!==r.fecha;});
-    localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));
-  }catch(e){}
-  renderCortesHistory();
-  showToast('Corte eliminado');
+  try{var local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];local=local.filter(function(x){return x.fecha!==r.fecha;});localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));}catch(e){}
+  renderCortesHistory();showToast('Corte eliminado');
 }
-
 
 // ══ CORTESÍAS ══
-var cortesiasRecords = [];
-
-// ── Filas dinámicas de cortesías ──
-var cortesiaFilaCount = 0;
-
-function addFilaCortesia(cantidad, detalle) {
-  cantidad = cantidad || ''; detalle = detalle || '';
-  cortesiaFilaCount++;
-  var id = 'cfila-' + cortesiaFilaCount;
-  var div = document.createElement('div');
-  div.id = id;
-  div.style.cssText = 'display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:8px;';
-  div.innerHTML =
-    '<input type="number" placeholder="0" value="' + cantidad + '" step="1" min="0" ' +
-    'style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>' +
-    '<input type="text" placeholder="Describe la cortesia..." value="' + detalle + '" ' +
-    'style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>' +
-    '<button class="rm" onclick="document.getElementById(\'' + id + '\').remove()" ' +
-    'style="width:30px;height:30px;font-size:18px;">×</button>';
+var cortesiasRecords=[];
+var cortesiaFilaCount=0;
+function addFilaCortesia(cantidad,detalle){
+  cantidad=cantidad||'';detalle=detalle||'';cortesiaFilaCount++;
+  var id='cfila-'+cortesiaFilaCount,div=document.createElement('div');
+  div.id=id;div.style.cssText='display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:8px;';
+  div.innerHTML=
+    '<input type="number" placeholder="0" value="'+cantidad+'" step="1" min="0" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>'+
+    '<input type="text" placeholder="Describe la cortesia..." value="'+detalle+'" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>'+
+    '<button class="rm" onclick="document.getElementById(\''+id+'\').remove()" style="width:30px;height:30px;font-size:18px;">×</button>';
   document.getElementById('cortesias-filas').appendChild(div);
 }
-
-function getCortesiasFilas() {
-  var filas = [];
-  document.querySelectorAll('#cortesias-filas > div').forEach(function(row) {
-    var inputs = row.querySelectorAll('input');
-    var cant = parseFloat(inputs[0].value) || 0;
-    var det = inputs[1].value.trim();
-    if (cant > 0 || det) filas.push({ cantidad: cant, detalle: det });
+function getCortesiasFilas(){
+  var filas=[];
+  document.querySelectorAll('#cortesias-filas > div').forEach(function(row){
+    var inputs=row.querySelectorAll('input');
+    var cant=parseFloat(inputs[0].value)||0,det=inputs[1].value.trim();
+    if(cant>0||det) filas.push({cantidad:cant,detalle:det});
   });
   return filas;
 }
-
-async function guardarCortesias() {
-  var fechaInput = document.getElementById('cortesia-fecha').value;
-  if (!fechaInput) { showToast('Selecciona la fecha', true); return; }
-  var filas = getCortesiasFilas();
-  if (!filas.length) { showToast('Agrega al menos una cortesía', true); return; }
-
-  var d = new Date(fechaInput + 'T12:00:00');
-  var lbl = d.toLocaleDateString('es-PE', {day:'2-digit', month:'long', year:'numeric'});
-
-  var btn = document.getElementById('btn-guardar-cortesia');
-  if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
-
-  var errores = 0;
-  for (var i = 0; i < filas.length; i++) {
-    var fila = filas[i];
-    // Guardar local
-    var local = [];
-    try { local = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || []; } catch(e) {}
-    local.push({ fecha: fechaInput, fechaLabel: lbl, cantidad: fila.cantidad, detalle: fila.detalle });
-    localStorage.setItem('cajaDiaria_cortesias', JSON.stringify(local));
-    // Guardar en Notion
-    if (cfg.apiKey) {
-      try {
-        setSyncStatus('loading', 'Guardando ' + (i+1) + '/' + filas.length + '...');
-        var dbId = (cfg.cortesiasDbId || CORTEIAS_DB_ID).replace(/-/g, '');
-        await notionRequest('POST', '/pages', {
-          parent: { database_id: dbId },
-          properties: {
-            'Fecha':     { title: [{ text: { content: lbl } }] },
-            'Fecha ISO': { rich_text: [{ text: { content: fechaInput } }] },
-            'Cantidad':  { number: fila.cantidad },
-            'Detalle':   { rich_text: [{ text: { content: fila.detalle } }] }
-          }
-        });
-      } catch(e) {
-        errores++;
-        setSyncStatus('err', 'Error sync');
-      }
+async function guardarCortesias(){
+  var fechaInput=document.getElementById('cortesia-fecha').value;
+  if(!fechaInput){showToast('Selecciona la fecha',true);return;}
+  var filas=getCortesiasFilas();
+  if(!filas.length){showToast('Agrega al menos una cortesía',true);return;}
+  var d=new Date(fechaInput+'T12:00:00');
+  var lbl=d.toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
+  var btn=document.getElementById('btn-guardar-cortesia');
+  if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  var errores=0;
+  for(var i=0;i<filas.length;i++){
+    var fila=filas[i];
+    var local=[];try{local=JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[];}catch(e){}
+    local.push({fecha:fechaInput,fechaLabel:lbl,cantidad:fila.cantidad,detalle:fila.detalle});
+    localStorage.setItem('cajaDiaria_cortesias',JSON.stringify(local));
+    if(cfg.apiKey){
+      try{
+        setSyncStatus('loading','Guardando '+(i+1)+'/'+filas.length+'...');
+        var dbId=(cfg.cortesiasDbId||CORTEIAS_DB_ID).replace(/-/g,'');
+        await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:{
+          'Fecha':{title:[{text:{content:lbl}}]},'Fecha ISO':{rich_text:[{text:{content:fechaInput}}]},
+          'Cantidad':{number:fila.cantidad},'Detalle':{rich_text:[{text:{content:fila.detalle}}]}
+        }});
+      }catch(e){errores++;setSyncStatus('err','Error sync');}
     }
   }
-
-  if (btn) { btn.disabled = false; btn.innerHTML = '🎁 Guardar todas las cortesías'; }
-  if (errores > 0) {
-    showToast('Guardado local con ' + errores + ' error(es) en Notion', true);
-  } else if (cfg.apiKey) {
-    setSyncStatus('ok', 'Sincronizado');
-    showToast('✓ ' + filas.length + ' cortesía(s) guardadas: ' + lbl);
-  } else {
-    showToast(filas.length + ' cortesía(s) guardadas localmente');
-  }
-  // Limpiar filas y reiniciar con una vacía
-  document.getElementById('cortesias-filas').innerHTML = '';
-  cortesiaFilaCount = 0;
-  document.getElementById('cortesia-fecha').value = new Date().toISOString().split('T')[0];
-  addFilaCortesia();
-  loadCortesias();
+  if(btn){btn.disabled=false;btn.innerHTML='🎁 Guardar todas las cortesías';}
+  if(errores>0) showToast('Guardado local con '+errores+' error(es)',true);
+  else if(cfg.apiKey){setSyncStatus('ok','Sincronizado');showToast('✓ '+filas.length+' cortesía(s) guardadas: '+lbl);}
+  else showToast(filas.length+' cortesía(s) guardadas localmente');
+  document.getElementById('cortesias-filas').innerHTML='';cortesiaFilaCount=0;
+  document.getElementById('cortesia-fecha').value=new Date().toISOString().split('T')[0];
+  addFilaCortesia();loadCortesias();
 }
-
-async function loadCortesias() {
-  document.getElementById('cortesias-body').innerHTML = '';
-  document.getElementById('cortesias-empty').style.display = 'block';
-  document.getElementById('cortesias-empty-msg').textContent = 'Cargando...';
-
-  if (cfg.apiKey) {
-    try {
-      var dbId = (cfg.cortesiasDbId || CORTEIAS_DB_ID).replace(/-/g, '');
-      var result = await notionRequest('POST', '/databases/' + dbId + '/query', {
-        sorts: [{ property: 'Fecha ISO', direction: 'descending' }]
-      });
-      cortesiasRecords = result.results.map(function(page) {
-        var p = page.properties;
-        function t(k) { return p[k] && p[k].rich_text && p[k].rich_text[0] ? p[k].rich_text[0].text.content : ''; }
-        return {
-          pageId: page.id,
-          fechaLabel: p.Fecha.title[0] ? p.Fecha.title[0].text.content : '',
-          fecha: t('Fecha ISO'),
-          cantidad: p.Cantidad && p.Cantidad.number != null ? p.Cantidad.number : 0,
-          detalle: t('Detalle')
-        };
+async function loadCortesias(){
+  document.getElementById('cortesias-body').innerHTML='';
+  document.getElementById('cortesias-empty').style.display='block';
+  document.getElementById('cortesias-empty-msg').textContent='Cargando...';
+  if(cfg.apiKey){
+    try{
+      var dbId=(cfg.cortesiasDbId||CORTEIAS_DB_ID).replace(/-/g,'');
+      var result=await notionRequest('POST','/databases/'+dbId+'/query',{sorts:[{property:'Fecha ISO',direction:'descending'}]});
+      cortesiasRecords=result.results.map(function(page){
+        var p=page.properties;
+        function t(k){return p[k]&&p[k].rich_text&&p[k].rich_text[0]?p[k].rich_text[0].text.content:'';}
+        return{pageId:page.id,fechaLabel:p.Fecha.title[0]?p.Fecha.title[0].text.content:'',
+          fecha:t('Fecha ISO'),cantidad:p.Cantidad&&p.Cantidad.number!=null?p.Cantidad.number:0,detalle:t('Detalle')};
       });
       renderCortesias();
-    } catch(e) {
-      try { cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || []; } catch(e2) { cortesiasRecords = []; }
-      renderCortesias();
-      showToast('Datos locales. Error: ' + e.message, true);
-    }
-  } else {
-    try { cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || []; } catch(e) { cortesiasRecords = []; }
-    renderCortesias();
-  }
+    }catch(e){try{cortesiasRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[];}catch(e2){cortesiasRecords=[];}renderCortesias();showToast('Datos locales. Error: '+e.message,true);}
+  }else{try{cortesiasRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[];}catch(e){cortesiasRecords=[];}renderCortesias();}
 }
-
-function renderCortesias() {
-  var body = document.getElementById('cortesias-body');
-  body.innerHTML = '';
-  if (!cortesiasRecords.length) {
-    document.getElementById('cortesias-empty').style.display = 'block';
-    document.getElementById('cortesias-empty-msg').textContent = 'No hay cortesías registradas.';
-    return;
-  }
-  document.getElementById('cortesias-empty').style.display = 'none';
-  var esAdmin = currentUser && currentUser.rol === 'administrador';
-  cortesiasRecords.forEach(function(r, i) {
-    var tr = document.createElement('tr');
-    var delBtn = esAdmin
-      ? '<button class="btn-del" onclick="delCortesia(' + i + ')">🗑 Eliminar</button>'
-      : '<span style="color:var(--muted);font-size:11px;">—</span>';
-    tr.innerHTML =
-      '<td style="padding:12px 16px;font-size:13px;">' + r.fechaLabel + '</td>' +
-      '<td class="tn" style="padding:12px 16px;font-size:13px;font-weight:600;">' + r.cantidad + '</td>' +
-      '<td style="padding:12px 16px;font-size:13px;">' + (r.detalle || '—') + '</td>' +
-      '<td style="text-align:center;padding:12px 16px;">' + delBtn + '</td>';
+function renderCortesias(){
+  var body=document.getElementById('cortesias-body');body.innerHTML='';
+  if(!cortesiasRecords.length){document.getElementById('cortesias-empty').style.display='block';document.getElementById('cortesias-empty-msg').textContent='No hay cortesías registradas.';return;}
+  document.getElementById('cortesias-empty').style.display='none';
+  var esAdmin=currentUser&&currentUser.rol==='administrador';
+  cortesiasRecords.forEach(function(r,i){
+    var tr=document.createElement('tr');
+    var delBtn=esAdmin?'<button class="btn-del" onclick="delCortesia('+i+')">🗑 Eliminar</button>':'<span style="color:var(--muted);font-size:11px;">—</span>';
+    tr.innerHTML='<td style="padding:12px 16px;font-size:13px;">'+r.fechaLabel+'</td>'+
+      '<td class="tn" style="padding:12px 16px;font-size:13px;font-weight:600;">'+r.cantidad+'</td>'+
+      '<td style="padding:12px 16px;font-size:13px;">'+(r.detalle||'—')+'</td>'+
+      '<td style="text-align:center;padding:12px 16px;">'+delBtn+'</td>';
     body.appendChild(tr);
   });
 }
-
-async function delCortesia(i) {
-  var r = cortesiasRecords[i];
-  if (!confirm('¿Eliminar la cortesía del ' + r.fechaLabel + '?')) return;
-  if (cfg.apiKey && r.pageId) {
-    try { await notionRequest('PATCH', '/pages/' + r.pageId, { archived: true }); } catch(e) {}
-  }
-  cortesiasRecords.splice(i, 1);
-  try {
-    var local = JSON.parse(localStorage.getItem('cajaDiaria_cortesias')) || [];
-    local = local.filter(function(x) { return x.fecha !== r.fecha || x.detalle !== r.detalle; });
-    localStorage.setItem('cajaDiaria_cortesias', JSON.stringify(local));
-  } catch(e) {}
-  renderCortesias();
-  showToast('Cortesía eliminada');
+async function delCortesia(i){
+  var r=cortesiasRecords[i];
+  if(!confirm('¿Eliminar la cortesía del '+r.fechaLabel+'?')) return;
+  if(cfg.apiKey&&r.pageId){try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});}catch(e){}}
+  cortesiasRecords.splice(i,1);
+  try{var local=JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[];local=local.filter(function(x){return x.fecha!==r.fecha||x.detalle!==r.detalle;});localStorage.setItem('cajaDiaria_cortesias',JSON.stringify(local));}catch(e){}
+  renderCortesias();showToast('Cortesía eliminada');
 }
 
-// ══ AUTO-INICIO: si ya hay sesión activa ══
-if(currentUser){ initApp(); }
+// ══ AUTO-INICIO ══
+if(currentUser){initApp();}
 </script>
 </body>
 </html>
