@@ -141,6 +141,18 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 .users-tbl-wrap{background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;overflow-x:auto;margin-top:16px;}
 .btn-edit{background:none;border:1px solid var(--border);color:var(--navy2);padding:5px 12px;border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
 .btn-edit:hover{background:var(--surface2);border-color:var(--navy2);}
+
+/* CALENDARIO CORTESÍAS */
+.cal-dia{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 4px;min-height:64px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;align-items:center;}
+.cal-dia:hover{background:#e8f4fd;border-color:#93b4f0;}
+.cal-dia.tiene-datos{background:#f0faf0;border-color:#b7dfb9;cursor:pointer;}
+.cal-dia.tiene-datos:hover{background:#e0f5e0;}
+.cal-dia.vacio{cursor:default;opacity:.35;}
+.cal-dia-num{font-size:12px;font-weight:700;color:var(--navy2);margin-bottom:4px;}
+.cal-dia-badge{background:var(--accent3);color:#fff;border-radius:12px;font-size:10px;font-weight:700;padding:1px 7px;margin-top:2px;}
+.cal-dia-header{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:center;padding:4px 0;}
+.cal-dia.hoy{border-color:var(--accent3);border-width:2px;}
+
 /* PROVEEDORES */
 .prov-input-nombre{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;}
 .prov-input-nombre:focus{border-color:var(--navy2);background:var(--surface);}
@@ -293,6 +305,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
       <button class="btn-refresh" onclick="loadProveedores()">↺ Actualizar</button>
       <button class="btn-success" onclick="agregarSemana()" style="border-radius:8px;padding:10px 20px;">+ Nueva semana</button>
+      <button class="btn-export" id="btn-export-proveedores" onclick="abrirModalDescargaProveedores()" style="padding:10px 18px;display:none;">⬇ Descargar Excel</button>
     </div>
   </div>
 
@@ -371,10 +384,30 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     </div>
     <div id="cortesias-filas"></div>
   </div>
+  <!-- Panel resumen calendario -->
   <div class="panel" style="margin-top:24px;">
-    <div class="panel-title" style="justify-content:space-between;"><span>🎁 Resumen de cortesías</span><button class="btn-refresh" onclick="loadCortesias()" style="padding:7px 16px;font-size:12px;">↺ Actualizar</button></div>
-    <div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Cantidad</th><th>Detalle</th><th style="text-align:center">Acción</th></tr></thead><tbody id="cortesias-body"></tbody></table>
-    <div class="empty" id="cortesias-empty"><div class="empty-ico">🎁</div><div id="cortesias-empty-msg">No hay cortesías registradas.</div></div></div>
+    <div class="panel-title" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <span>🗓️ Resumen de cortesías por día</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn-refresh" onclick="loadCortesias()" style="padding:7px 14px;font-size:12px;">↺ Actualizar</button>
+        <button class="btn-export" id="btn-export-cortesias" onclick="abrirModalDescargaCortesias()" style="padding:8px 16px;font-size:12px;">⬇ Descargar Excel</button>
+      </div>
+    </div>
+    <!-- Navegación mes/año del calendario -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <button class="btn-refresh" onclick="cortCalPrev()" style="padding:6px 14px;font-size:13px;">◀</button>
+      <span id="cort-cal-titulo" style="font-size:15px;font-weight:600;color:var(--navy2);"></span>
+      <button class="btn-refresh" onclick="cortCalNext()" style="padding:6px 14px;font-size:13px;">▶</button>
+    </div>
+    <!-- Grid calendario -->
+    <div id="cortesias-calendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;"></div>
+    <!-- Empty state -->
+    <div class="empty" id="cortesias-empty" style="display:none;">
+      <div class="empty-ico">🎁</div>
+      <div id="cortesias-empty-msg">No hay cortesías registradas.</div>
+    </div>
+    <!-- Tabla oculta para compatibilidad con código existente -->
+    <table style="display:none;"><tbody id="cortesias-body"></tbody></table>
   </div>
 </div>
 
@@ -488,6 +521,58 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 </div>
 </div><!-- /screen-app -->
 
+<!-- MODAL descarga cortesías -->
+<div class="modal-overlay" id="modal-descarga-cortesias">
+  <div class="modal">
+    <div class="modal-title">⬇ Descargar Excel de Cortesías</div>
+    <div class="field">
+      <label>Fecha inicio</label>
+      <input type="date" id="descarga-fecha-ini"/>
+    </div>
+    <div class="field">
+      <label>Fecha fin</label>
+      <input type="date" id="descarga-fecha-fin"/>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px;">El Excel se dividirá en pestañas por mes.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-descarga-cortesias')">Cancelar</button>
+      <button class="btn-success" onclick="exportCortesiasExcel()">⬇ Descargar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL descarga proveedores -->
+<div class="modal-overlay" id="modal-descarga-proveedores">
+  <div class="modal">
+    <div class="modal-title">⬇ Descargar Excel de Proveedores</div>
+    <div class="field">
+      <label>Fecha inicio (Mes)</label>
+      <input type="month" id="prov-descarga-ini" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>
+    </div>
+    <div class="field">
+      <label>Fecha fin (Mes)</label>
+      <input type="month" id="prov-descarga-fin" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;"/>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px;">El Excel se dividirá en pestañas por mes.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-descarga-proveedores')">Cancelar</button>
+      <button class="btn-success" onclick="exportProveedoresExcel()">⬇ Descargar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL detalle cortesías del día -->
+<div class="modal-overlay" id="modal-cortesias-dia">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-title" id="modal-cortesias-titulo">🎁 Cortesías del día</div>
+    <div id="modal-cortesias-contenido" style="max-height:400px;overflow-y:auto;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-cortesias-dia')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL USUARIO -->
 <div class="modal-overlay" id="modal-user">
   <div class="modal">
@@ -597,7 +682,15 @@ function switchTab(t){
   if(t==='report') loadReport();
   if(t==='users') loadUsers();
   if(t==='cortes'){var cf=document.getElementById('corte-fecha');if(cf&&!cf.value)cf.value=new Date().toISOString().split('T')[0];loadCortes();}
-  if(t==='cortesias'){var cf2=document.getElementById('cortesia-fecha');if(cf2&&!cf2.value)cf2.value=new Date().toISOString().split('T')[0];if(!document.querySelector('#cortesias-filas > div'))addFilaCortesia();loadCortesias();}
+  if(t==='cortesias'){
+    var cf2=document.getElementById('cortesia-fecha');
+    if(cf2&&!cf2.value)cf2.value=new Date().toISOString().split('T')[0];
+    if(!document.querySelector('#cortesias-filas > div'))addFilaCortesia();
+    // Asegurar que el calendario apunte al mes actual al abrir
+    cortCalAnio=new Date().getFullYear();
+    cortCalMes=new Date().getMonth();
+    loadCortesias();
+  }
   if(t==='proveedores') initProveedores();
 }
 function updateBadge(){var fv=document.getElementById('fecha').value;if(!fv){document.getElementById('fecha-badge').textContent='—';return;}document.getElementById('fecha-badge').textContent=new Date(fv+'T12:00:00').toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});}
@@ -690,13 +783,16 @@ function initProveedores() {
   var hoy = new Date();
   document.getElementById('prov-mes').value = meses[hoy.getMonth()];
   document.getElementById('prov-anio').value = hoy.getFullYear();
-  // Mostrar historial solo para administrador
   var panel = document.getElementById('prov-historial-panel');
-  if (panel) panel.style.display = (currentUser && currentUser.rol === 'administrador') ? 'block' : 'none';
+  var esAdminProv = currentUser && currentUser.rol === 'administrador';
+  if (panel) panel.style.display = esAdminProv ? 'block' : 'none';
+  var btnExpProv = document.getElementById('btn-export-proveedores');
+  if (btnExpProv) btnExpProv.style.display = esAdminProv ? 'flex' : 'none';
   if (!document.querySelector('#prov-semanas-container .prov-sem-panel')) {
     agregarSemana();
   }
-  loadProveedores();
+  // Cargar datos guardados y pintar las tablas
+  loadProveedoresEnTablas();
 }
 
 function getMes() { return document.getElementById('prov-mes').value; }
@@ -704,8 +800,7 @@ function getAnio() { return document.getElementById('prov-anio').value; }
 
 function actualizarTitulosSemanas() {
   var mes = getMes(), anio = getAnio();
-  var semanas = document.querySelectorAll('#prov-semanas-container .prov-sem-panel');
-  semanas.forEach(function(panel, idx) {
+  document.querySelectorAll('#prov-semanas-container .prov-sem-panel').forEach(function(panel, idx) {
     var lbl = 'Semana ' + (idx + 1) + ' — ' + mes + ' ' + anio;
     panel.dataset.semana = lbl;
     panel.dataset.mes = mes;
@@ -713,6 +808,8 @@ function actualizarTitulosSemanas() {
     var tituloEl = panel.querySelector('.prov-sem-titulo');
     if (tituloEl) tituloEl.textContent = '📅 ' + lbl;
   });
+  // Re-cargar datos para la nueva semana/mes
+  loadProveedoresEnTablas();
 }
 
 function agregarSemana() {
@@ -722,7 +819,6 @@ function agregarSemana() {
   var lbl = 'Semana ' + numActual + ' — ' + mes + ' ' + anio;
   var panelId = 'psem' + semCont;
 
-  // ── Panel contenedor ──
   var panel = document.createElement('div');
   panel.id = panelId;
   panel.className = 'panel prov-sem-panel';
@@ -731,7 +827,7 @@ function agregarSemana() {
   panel.dataset.mes = mes;
   panel.dataset.anio = anio;
 
-  // ── Cabecera del panel ──
+  // Cabecera
   var header = document.createElement('div');
   header.className = 'panel-title';
   header.style.justifyContent = 'space-between';
@@ -743,29 +839,23 @@ function agregarSemana() {
   var acciones = document.createElement('div');
   acciones.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
 
-  // Botón + Agregar proveedor
   var btnAgregar = document.createElement('button');
   btnAgregar.className = 'add-btn';
   btnAgregar.style.cssText = 'width:auto;padding:6px 16px;font-size:12px;margin:0;';
   btnAgregar.textContent = '+ Agregar proveedor';
-  btnAgregar.addEventListener('click', function() { agregarFilaProveedor(panelId); });
+  btnAgregar.addEventListener('click', function() { agregarFilaProveedor(panelId, null); });
 
-  // Botón Guardar semana
   var btnGuardar = document.createElement('button');
   btnGuardar.className = 'btn-save';
   btnGuardar.style.cssText = 'width:auto;padding:8px 18px;font-size:12px;';
   btnGuardar.textContent = '💾 Guardar semana';
   btnGuardar.addEventListener('click', function() { guardarSemana(panelId); });
 
-  // Botón Quitar semana
   var btnQuitar = document.createElement('button');
   btnQuitar.className = 'btn-del';
   btnQuitar.style.cssText = 'padding:6px 10px;font-size:11px;';
   btnQuitar.textContent = '🗑 Quitar';
-  btnQuitar.addEventListener('click', function() {
-    panel.remove();
-    actualizarTitulosSemanas();
-  });
+  btnQuitar.addEventListener('click', function() { panel.remove(); actualizarTitulosSemanas(); });
 
   acciones.appendChild(btnAgregar);
   acciones.appendChild(btnGuardar);
@@ -774,64 +864,52 @@ function agregarSemana() {
   header.appendChild(acciones);
   panel.appendChild(header);
 
-  // ── Tabla scroll wrapper ──
+  // Tabla
   var scrollWrap = document.createElement('div');
   scrollWrap.style.overflowX = 'auto';
 
   var table = document.createElement('table');
   table.style.cssText = 'width:100%;border-collapse:collapse;min-width:780px;';
 
-  // Thead
   var thead = document.createElement('thead');
   var headRow = document.createElement('tr');
   headRow.style.background = 'var(--navy)';
-  var cols = ['Proveedor', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo', 'Total', ''];
-  cols.forEach(function(c, ci) {
+  ['Proveedor','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Total',''].forEach(function(c, ci) {
     var th = document.createElement('th');
-    var isFirst = ci === 0;
-    var isLast = ci === cols.length - 1;
-    var isDia = ci >= 1 && ci <= 7;
-    var isTotal = ci === 8;
-    th.style.cssText = 'padding:10px ' + (isFirst ? '14px' : '8px') + ';text-align:' + (isFirst ? 'left' : isDia || isTotal ? 'center' : 'center') + ';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);white-space:nowrap;';
-    if (isTotal) th.style.textAlign = 'right';
+    th.style.cssText = 'padding:10px ' + (ci===0?'14px':'8px') + ';text-align:' + (ci===0?'left':ci===8?'right':'center') + ';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);white-space:nowrap;';
     th.textContent = c;
     headRow.appendChild(th);
   });
   thead.appendChild(headRow);
   table.appendChild(thead);
 
-  // Tbody
   var tbody = document.createElement('tbody');
   tbody.className = 'prov-tbody';
   table.appendChild(tbody);
 
-  // Tfoot — fila de totales por columna
+  // Tfoot totales
   var tfoot = document.createElement('tfoot');
   var tfRow = document.createElement('tr');
   tfRow.className = 'prov-tfoot-row';
   var dayKeys = ['lun','mar','mie','jue','vie','sab','dom'];
-  var tfCells = ['TOTAL SEMANA','0.00','0.00','0.00','0.00','0.00','0.00','0.00','0.00',''];
-  tfCells.forEach(function(c, ci) {
+  ['TOTAL SEMANA','0.00','0.00','0.00','0.00','0.00','0.00','0.00','0.00',''].forEach(function(c, ci) {
     var td = document.createElement('td');
-    td.style.cssText = 'padding:9px ' + (ci === 0 ? '14px' : ci === 8 ? '14px' : '8px') + ';';
-    if (ci === 0) { td.style.textAlign = 'left'; td.style.fontFamily = 'var(--font)'; td.style.fontSize = '12px'; td.style.fontWeight = '700'; td.style.color = 'var(--navy2)'; }
-    else if (ci >= 1 && ci <= 7) { td.style.textAlign = 'center'; td.className = 'ptot-' + dayKeys[ci - 1]; }
-    else if (ci === 8) { td.style.textAlign = 'right'; td.className = 'ptot-total'; td.style.color = 'var(--navy2)'; }
+    td.style.cssText = 'padding:9px ' + (ci===0?'14px':ci===8?'14px':'8px') + ';';
+    if (ci===0){ td.style.textAlign='left'; td.style.fontFamily='var(--font)'; td.style.fontSize='12px'; td.style.fontWeight='700'; td.style.color='var(--navy2)'; }
+    else if (ci>=1&&ci<=7){ td.style.textAlign='center'; td.className='ptot-'+dayKeys[ci-1]; }
+    else if (ci===8){ td.style.textAlign='right'; td.className='ptot-total'; td.style.color='var(--navy2)'; }
     td.textContent = c;
     tfRow.appendChild(td);
   });
   tfoot.appendChild(tfRow);
   table.appendChild(tfoot);
-
   scrollWrap.appendChild(table);
   panel.appendChild(scrollWrap);
   document.getElementById('prov-semanas-container').appendChild(panel);
-
-  // Agregar primera fila vacía
-  agregarFilaProveedor(panelId);
 }
 
-function agregarFilaProveedor(panelId) {
+// Agrega una fila — si se pasa un objeto `datos`, pre-llena los campos
+function agregarFilaProveedor(panelId, datos) {
   var panel = document.getElementById(panelId);
   if (!panel) return;
   var tbody = panel.querySelector('.prov-tbody');
@@ -839,37 +917,81 @@ function agregarFilaProveedor(panelId) {
 
   var tr = document.createElement('tr');
   tr.style.borderBottom = '1px solid var(--border)';
+  if (datos) tr.dataset.notionId = datos.pageId || '';
 
-  // Celda nombre
+  // Nombre
   var tdNombre = document.createElement('td');
   tdNombre.style.cssText = 'padding:5px 8px;min-width:160px;';
   var inpNombre = document.createElement('input');
   inpNombre.type = 'text';
   inpNombre.placeholder = 'Nombre del proveedor';
   inpNombre.className = 'prov-input-nombre';
+  if (datos) {
+    inpNombre.value = datos.nombre || '';
+    // Si viene de datos guardados, poner fondo verde claro para indicar que ya existe
+    inpNombre.style.cssText = 'width:100%;padding:7px 10px;border:1px solid #b7dfb9;border-radius:6px;font-size:13px;font-family:var(--font);background:#f0faf0;outline:none;font-weight:600;';
+  }
   tdNombre.appendChild(inpNombre);
   tr.appendChild(tdNombre);
 
-  // Celdas días (7)
+  // Días
   dayKeys.forEach(function(dk) {
     var td = document.createElement('td');
-    td.style.cssText = 'padding:4px 5px;';
+    td.style.cssText = 'padding:4px 5px;position:relative;';
+
     var inp = document.createElement('input');
     inp.type = 'number';
     inp.placeholder = '0';
     inp.step = '0.01';
     inp.min = '0';
     inp.className = 'prov-input-dia prov-dia-' + dk;
-    inp.addEventListener('input', function() { recalcSemana(panelId); });
+
+    if (datos && datos[dk] > 0) {
+      inp.value = datos[dk];
+      inp.style.cssText = 'width:100%;padding:6px 8px;border:1px solid #b7dfb9;border-radius:6px;font-size:13px;font-family:var(--mono);text-align:right;background:#f0faf0;outline:none;';
+    }
+    inp.addEventListener('input', function() {
+      // Al modificar, marcar celda como editada (azul claro)
+      inp.style.background = '#eef4ff';
+      inp.style.borderColor = '#93b4f0';
+      recalcSemana(panelId);
+    });
+
+    // Botón × para borrar el monto de ese día específico
+    var btnClear = document.createElement('button');
+    btnClear.style.cssText = 'display:none;position:absolute;top:2px;right:2px;width:16px;height:16px;font-size:10px;background:#fdeaea;border:1px solid #f5c6c6;color:var(--red);border-radius:3px;cursor:pointer;line-height:1;padding:0;';
+    btnClear.textContent = '×';
+    btnClear.title = 'Borrar monto de este día';
+    btnClear.addEventListener('click', function(e) {
+      e.preventDefault();
+      inp.value = '';
+      inp.style.background = 'var(--surface2)';
+      inp.style.borderColor = 'var(--border)';
+      btnClear.style.display = 'none';
+      recalcSemana(panelId);
+    });
+
+    // Mostrar/ocultar botón × según haya valor
+    inp.addEventListener('focus', function() {
+      if (inp.value && parseFloat(inp.value) > 0) btnClear.style.display = 'block';
+    });
+    inp.addEventListener('blur', function() {
+      setTimeout(function() { btnClear.style.display = 'none'; }, 200);
+    });
+    inp.addEventListener('input', function() {
+      btnClear.style.display = (inp.value && parseFloat(inp.value) > 0) ? 'block' : 'none';
+    });
+
     td.appendChild(inp);
+    td.appendChild(btnClear);
     tr.appendChild(td);
   });
 
-  // Celda total fila
+  // Total fila
   var tdTot = document.createElement('td');
   tdTot.style.cssText = 'padding:5px 10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--navy2);white-space:nowrap;';
   tdTot.className = 'pfila-total';
-  tdTot.textContent = '0.00';
+  tdTot.textContent = datos ? (datos.total || 0).toFixed(2) : '0.00';
   tr.appendChild(tdTot);
 
   // Botón eliminar fila
@@ -879,14 +1001,13 @@ function agregarFilaProveedor(panelId) {
   btnRm.className = 'rm';
   btnRm.style.cssText = 'width:26px;height:26px;font-size:15px;';
   btnRm.textContent = '×';
-  btnRm.addEventListener('click', function() {
-    tr.remove();
-    recalcSemana(panelId);
-  });
+  btnRm.title = 'Quitar esta fila';
+  btnRm.addEventListener('click', function() { tr.remove(); recalcSemana(panelId); });
   tdRm.appendChild(btnRm);
   tr.appendChild(tdRm);
 
   tbody.appendChild(tr);
+  recalcSemana(panelId);
 }
 
 function recalcSemana(panelId) {
@@ -895,26 +1016,99 @@ function recalcSemana(panelId) {
   var dayKeys = ['lun','mar','mie','jue','vie','sab','dom'];
   var colTots = { lun:0, mar:0, mie:0, jue:0, vie:0, sab:0, dom:0 };
   var grandTotal = 0;
-
   panel.querySelectorAll('.prov-tbody tr').forEach(function(row) {
     var rowTot = 0;
     dayKeys.forEach(function(dk) {
       var inp = row.querySelector('.prov-dia-' + dk);
       var v = inp ? (parseFloat(inp.value) || 0) : 0;
-      colTots[dk] += v;
-      rowTot += v;
+      colTots[dk] += v; rowTot += v;
     });
     var tc = row.querySelector('.pfila-total');
     if (tc) tc.textContent = rowTot.toFixed(2);
     grandTotal += rowTot;
   });
-
   dayKeys.forEach(function(dk) {
     var el = panel.querySelector('.ptot-' + dk);
     if (el) el.textContent = colTots[dk].toFixed(2);
   });
   var gt = panel.querySelector('.ptot-total');
   if (gt) gt.textContent = grandTotal.toFixed(2);
+}
+
+// Carga los datos de Notion/local y pinta las semanas existentes en las tablas
+async function loadProveedoresEnTablas() {
+  var datos = [];
+  if (cfg.apiKey) {
+    try {
+      var dbId = (cfg.proveedoresDbId || PROVEEDORES_DB_ID).replace(/-/g, '');
+      var result = await notionRequest('POST', '/databases/' + dbId + '/query', {
+        sorts: [{ property: 'Semana', direction: 'ascending' }, { property: 'Nombre', direction: 'ascending' }]
+      });
+      datos = result.results.map(function(page) {
+        var p = page.properties;
+        function n(k) { return p[k] && p[k].number != null ? p[k].number : 0; }
+        function t(k) { return p[k] && p[k].rich_text && p[k].rich_text[0] ? p[k].rich_text[0].text.content : ''; }
+        return { pageId: page.id, nombre: p.Nombre.title[0] ? p.Nombre.title[0].text.content : '',
+          semana: t('Semana'), mes: t('Mes'), anio: t('Año'),
+          lun: n('Lunes'), mar: n('Martes'), mie: n('Miercoles'), jue: n('Jueves'),
+          vie: n('Viernes'), sab: n('Sabado'), dom: n('Domingo'), total: n('Total') };
+      });
+      // Guardar también en local como cache
+      localStorage.setItem('cajaDiaria_proveedores', JSON.stringify(datos));
+    } catch(e) {
+      try { datos = JSON.parse(localStorage.getItem('cajaDiaria_proveedores')) || []; } catch(e2) { datos = []; }
+    }
+  } else {
+    try { datos = JSON.parse(localStorage.getItem('cajaDiaria_proveedores')) || []; } catch(e) { datos = []; }
+  }
+
+  // Para cada panel de semana, pintar los proveedores que correspondan
+  document.querySelectorAll('#prov-semanas-container .prov-sem-panel').forEach(function(panel) {
+    var semLabel = panel.dataset.semana;
+    var tbody = panel.querySelector('.prov-tbody');
+    // Filtrar datos que coincidan con esta semana
+    var filasDeSemana = datos.filter(function(d) { return d.semana === semLabel; });
+    if (!filasDeSemana.length) return; // No hay datos para esta semana
+
+    // Limpiar filas vacías actuales (las sin nombre)
+    Array.from(tbody.querySelectorAll('tr')).forEach(function(tr) {
+      var nom = tr.querySelector('.prov-input-nombre');
+      if (nom && !nom.value.trim()) tr.remove();
+    });
+
+    // Agregar/actualizar filas con datos
+    filasDeSemana.forEach(function(d) {
+      // Buscar si ya existe una fila con este nombre
+      var filaExistente = null;
+      tbody.querySelectorAll('tr').forEach(function(tr) {
+        var nom = tr.querySelector('.prov-input-nombre');
+        if (nom && nom.value.trim().toUpperCase() === d.nombre.toUpperCase()) filaExistente = tr;
+      });
+
+      if (filaExistente) {
+        // Actualizar valores en fila existente
+        var dayKeys = ['lun','mar','mie','jue','vie','sab','dom'];
+        dayKeys.forEach(function(dk) {
+          var inp = filaExistente.querySelector('.prov-dia-' + dk);
+          if (inp && d[dk] > 0) {
+            inp.value = d[dk];
+            inp.style.background = '#f0faf0';
+            inp.style.borderColor = '#b7dfb9';
+          }
+        });
+        filaExistente.dataset.notionId = d.pageId || '';
+      } else {
+        // Agregar nueva fila con datos
+        agregarFilaProveedor(panel.id, d);
+      }
+    });
+
+    recalcSemana(panel.id);
+  });
+
+  // También actualizar el historial si es admin
+  proveedoresRecords = datos;
+  renderProveedoresHistorial();
 }
 
 async function guardarSemana(panelId) {
@@ -927,17 +1121,18 @@ async function guardarSemana(panelId) {
   var dayKeys = ['lun','mar','mie','jue','vie','sab','dom'];
   var dayMap = { lun:'Lunes', mar:'Martes', mie:'Miercoles', jue:'Jueves', vie:'Viernes', sab:'Sabado', dom:'Domingo' };
 
-  // Recoger filas del formulario
   var filas = [];
   panel.querySelectorAll('.prov-tbody tr').forEach(function(row) {
     var nombreInp = row.querySelector('.prov-input-nombre');
     if (!nombreInp || !nombreInp.value.trim()) return;
-    var fila = { nombre: nombreInp.value.trim().toUpperCase() };
+    var fila = { nombre: nombreInp.value.trim().toUpperCase(), notionId: row.dataset.notionId || '' };
     dayKeys.forEach(function(dk) {
       var inp = row.querySelector('.prov-dia-' + dk);
-      fila[dk] = inp ? (parseFloat(inp.value) || 0) : 0;
+      // null = campo vacío (no tocar), 0 = explícitamente borrado
+      var rawVal = inp ? inp.value : '';
+      fila[dk] = rawVal === '' ? null : (parseFloat(rawVal) || 0);
     });
-    fila.total = dayKeys.reduce(function(s, dk) { return s + fila[dk]; }, 0);
+    fila.total = dayKeys.reduce(function(s, dk) { return s + (fila[dk] || 0); }, 0);
     filas.push(fila);
   });
 
@@ -955,33 +1150,50 @@ async function guardarSemana(panelId) {
     if (cfg.apiKey) {
       try {
         setSyncStatus('loading', 'Guardando ' + (i+1) + '/' + filas.length + '...');
+        var existingId = fila.notionId;
 
-        // ── UPSERT: buscar si ya existe proveedor+semana ──
-        var busqueda = await notionRequest('POST', '/databases/' + dbId + '/query', {
-          filter: {
-            and: [
+        // Si no tenemos ID guardado, buscar en Notion por nombre+semana
+        if (!existingId) {
+          var busqueda = await notionRequest('POST', '/databases/' + dbId + '/query', {
+            filter: { and: [
               { property: 'Nombre', title: { equals: fila.nombre } },
               { property: 'Semana', rich_text: { equals: lbl } }
-            ]
-          }
-        });
-
-        if (busqueda.results && busqueda.results.length > 0) {
-          // Ya existe → combinar valores y actualizar
-          var existingPage = busqueda.results[0];
-          var existingId = existingPage.id;
-          var ep = existingPage.properties;
-          var mergedProps = {};
-          dayKeys.forEach(function(dk) {
-            var oldVal = ep[dayMap[dk]] && ep[dayMap[dk]].number != null ? ep[dayMap[dk]].number : 0;
-            // El nuevo valor sobreescribe si fue llenado (>0); si el campo viene en 0, conserva el anterior
-            mergedProps[dayMap[dk]] = { number: fila[dk] > 0 ? fila[dk] : oldVal };
+            ]}
           });
-          var newTotal = dayKeys.reduce(function(s, dk) { return s + mergedProps[dayMap[dk]].number; }, 0);
-          mergedProps['Total'] = { number: newTotal };
-          await notionRequest('PATCH', '/pages/' + existingId, { properties: mergedProps });
+          if (busqueda.results && busqueda.results.length > 0) {
+            existingId = busqueda.results[0].id;
+          }
+        }
+
+        if (existingId) {
+          // PATCH: actualizar solo los campos que tienen valor (no null)
+          var patchProps = {};
+          var newTotal = 0;
+          // Primero traer valores actuales para combinar
+          var currentPage = await notionRequest('GET', '/pages/' + existingId, null);
+          var cp = currentPage.properties;
+          dayKeys.forEach(function(dk) {
+            var oldVal = cp[dayMap[dk]] && cp[dayMap[dk]].number != null ? cp[dayMap[dk]].number : 0;
+            var newVal;
+            if (fila[dk] === null) {
+              newVal = oldVal; // campo vacío: conservar
+            } else {
+              newVal = fila[dk]; // valor explícito: sobreescribir (incluyendo 0 para borrar)
+            }
+            patchProps[dayMap[dk]] = { number: newVal };
+            newTotal += newVal;
+          });
+          patchProps['Total'] = { number: newTotal };
+          await notionRequest('PATCH', '/pages/' + existingId, { properties: patchProps });
+          // Guardar ID en la fila para futuras guardadas
+          panel.querySelectorAll('.prov-tbody tr').forEach(function(row) {
+            var nom = row.querySelector('.prov-input-nombre');
+            if (nom && nom.value.trim().toUpperCase() === fila.nombre) {
+              row.dataset.notionId = existingId;
+            }
+          });
         } else {
-          // No existe → crear nuevo
+          // POST: crear nuevo
           var props = {
             'Nombre': { title: [{ text: { content: fila.nombre } }] },
             'Semana': { rich_text: [{ text: { content: lbl } }] },
@@ -989,13 +1201,20 @@ async function guardarSemana(panelId) {
             'Año':    { rich_text: [{ text: { content: String(anio) } }] },
             'Total':  { number: fila.total }
           };
-          dayKeys.forEach(function(dk) { props[dayMap[dk]] = { number: fila[dk] }; });
-          await notionRequest('POST', '/pages', { parent: { database_id: dbId }, properties: props });
+          dayKeys.forEach(function(dk) { props[dayMap[dk]] = { number: fila[dk] || 0 }; });
+          var created = await notionRequest('POST', '/pages', { parent: { database_id: dbId }, properties: props });
+          // Guardar nuevo ID en la fila
+          panel.querySelectorAll('.prov-tbody tr').forEach(function(row) {
+            var nom = row.querySelector('.prov-input-nombre');
+            if (nom && nom.value.trim().toUpperCase() === fila.nombre) {
+              row.dataset.notionId = created.id;
+            }
+          });
         }
-      } catch(e) { errores++; }
+      } catch(e) { errores++; console.error(e); }
     }
 
-    // ── Backup local con upsert ──
+    // Backup local
     try {
       var local = JSON.parse(localStorage.getItem('cajaDiaria_proveedores')) || [];
       var idx2 = -1;
@@ -1003,13 +1222,12 @@ async function guardarSemana(panelId) {
         if (local[j].nombre === fila.nombre && local[j].semana === lbl) { idx2 = j; break; }
       }
       var registro = { semana: lbl, mes: mes, anio: anio, nombre: fila.nombre,
-        lun: fila.lun, mar: fila.mar, mie: fila.mie, jue: fila.jue,
-        vie: fila.vie, sab: fila.sab, dom: fila.dom, total: fila.total };
+        lun: fila.lun||0, mar: fila.mar||0, mie: fila.mie||0, jue: fila.jue||0,
+        vie: fila.vie||0, sab: fila.sab||0, dom: fila.dom||0, total: fila.total };
       if (idx2 >= 0) {
-        // Combinar: conservar días anteriores si el nuevo viene en 0
         var ex = local[idx2];
         dayKeys.forEach(function(dk) {
-          if (fila[dk] === 0 && ex[dk] > 0) registro[dk] = ex[dk];
+          if (fila[dk] === null) registro[dk] = ex[dk]; // conservar si vacío
         });
         registro.total = dayKeys.reduce(function(s, dk) { return s + registro[dk]; }, 0);
         local[idx2] = registro;
@@ -1022,38 +1240,16 @@ async function guardarSemana(panelId) {
 
   if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.textContent = '💾 Guardar semana'; }
   if (errores) showToast('Guardado con ' + errores + ' error(es) en Notion', true);
-  else if (cfg.apiKey) { setSyncStatus('ok','Sincronizado'); showToast('Proveedor(es) actualizados: ' + lbl); }
+  else if (cfg.apiKey) { setSyncStatus('ok','Sincronizado'); showToast('✓ Proveedor(es) guardados: ' + lbl); }
   else showToast(filas.length + ' proveedor(es) guardados localmente');
-  loadProveedores();
+
+  // Recargar para mostrar colores actualizados
+  loadProveedoresEnTablas();
 }
 
 async function loadProveedores() {
-  var tbody = document.getElementById('prov-historial-body');
-  var empty = document.getElementById('prov-historial-empty');
-  tbody.innerHTML = '';
-  empty.style.display = 'block';
-  document.getElementById('prov-historial-msg').textContent = 'Cargando...';
-
-  if (cfg.apiKey) {
-    try {
-      var dbId = (cfg.proveedoresDbId || PROVEEDORES_DB_ID).replace(/-/g, '');
-      var result = await notionRequest('POST', '/databases/' + dbId + '/query', {
-        sorts: [{ property: 'Semana', direction: 'ascending' }, { property: 'Nombre', direction: 'ascending' }]
-      });
-      proveedoresRecords = result.results.map(function(page) {
-        var p = page.properties;
-        function n(k) { return p[k] && p[k].number != null ? p[k].number : 0; }
-        function t(k) { return p[k] && p[k].rich_text && p[k].rich_text[0] ? p[k].rich_text[0].text.content : ''; }
-        return { pageId: page.id, nombre: p.Nombre.title[0] ? p.Nombre.title[0].text.content : '', semana: t('Semana'), mes: t('Mes'), anio: t('Año'), lun: n('Lunes'), mar: n('Martes'), mie: n('Miercoles'), jue: n('Jueves'), vie: n('Viernes'), sab: n('Sabado'), dom: n('Domingo'), total: n('Total') };
-      });
-    } catch(e) {
-      try { proveedoresRecords = JSON.parse(localStorage.getItem('cajaDiaria_proveedores')) || []; } catch(e2) { proveedoresRecords = []; }
-      showToast('Datos locales. Error: ' + e.message, true);
-    }
-  } else {
-    try { proveedoresRecords = JSON.parse(localStorage.getItem('cajaDiaria_proveedores')) || []; } catch(e) { proveedoresRecords = []; }
-  }
-  renderProveedoresHistorial();
+  // Llamar a la carga completa (tablas + historial)
+  await loadProveedoresEnTablas();
 }
 
 function renderProveedoresHistorial() {
@@ -1108,7 +1304,6 @@ function renderProveedoresHistorial() {
       tdAccion.textContent = '—';
     }
     tr.appendChild(tdAccion);
-
     tbody.appendChild(tr);
   });
 }
@@ -1175,11 +1370,399 @@ async function guardarCortesias(){
   document.getElementById('cortesias-filas').innerHTML='';cortesiaFilaCount=0;document.getElementById('cortesia-fecha').value=new Date().toISOString().split('T')[0];addFilaCortesia();loadCortesias();
 }
 async function loadCortesias(){
-  document.getElementById('cortesias-body').innerHTML='';document.getElementById('cortesias-empty').style.display='block';document.getElementById('cortesias-empty-msg').textContent='Cargando...';
-  if(cfg.apiKey){try{var dbId=(cfg.cortesiasDbId||CORTEIAS_DB_ID).replace(/-/g,'');var result=await notionRequest('POST','/databases/'+dbId+'/query',{sorts:[{property:'Fecha ISO',direction:'descending'}]});cortesiasRecords=result.results.map(function(page){var p=page.properties;function t(k){return p[k]&&p[k].rich_text&&p[k].rich_text[0]?p[k].rich_text[0].text.content:'';}return{pageId:page.id,fechaLabel:p.Fecha.title[0]?p.Fecha.title[0].text.content:'',fecha:t('Fecha ISO'),cantidad:p.Cantidad&&p.Cantidad.number!=null?p.Cantidad.number:0,detalle:t('Detalle')};});renderCortesias();}catch(e){try{cortesiasRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[];}catch(e2){cortesiasRecords=[];}renderCortesias();showToast('Datos locales. Error: '+e.message,true);}}else{try{cortesiasRecords=JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[];}catch(e){cortesiasRecords=[];}renderCortesias();}
+  document.getElementById('cortesias-body').innerHTML='';
+  cortesiasRecords = [];
+
+  if(cfg.apiKey){
+    try{
+      var dbId=(cfg.cortesiasDbId||CORTEIAS_DB_ID).replace(/-/g,'');
+      var result=await notionRequest('POST','/databases/'+dbId+'/query',{
+        sorts:[{property:'Fecha',direction:'descending'}]
+      });
+
+      // Mapa de nombres de mes en español → número
+      var MESES = {
+        'enero':'01','febrero':'02','marzo':'03','abril':'04',
+        'mayo':'05','junio':'06','julio':'07','agosto':'08',
+        'septiembre':'09','octubre':'10','noviembre':'11','diciembre':'12'
+      };
+
+      cortesiasRecords = result.results.map(function(page){
+        var p = page.properties;
+        // Usar SOLO la columna Fecha (título) — ignorar Fecha ISO por completo
+        var lbl = p.Fecha && p.Fecha.title && p.Fecha.title[0]
+          ? p.Fecha.title[0].plain_text || p.Fecha.title[0].text.content
+          : '';
+        var detalle = p.Detalle && p.Detalle.rich_text && p.Detalle.rich_text[0]
+          ? p.Detalle.rich_text[0].text.content : '';
+        var cantidad = p.Cantidad && p.Cantidad.number != null ? p.Cantidad.number : 0;
+
+        // Parsear fecha desde el label: "01 de abril de 2026" → "2026-04-01"
+        var fecha = '';
+        if(lbl){
+          // Eliminar todos los " de " y dividir
+          var limpio = lbl.toLowerCase().replace(/ de /g, ' ').trim();
+          var partes = limpio.split(/\s+/);
+          // partes = ["01", "abril", "2026"]
+          if(partes.length >= 3){
+            var dia  = partes[0].padStart(2,'0');
+            var mes  = MESES[partes[1]] || '01';
+            var anio = partes[2];
+            fecha = anio + '-' + mes + '-' + dia;
+          }
+        }
+
+        return {
+          pageId   : page.id,
+          fechaLabel: lbl,
+          fecha    : fecha,
+          cantidad : cantidad,
+          detalle  : detalle
+        };
+      }).filter(function(r){ return r.fecha !== ''; }); // descartar registros sin fecha válida
+
+      // Cache local
+      try{ localStorage.setItem('cajaDiaria_cortesias', JSON.stringify(cortesiasRecords)); }catch(e){}
+
+    }catch(e){
+      try{ cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[]; }catch(e2){ cortesiasRecords=[]; }
+      showToast('Datos locales. Error: '+e.message, true);
+    }
+  } else {
+    try{ cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[]; }catch(e){ cortesiasRecords=[]; }
+  }
+
+  renderCalendarioCortesias();
 }
-function renderCortesias(){var body=document.getElementById('cortesias-body');body.innerHTML='';if(!cortesiasRecords.length){document.getElementById('cortesias-empty').style.display='block';document.getElementById('cortesias-empty-msg').textContent='No hay cortesías registradas.';return;}document.getElementById('cortesias-empty').style.display='none';var esAdmin=currentUser&&currentUser.rol==='administrador';cortesiasRecords.forEach(function(r,i){var tr=document.createElement('tr');var delBtn=esAdmin?'<button class="btn-del" onclick="delCortesia('+i+')">🗑 Eliminar</button>':'<span style="color:var(--muted);font-size:11px;">—</span>';tr.innerHTML='<td style="padding:12px 16px;font-size:13px;">'+r.fechaLabel+'</td><td class="tn" style="padding:12px 16px;font-size:13px;font-weight:600;">'+r.cantidad+'</td><td style="padding:12px 16px;font-size:13px;">'+(r.detalle||'—')+'</td><td style="text-align:center;padding:12px 16px;">'+delBtn+'</td>';body.appendChild(tr);});}
+
+function renderCortesias(){
+  renderCalendarioCortesias();
+}
+
+// ── Calendario de cortesías ──
+var cortCalAnio = new Date().getFullYear();
+var cortCalMes  = new Date().getMonth(); // 0-based
+
+function cortCalPrev(){
+  cortCalMes--;
+  if(cortCalMes < 0){ cortCalMes = 11; cortCalAnio--; }
+  renderCalendarioCortesias();
+}
+function cortCalNext(){
+  cortCalMes++;
+  if(cortCalMes > 11){ cortCalMes = 0; cortCalAnio++; }
+  renderCalendarioCortesias();
+}
+
+function renderCalendarioCortesias(){
+  var MESES_NOMBRE = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var DIAS_HEADER  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+  // Actualizar título
+  var tituloEl = document.getElementById('cort-cal-titulo');
+  if(tituloEl) tituloEl.textContent = MESES_NOMBRE[cortCalMes] + ' ' + cortCalAnio;
+
+  var cal = document.getElementById('cortesias-calendar');
+  if(!cal) return;
+  cal.innerHTML = '';
+
+  // Cabeceras de días
+  DIAS_HEADER.forEach(function(d){
+    var h = document.createElement('div');
+    h.className = 'cal-dia-header';
+    h.textContent = d;
+    cal.appendChild(h);
+  });
+
+  // Agrupar registros por fecha "YYYY-MM-DD"
+  var porFecha = {};
+  cortesiasRecords.forEach(function(r){
+    if(!r.fecha) return;
+    if(!porFecha[r.fecha]) porFecha[r.fecha] = [];
+    porFecha[r.fecha].push(r);
+  });
+
+  var hoy        = new Date().toISOString().split('T')[0];
+  var primerDia  = new Date(cortCalAnio, cortCalMes, 1).getDay(); // 0=Dom
+  var diasEnMes  = new Date(cortCalAnio, cortCalMes + 1, 0).getDate();
+
+  // Celdas vacías antes del primer día
+  for(var i = 0; i < primerDia; i++){
+    var blank = document.createElement('div');
+    blank.className = 'cal-dia vacio';
+    cal.appendChild(blank);
+  }
+
+  // Días del mes
+  for(var d = 1; d <= diasEnMes; d++){
+    var fechaStr = cortCalAnio + '-'
+      + String(cortCalMes + 1).padStart(2,'0') + '-'
+      + String(d).padStart(2,'0');
+
+    var registros  = porFecha[fechaStr] || [];
+    var totalCant  = registros.reduce(function(s,r){ return s + r.cantidad; }, 0);
+
+    var celda = document.createElement('div');
+    var clases = 'cal-dia';
+    if(registros.length > 0) clases += ' tiene-datos';
+    if(fechaStr === hoy)     clases += ' hoy';
+    celda.className = clases;
+
+    // Número del día
+    var num = document.createElement('div');
+    num.className = 'cal-dia-num';
+    num.textContent = d;
+    celda.appendChild(num);
+
+    // Badge y click si hay datos
+    if(registros.length > 0){
+      var badge = document.createElement('div');
+      badge.className = 'cal-dia-badge';
+      badge.textContent = totalCant + ' cort.';
+      celda.appendChild(badge);
+
+      // Closure para capturar los valores correctos
+      (function(fStr, regs){
+        celda.addEventListener('click', function(){ abrirDetalleDia(fStr, regs); });
+      })(fechaStr, registros.slice());
+    }
+
+    cal.appendChild(celda);
+  }
+
+  // Empty state
+  var emptyEl = document.getElementById('cortesias-empty');
+  if(emptyEl){
+    emptyEl.style.display = cortesiasRecords.length === 0 ? 'block' : 'none';
+  }
+}
+
+function abrirDetalleDia(fecha, registros){
+  if(!registros || registros.length === 0) return;
+
+  // Formatear fecha para el título del modal
+  var partesFecha = fecha.split('-');
+  var MESES_NOMBRE = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var tituloFecha  = parseInt(partesFecha[2]) + ' de '
+    + MESES_NOMBRE[parseInt(partesFecha[1]) - 1] + ' de ' + partesFecha[0];
+
+  var tituloEl = document.getElementById('modal-cortesias-titulo');
+  if(tituloEl) tituloEl.textContent = '🎁 Cortesías — ' + tituloFecha;
+
+  var cont = document.getElementById('modal-cortesias-contenido');
+  if(!cont) return;
+  cont.innerHTML = '';
+
+  var esAdmin    = currentUser && currentUser.rol === 'administrador';
+  var totalDia   = registros.reduce(function(s,r){ return s + r.cantidad; }, 0);
+
+  // Resumen total
+  var resumen = document.createElement('div');
+  resumen.style.cssText = 'background:var(--surface2);border-radius:8px;padding:10px 14px;'
+    + 'margin-bottom:14px;border:1px solid var(--border);'
+    + 'display:flex;justify-content:space-between;align-items:center;';
+  var lblRes = document.createElement('span');
+  lblRes.style.cssText = 'font-size:12px;color:var(--muted);';
+  lblRes.textContent = 'Total del día';
+  var valRes = document.createElement('span');
+  valRes.style.cssText = 'font-family:var(--mono);font-size:18px;font-weight:700;color:var(--navy2);';
+  valRes.textContent = totalDia + ' cortesías';
+  resumen.appendChild(lblRes);
+  resumen.appendChild(valRes);
+  cont.appendChild(resumen);
+
+  // Tabla detalle
+  var table = document.createElement('table');
+  table.style.cssText = 'width:100%;border-collapse:collapse;';
+
+  var thead = document.createElement('thead');
+  var hr    = document.createElement('tr');
+  hr.style.background = 'var(--navy)';
+  ['#','Cantidad','Detalle','Acción'].forEach(function(h, hi){
+    var th = document.createElement('th');
+    th.style.cssText = 'padding:8px 12px;font-size:10px;font-weight:600;'
+      + 'text-transform:uppercase;letter-spacing:.7px;'
+      + 'color:rgba(255,255,255,.55);text-align:' + (hi===3?'center':'left') + ';';
+    th.textContent = h;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  var tbody = document.createElement('tbody');
+  registros.forEach(function(r, ri){
+    var tr   = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--border)';
+
+    // Buscar índice real en cortesiasRecords para poder eliminar
+    var idxGlobal = -1;
+    for(var k = 0; k < cortesiasRecords.length; k++){
+      if(cortesiasRecords[k].pageId === r.pageId){ idxGlobal = k; break; }
+    }
+
+    var tdN = document.createElement('td');
+    tdN.style.cssText = 'padding:10px 12px;font-size:12px;color:var(--muted);';
+    tdN.textContent = ri + 1;
+    tr.appendChild(tdN);
+
+    var tdC = document.createElement('td');
+    tdC.style.cssText = 'padding:10px 12px;font-family:var(--mono);font-size:14px;font-weight:700;';
+    tdC.textContent = r.cantidad;
+    tr.appendChild(tdC);
+
+    var tdD = document.createElement('td');
+    tdD.style.cssText = 'padding:10px 12px;font-size:13px;';
+    tdD.textContent = r.detalle || '—';
+    tr.appendChild(tdD);
+
+    var tdA = document.createElement('td');
+    tdA.style.cssText = 'padding:10px 12px;text-align:center;';
+    if(esAdmin && idxGlobal >= 0){
+      var btn = document.createElement('button');
+      btn.className = 'btn-del';
+      btn.style.cssText = 'padding:4px 10px;font-size:11px;';
+      btn.textContent = '🗑';
+      (function(idx){
+        btn.addEventListener('click', function(){
+          if(!confirm('¿Eliminar esta cortesía?')) return;
+          delCortesia(idx);
+          closeModal('modal-cortesias-dia');
+        });
+      })(idxGlobal);
+      tdA.appendChild(btn);
+    } else {
+      tdA.textContent = '—';
+    }
+    tr.appendChild(tdA);
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  cont.appendChild(table);
+
+  // Abrir modal
+  openModal('modal-cortesias-dia');
+}
+
+// ── Modal descarga cortesías ──
+function abrirModalDescargaCortesias(){
+  // Poner fechas por defecto: inicio del mes actual, fin hoy
+  var hoy = new Date();
+  var ini = hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-01';
+  var fin = hoy.toISOString().split('T')[0];
+  document.getElementById('descarga-fecha-ini').value = ini;
+  document.getElementById('descarga-fecha-fin').value = fin;
+  openModal('modal-descarga-cortesias');
+}
+
+function exportCortesiasExcel(){
+  var ini = document.getElementById('descarga-fecha-ini').value;
+  var fin = document.getElementById('descarga-fecha-fin').value;
+  if(!ini||!fin){showToast('Selecciona el rango de fechas',true);return;}
+  if(ini>fin){showToast('La fecha inicio debe ser menor a la fecha fin',true);return;}
+
+  var registrosFiltrados = cortesiasRecords.filter(function(r){
+    return r.fecha >= ini && r.fecha <= fin;
+  });
+  if(!registrosFiltrados.length){showToast('No hay cortesías en ese rango',true);return;}
+
+  // Agrupar por mes
+  var porMes = {};
+  registrosFiltrados.forEach(function(r){
+    var mes = r.fecha.substring(0,7); // YYYY-MM
+    if(!porMes[mes]) porMes[mes] = [];
+    porMes[mes].push(r);
+  });
+
+  var mesesNombres=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var wb = XLSX.utils.book_new();
+  var mesesOrdenados = Object.keys(porMes).sort();
+
+  mesesOrdenados.forEach(function(mesKey){
+    var regs = porMes[mesKey];
+    var parts = mesKey.split('-');
+    var nombreMes = mesesNombres[parseInt(parts[1])-1] + ' ' + parts[0];
+    var rows = [['FECHA','CANTIDAD','DETALLE']];
+    regs.forEach(function(r){ rows.push([r.fechaLabel, r.cantidad, r.detalle||'']); });
+    // Totales
+    var totalCant = regs.reduce(function(s,r){return s+r.cantidad;},0);
+    rows.push(['','','']);
+    rows.push(['TOTAL',totalCant,'']);
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:28},{wch:12},{wch:40}];
+    XLSX.utils.book_append_sheet(wb, ws, nombreMes.substring(0,31));
+  });
+
+  XLSX.writeFile(wb, 'Cortesias_'+ini+'_'+fin+'.xlsx');
+  closeModal('modal-descarga-cortesias');
+  showToast('✓ Excel cortesías descargado — '+registrosFiltrados.length+' registros');
+}
 async function delCortesia(i){var r=cortesiasRecords[i];if(!confirm('¿Eliminar la cortesía del '+r.fechaLabel+'?'))return;if(cfg.apiKey&&r.pageId){try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});}catch(e){}}cortesiasRecords.splice(i,1);try{var local=JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[];local=local.filter(function(x){return x.fecha!==r.fecha||x.detalle!==r.detalle;});localStorage.setItem('cajaDiaria_cortesias',JSON.stringify(local));}catch(e){}renderCortesias();showToast('Cortesía eliminada');}
+
+
+// ── Descarga Excel Proveedores ──
+function abrirModalDescargaProveedores(){
+  var hoy = new Date();
+  var mesActual = hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0');
+  document.getElementById('prov-descarga-ini').value = mesActual;
+  document.getElementById('prov-descarga-fin').value = mesActual;
+  openModal('modal-descarga-proveedores');
+}
+
+function exportProveedoresExcel(){
+  var ini = document.getElementById('prov-descarga-ini').value; // YYYY-MM
+  var fin = document.getElementById('prov-descarga-fin').value;
+  if(!ini||!fin){showToast('Selecciona el rango de meses',true);return;}
+  if(ini>fin){showToast('El mes inicio debe ser menor al mes fin',true);return;}
+
+  var registrosFiltrados = proveedoresRecords.filter(function(r){
+    // Extraer YYYY-MM de la semana label o del mes/año
+    var mesKey = r.anio+'-'+String(
+      ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].indexOf(r.mes)+1
+    ).padStart(2,'0');
+    return mesKey >= ini && mesKey <= fin;
+  });
+
+  if(!registrosFiltrados.length){showToast('No hay registros de proveedores en ese rango',true);return;}
+
+  // Agrupar por mes
+  var porMes = {};
+  registrosFiltrados.forEach(function(r){
+    var mesIdx = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].indexOf(r.mes);
+    var mesKey = r.anio+'-'+String(mesIdx+1).padStart(2,'0');
+    if(!porMes[mesKey]) porMes[mesKey]=[];
+    porMes[mesKey].push(r);
+  });
+
+  var mesesNombres=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var wb = XLSX.utils.book_new();
+  var mesesOrdenados = Object.keys(porMes).sort();
+
+  mesesOrdenados.forEach(function(mesKey){
+    var regs = porMes[mesKey];
+    var parts = mesKey.split('-');
+    var nombreMes = mesesNombres[parseInt(parts[1])-1]+' '+parts[0];
+    var rows = [['PROVEEDOR','SEMANA','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO','DOMINGO','TOTAL']];
+    regs.forEach(function(r){
+      rows.push([r.nombre, r.semana, r.lun, r.mar, r.mie, r.jue, r.vie, r.sab, r.dom, r.total]);
+    });
+    // Totales columna
+    var totRow = ['TOTAL',''];
+    ['lun','mar','mie','jue','vie','sab','dom','total'].forEach(function(dk){
+      totRow.push(regs.reduce(function(s,r){return s+(r[dk]||0);},0));
+    });
+    rows.push(totRow);
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:22},{wch:24},{wch:10},{wch:10},{wch:10},{wch:10},{wch:10},{wch:10},{wch:10},{wch:12}];
+    XLSX.utils.book_append_sheet(wb, ws, nombreMes.substring(0,31));
+  });
+
+  XLSX.writeFile(wb, 'Proveedores_'+ini+'_'+fin+'.xlsx');
+  closeModal('modal-descarga-proveedores');
+  showToast('✓ Excel proveedores descargado — '+registrosFiltrados.length+' registros');
+}
 
 // ══ AUTO-INICIO ══
 if(currentUser){initApp();}
