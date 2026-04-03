@@ -17,7 +17,27 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
-#screen-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px;background:linear-gradient(184deg,#a1aebf 0%,#535354 50%,#000 100%);}
+#screen-config{display:none;align-items:center;justify-content:center;min-height:100vh;padding:16px;background:linear-gradient(184deg,#a1aebf 0%,#535354 50%,#000 100%);}
+.config-pre-box{background:#fff;border-radius:20px;padding:40px 36px;width:100%;max-width:460px;box-shadow:0 24px 60px rgba(0,0,0,.3);box-sizing:border-box;}
+.config-pre-logo{text-align:center;margin-bottom:22px;}
+.config-pre-logo .ico{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px;}
+.config-pre-logo h1{font-size:20px;font-weight:600;color:var(--navy);}
+.config-pre-logo p{font-size:12px;color:var(--muted);margin-top:3px;}
+.config-pre-notice{background:#fff8e1;border:1px solid #ffd54f;border-radius:10px;padding:11px 15px;font-size:12px;color:#7a5000;margin-bottom:18px;line-height:1.5;}
+.config-pre-field{margin-bottom:12px;}
+.config-pre-field label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.config-pre-field input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:var(--font);outline:none;transition:border .15s;background:#f7f9fc;}
+.config-pre-field input:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(26,58,92,.08);background:#fff;}
+.config-pre-field .hint{font-size:11px;color:var(--muted);margin-top:3px;}
+.config-pre-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.config-pre-status{text-align:center;font-size:12px;min-height:18px;margin:6px 0;font-weight:500;}
+.config-pre-status.ok{color:var(--accent2);}
+.config-pre-status.err{color:var(--red);}
+.config-pre-status.loading{color:var(--muted);}
+.btn-cfg-test{width:100%;background:var(--navy2);color:#fff;border:none;padding:11px;border-radius:9px;font-size:13px;font-family:var(--font);font-weight:600;cursor:pointer;margin-top:4px;transition:background .15s;}
+.btn-cfg-test:hover{background:var(--navy3);}
+.btn-cfg-test:disabled{background:#aaa;cursor:not-allowed;}
+#screen-login{display:none;align-items:center;justify-content:center;min-height:100vh;padding:16px;background:linear-gradient(184deg,#a1aebf 0%,#535354 50%,#000 100%);}
 .login-box{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.3);box-sizing:border-box;}
 .login-logo{text-align:center;margin-bottom:28px;}
 .login-logo .ico{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;}
@@ -219,6 +239,57 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 </head>
 <body>
 
+<!-- CONFIG PRE-LOGIN -->
+<div id="screen-config">
+  <div class="config-pre-box">
+    <div class="config-pre-logo">
+      <div class="ico">🍽️</div>
+      <h1>EL MÁS GAUCHITO</h1>
+      <p>Configuración inicial del sistema</p>
+    </div>
+    <div class="config-pre-notice">
+      ⚙️ <b>Primera vez:</b> Ingresa los datos de conexión con Notion para continuar. Una vez guardados y verificados, podrás acceder con tu usuario.
+    </div>
+    <div class="config-pre-field">
+      <label>Notion API Key</label>
+      <input type="text" id="pre-apikey" placeholder="secret_..." autocomplete="off"/>
+      <div class="hint">notion.so/my-integrations → Copiar token</div>
+    </div>
+    <div class="config-pre-field">
+      <label>URL del Proxy</label>
+      <input type="text" id="pre-proxy" placeholder="https://cajacaja-proxy.vercel.app/api/notion"/>
+      <div class="hint">Proxy CORS para conectar con Notion</div>
+    </div>
+    <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;">IDs de bases de datos</div>
+    <div class="config-pre-grid">
+      <div class="config-pre-field" style="margin-bottom:0;">
+        <label>BD Registros</label>
+        <input type="text" id="pre-dbid" placeholder="ID..."/>
+      </div>
+      <div class="config-pre-field" style="margin-bottom:0;">
+        <label>BD Usuarios</label>
+        <input type="text" id="pre-usersdbid" placeholder="ID..."/>
+      </div>
+      <div class="config-pre-field" style="margin-bottom:0;">
+        <label>BD Cortes</label>
+        <input type="text" id="pre-cortesdbid" placeholder="ID..."/>
+      </div>
+      <div class="config-pre-field" style="margin-bottom:0;">
+        <label>BD Cortesías</label>
+        <input type="text" id="pre-cortesiasdbid" placeholder="ID..."/>
+      </div>
+      <div class="config-pre-field" style="margin-bottom:0;">
+        <label>BD Proveedores</label>
+        <input type="text" id="pre-proveedoresdbid" placeholder="ID..."/>
+      </div>
+    </div>
+    <div class="config-pre-status" id="pre-status"></div>
+    <button class="btn-cfg-test" id="btn-pre-test" onclick="preConfigGuardarYProbar()">🔌 Guardar y probar conexión</button>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0 12px;">
+    <button style="width:100%;background:none;border:1.5px solid var(--border);color:var(--muted);padding:9px;border-radius:9px;font-family:var(--font);font-size:12px;cursor:pointer;" onclick="irAlLogin()">Ya tengo configuración → Ir al login</button>
+  </div>
+</div>
+
 <!-- LOGIN -->
 <div id="screen-login">
   <div class="login-box">
@@ -232,6 +303,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <div class="login-field"><label>Contraseña</label><input type="password" id="inp-pass" placeholder="Ingresa tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <button class="btn-login" id="btn-login" onclick="doLogin()">Ingresar</button>
     <div class="login-loading" id="login-loading">Verificando credenciales...</div>
+    <div style="text-align:center;margin-top:14px;"><button style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font);text-decoration:underline;" onclick="irAConfig()">⚙️ Cambiar configuración de conexión</button></div>
   </div>
 </div>
 
@@ -6045,7 +6117,77 @@ function exportYapeExcel(){
 
 
 // ══ AUTO-INICIO ══
-if(currentUser){initApp();}
+function irAlLogin(){
+  document.getElementById('screen-config').style.display='none';
+  document.getElementById('screen-login').style.display='flex';
+}
+function irAConfig(){
+  document.getElementById('screen-login').style.display='none';
+  // Pre-rellenar campos con valores actuales
+  if(cfg.apiKey) document.getElementById('pre-apikey').value=cfg.apiKey;
+  if(cfg.proxy)  document.getElementById('pre-proxy').value=cfg.proxy;
+  if(cfg.dbId)   document.getElementById('pre-dbid').value=cfg.dbId;
+  if(cfg.usersDbId) document.getElementById('pre-usersdbid').value=cfg.usersDbId;
+  if(cfg.cortesDbId) document.getElementById('pre-cortesdbid').value=cfg.cortesDbId;
+  if(cfg.cortesiasDbId) document.getElementById('pre-cortesiasdbid').value=cfg.cortesiasDbId;
+  if(cfg.proveedoresDbId) document.getElementById('pre-proveedoresdbid').value=cfg.proveedoresDbId;
+  document.getElementById('pre-status').textContent='';
+  document.getElementById('pre-status').className='config-pre-status';
+  document.getElementById('screen-config').style.display='flex';
+}
+async function preConfigGuardarYProbar(){
+  var apiKey=(document.getElementById('pre-apikey').value||'').trim();
+  var proxy=(document.getElementById('pre-proxy').value||'').trim();
+  if(!apiKey){ setPreStatus('err','⚠ Ingresa la API Key de Notion'); return; }
+  // Guardar todos los valores al config
+  cfg.apiKey=apiKey;
+  cfg.proxy=proxy||'https://cajacaja-proxy.vercel.app/api/notion';
+  cfg.dbId=(document.getElementById('pre-dbid').value||'').trim()||DB_ID;
+  cfg.usersDbId=(document.getElementById('pre-usersdbid').value||'').trim()||USERS_DB_ID;
+  cfg.cortesDbId=(document.getElementById('pre-cortesdbid').value||'').trim()||CORTES_DB_ID;
+  cfg.cortesiasDbId=(document.getElementById('pre-cortesiasdbid').value||'').trim()||CORTEIAS_DB_ID;
+  cfg.proveedoresDbId=(document.getElementById('pre-proveedoresdbid').value||'').trim()||PROVEEDORES_DB_ID;
+  localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
+  // Probar conexión
+  var btn=document.getElementById('btn-pre-test');
+  btn.disabled=true; btn.textContent='Probando conexión...';
+  setPreStatus('loading','🔄 Verificando conexión con Notion...');
+  try{
+    var dbId=cfg.dbId.replace(/\s/g,'').replace(/-/g,'');
+    await notionRequest('GET','/databases/'+dbId,null);
+    setPreStatus('ok','✅ Conexión exitosa. Redirigiendo al login...');
+    btn.textContent='✅ Conectado';
+    setTimeout(function(){
+      btn.disabled=false; btn.textContent='🔌 Guardar y probar conexión';
+      irAlLogin();
+    }, 1200);
+  }catch(e){
+    setPreStatus('err','❌ Error: '+e.message);
+    btn.disabled=false; btn.textContent='🔌 Guardar y probar conexión';
+  }
+}
+function setPreStatus(type, msg){
+  var el=document.getElementById('pre-status');
+  el.textContent=msg;
+  el.className='config-pre-status '+(type||'');
+}
+// Mostrar pantalla correcta al inicio
+if(currentUser && cfg.apiKey){
+  initApp();
+} else if(cfg.apiKey){
+  // Hay config pero no sesión → ir al login
+  irAlLogin();
+} else {
+  // Sin config → mostrar pantalla de configuración primero
+  // Pre-rellenar con valores por defecto si existen
+  document.getElementById('pre-proxy').value='https://cajacaja-proxy.vercel.app/api/notion';
+  document.getElementById('pre-dbid').value=DB_ID;
+  document.getElementById('pre-usersdbid').value=USERS_DB_ID;
+  document.getElementById('pre-cortesdbid').value=CORTES_DB_ID;
+  document.getElementById('pre-cortesiasdbid').value=CORTEIAS_DB_ID;
+  document.getElementById('pre-proveedoresdbid').value=PROVEEDORES_DB_ID;
+  document.getElementById('screen-config').style.display='flex';
+}
 </script>
 </body>
 </html>
