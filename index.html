@@ -235,51 +235,6 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   </div>
 </div>
 
-<!-- SETUP API KEY (solo si no hay apikey guardado) -->
-<div id="screen-setup" style="display:none;align-items:center;justify-content:center;min-height:100vh;padding:16px;background:linear-gradient(184deg,#a1aebf 0%,#535354 50%,#000 100%);">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="ico">🔑</div>
-      <h1 style="color:var(--navy);">Configuración inicial</h1>
-      <p style="color:var(--muted);">Este dispositivo no tiene configuración guardada.<br>Completa los datos para conectarte a Notion.</p>
-    </div>
-    <div class="login-error" id="setup-error"></div>
-
-    <div class="login-field">
-      <label>Notion API Key</label>
-      <input type="text" id="setup-apikey" placeholder="secret_... o ntn_..."
-        style="font-family:monospace;font-size:13px;"
-        autocomplete="off"
-        onkeydown="if(event.key==='Enter')document.getElementById('setup-proxy').focus()"/>
-      <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">
-        Ir a <strong>notion.so/my-integrations</strong> → seleccionar tu integración → copiar el token interno.
-      </div>
-    </div>
-
-    <div class="login-field" style="margin-top:4px;">
-      <label>URL del Proxy</label>
-      <input type="text" id="setup-proxy"
-        placeholder="https://cajacaja-proxy.vercel.app/api/notion"
-        style="font-family:monospace;font-size:12px;"
-        autocomplete="off"
-        onkeydown="if(event.key==='Enter')guardarSetupConfig()"/>
-      <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;">
-        URL del proxy CORS para conectar con Notion. Si no cambiaste nada, deja el valor predeterminado.
-      </div>
-    </div>
-
-    <button class="btn-login" onclick="guardarSetupConfig()" style="margin-top:8px;">
-      Guardar y continuar al login
-    </button>
-    <div style="text-align:center;margin-top:12px;">
-      <button onclick="saltarSetupConfig()"
-        style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;">
-        Continuar sin configurar (modo offline / solo local)
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- APP -->
 <div id="screen-app">
 <div class="app-header">
@@ -935,8 +890,6 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);color:#ffb3b3;">Descuento</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);">Bonos</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);">Apoyos</th>
-          <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:#ffb3b3;">Deuda</th>
-          <th style="padding:10px 8px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.4);">Comentario</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);background:rgba(255,255,255,.1);">Pago Quincenal</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:#ffd700;">Saldo a Pagar</th>
           <th style="padding:10px 14px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);">Total Mes</th>
@@ -944,7 +897,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
         </tr></thead>
         <tbody id="tbody-personal"></tbody>
         <tfoot><tr style="background:var(--surface2);border-top:2px solid var(--border);">
-          <td colspan="11" style="padding:9px 14px;font-size:12px;font-weight:700;color:var(--navy2);">TOTAL DEL MES</td>
+          <td colspan="9" style="padding:9px 14px;font-size:12px;font-weight:700;color:var(--navy2);">TOTAL DEL MES</td>
           <td id="ptot-personal" style="padding:9px 14px;text-align:right;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--navy2);">S/ 0.00</td>
           <td></td>
         </tr></tfoot>
@@ -1463,6 +1416,8 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 var CFG_KEY='cajaDiaria_config',SESSION_KEY='cajaDiaria_session';
 var cfg={};
 try{cfg=JSON.parse(localStorage.getItem(CFG_KEY))||{};}catch(e){cfg={};}
+if(!cfg.apiKey) cfg.apiKey = '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';
+if(!cfg.proxy)  cfg.proxy  = 'https://cajacaja-proxy.vercel.app/api/notion';
 cfg.dbId='970859ae413d48b285c581c64a27758a';
 cfg.usersDbId=cfg.usersDbId||'9c02cca25d884f0eb41ccda0a9be827d';
 cfg.cortesDbId='47dbf845b3774f04b637cf617e3f0978';
@@ -1546,7 +1501,6 @@ function doLogout(){
   document.getElementById('inp-user').value='';
   document.getElementById('inp-pass').value='';
   document.getElementById('login-error').style.display='none';
-  // Al salir no pedir apikey de nuevo si ya está guardada
 }
 
 // ══ INIT APP ══
@@ -2610,6 +2564,7 @@ function renderProveedoresHistorial() {
     });
   }
 
+}
 // (detalle semanal eliminado — solo se muestra el reporte del mes)
 
 async function delProveedor(i) {
@@ -3323,20 +3278,6 @@ function agregarFilaPersonal(datos) {
     td.appendChild(makeInp(c[0], c[1])); tr.appendChild(td);
   });
 
-  // Deuda (se resta al total — fondo rojo claro)
-  var tdDeu = document.createElement('td'); tdDeu.style.cssText='padding:4px 5px;background:rgba(255,180,180,.08);min-width:80px;';
-  var inDeu = makeInp('pers-deuda', datos?datos.deuda:null);
-  inDeu.style.borderColor = '#ffb3b3';
-  if(datos&&datos.deuda){ inDeu.style.background='#fff5f5'; }
-  tdDeu.appendChild(inDeu); tr.appendChild(tdDeu);
-  // Comentario de la deuda
-  var tdDeuDesc = document.createElement('td'); tdDeuDesc.style.cssText='padding:4px 5px;background:rgba(255,180,180,.05);min-width:130px;';
-  var inDeuDesc = document.createElement('input'); inDeuDesc.type='text'; inDeuDesc.placeholder='Comentario...';
-  inDeuDesc.className='pers-comentario';
-  inDeuDesc.style.cssText='width:100%;padding:6px 8px;border:1px solid #ffb3b3;border-radius:6px;font-size:12px;font-family:var(--font);background:rgba(255,245,245,.8);outline:none;';
-  if(datos&&datos.comentario){ inDeuDesc.value=datos.comentario; }
-  tdDeuDesc.appendChild(inDeuDesc); tr.appendChild(tdDeuDesc);
-
   // Pago Quincenal (highlight especial)
   var tdQ = document.createElement('td'); tdQ.style.cssText='padding:4px 5px;background:rgba(235,182,22,.08);';
   var inQ = makeInp('pers-quincenal', datos?datos.pagoQuincenal:null);
@@ -3375,9 +3316,9 @@ function calcFilaPersonal(tr) {
   window._resumenTimer = setTimeout(actualizarResumenMes, 400);
   var g = function(cls){var el=tr.querySelector('.'+cls);return el&&el.value.trim()!==''?(parseFloat(el.value)||0):0;};
   var base=g('pers-base'), asig=g('pers-asig'), falta=g('pers-faltas');
-  var bono=g('pers-bono'), apoyo=g('pers-apoyo'), deuda=g('pers-deuda'), quinc=g('pers-quincenal');
-  var dcto  = ((base+asig)/30)*falta;
-  var total = (base+asig+bono+apoyo) - dcto - deuda;  // Deuda se resta al Total
+  var bono=g('pers-bono'), apoyo=g('pers-apoyo'), quinc=g('pers-quincenal');
+  var dcto = ((base+asig)/30)*falta;
+  var total = (base+asig+bono+apoyo)-dcto;
   var saldo = total - quinc;
   var tdD=tr.querySelector('.pers-dcto'); if(tdD) tdD.textContent=dcto>0?dcto.toFixed(2):'—';
   var tdT=tr.querySelector('.pers-total'); if(tdT) tdT.textContent=total>0?'S/ '+total.toFixed(2):'—';
@@ -3400,12 +3341,11 @@ async function guardarPersonal() {
     var nom=tr.querySelector('.prov-input-nombre'); if(!nom||!nom.value.trim()) return;
     var g=function(cls){var el=tr.querySelector('.'+cls);return el&&el.value.trim()!==''?(parseFloat(el.value)||0):0;};
     var base=g('pers-base'),asig=g('pers-asig'),falta=g('pers-faltas');
-    var bono=g('pers-bono'),apoyo=g('pers-apoyo'),deuda=g('pers-deuda'),quinc=g('pers-quincenal');
-    var deudaDescEl=tr.querySelector('.pers-comentario'); var deudaDesc=deudaDescEl?deudaDescEl.value.trim():'';
+    var bono=g('pers-bono'),apoyo=g('pers-apoyo'),quinc=g('pers-quincenal');
     var dcto=parseFloat((((base+asig)/30)*falta).toFixed(2));
-    var total=parseFloat(((base+asig+bono+apoyo)-dcto-deuda).toFixed(2));
+    var total=parseFloat(((base+asig+bono+apoyo)-dcto).toFixed(2));
     var saldo=parseFloat((total-quinc).toFixed(2));
-    filas.push({nombre:nom.value.trim().toUpperCase(),base:base,asig:asig,faltas:falta,descuento:dcto,bonos:bono,apoyos:apoyo,deuda:deuda,comentario:deudaDesc,pagoQuincenal:quinc,saldo:saldo,total:total,notionId:tr.dataset.notionId||''});
+    filas.push({nombre:nom.value.trim().toUpperCase(),base:base,asig:asig,faltas:falta,descuento:dcto,bonos:bono,apoyos:apoyo,pagoQuincenal:quinc,saldo:saldo,total:total,notionId:tr.dataset.notionId||''});
   });
   if(!filas.length){showToast('Agrega al menos un trabajador',true);return;}
 
@@ -3430,7 +3370,7 @@ async function guardarPersonal() {
     var f=filas[i];
     try{
       setSyncStatus('loading','Guardando '+(i+1)+'/'+filas.length+'...');
-      var props={'Nombre':{title:[{text:{content:f.nombre}}]},'Mes':{rich_text:[{text:{content:mes}}]},'Año':{rich_text:[{text:{content:String(anio)}}]},'Periodo':{rich_text:[{text:{content:mes+' '+anio}}]},'Tipo':{rich_text:[{text:{content:'mensual'}}]},'Base':{number:f.base},'Asig Familiar':{number:f.asig},'Faltas':{number:f.faltas},'Descuento':{number:f.descuento},'Bonos':{number:f.bonos},'Apoyos':{number:f.apoyos},'Deuda':{number:f.deuda||0},'Comentario':{rich_text:[{text:{content:f.comentario||''}}]},'Pago Quincenal':{number:f.pagoQuincenal},'Saldo Pendiente':{number:f.saldo},'Total':{number:f.total}};
+      var props={'Nombre':{title:[{text:{content:f.nombre}}]},'Mes':{rich_text:[{text:{content:mes}}]},'Año':{rich_text:[{text:{content:String(anio)}}]},'Periodo':{rich_text:[{text:{content:mes+' '+anio}}]},'Tipo':{rich_text:[{text:{content:'mensual'}}]},'Base':{number:f.base},'Asig Familiar':{number:f.asig},'Faltas':{number:f.faltas},'Descuento':{number:f.descuento},'Bonos':{number:f.bonos},'Apoyos':{number:f.apoyos},'Pago Quincenal':{number:f.pagoQuincenal},'Saldo Pendiente':{number:f.saldo},'Total':{number:f.total}};
       if(f.notionId){
         await notionRequest('PATCH','/pages/'+f.notionId,{properties:props});
       } else {
@@ -3482,7 +3422,7 @@ async function loadPersonal() {
           if(r.nombre&&!ultimoLocal[r.nombre]){
             ultimoLocal[r.nombre]={
               nombre:r.nombre, base:r.base||0, asig:r.asig||0,
-              faltas:0, descuento:0, bonos:0, apoyos:0, deuda:0, comentario:'', pagoQuincenal:0, saldo:0, total:0,
+              faltas:0, descuento:0, bonos:0, apoyos:0, pagoQuincenal:0, saldo:0, total:0,
               soloNombre:true
             };
           }
@@ -3508,7 +3448,7 @@ async function loadPersonal() {
     });
 
     var mapN=function(p,k){return p[k]&&p[k].number!=null?p[k].number:0;};
-  var mapT=function(p,k){return p[k]&&p[k].rich_text&&p[k].rich_text[0]?p[k].rich_text[0].text.content:'';};
+    var mapT=function(p,k){return p[k]&&p[k].rich_text&&p[k].rich_text[0]?p[k].rich_text[0].text.content:'';};
 
     if(result.results.length){
       // Hay datos para este mes — cargar normalmente con todos los valores
@@ -3518,7 +3458,7 @@ async function loadPersonal() {
           mes:mapT(p,'Mes'),anio:mapT(p,'Año'),
           base:mapN(p,'Base'),asig:mapN(p,'Asig Familiar'),faltas:mapN(p,'Faltas'),
           descuento:mapN(p,'Descuento'),bonos:mapN(p,'Bonos'),apoyos:mapN(p,'Apoyos'),
-          deuda:mapN(p,'Deuda'),comentario:mapT(p,'Comentario'),pagoQuincenal:mapN(p,'Pago Quincenal'),saldo:mapN(p,'Saldo Pendiente'),total:mapN(p,'Total')};
+          pagoQuincenal:mapN(p,'Pago Quincenal'),saldo:mapN(p,'Saldo Pendiente'),total:mapN(p,'Total')};
       });
       personalRecords.forEach(function(r){agregarFilaPersonal(r);});
     } else {
@@ -3538,7 +3478,7 @@ async function loadPersonal() {
             base:mapN(p,'Base'),
             asig:mapN(p,'Asig Familiar'),
             // Faltas, bonos, apoyos, quincenal, saldo empiezan en 0 cada mes
-            faltas:0, descuento:0, bonos:0, apoyos:0, deuda:0, comentario:'', pagoQuincenal:0, saldo:0, total:0,
+            faltas:0, descuento:0, bonos:0, apoyos:0, pagoQuincenal:0, saldo:0, total:0,
             soloNombre:true  // indica que es mes nuevo, campos en blanco excepto base/asig
           };
         }
@@ -3980,7 +3920,7 @@ function agregarSemanaApoyos() {
   var table=document.createElement('table'); table.style.cssText='width:100%;border-collapse:collapse;min-width:680px;';
 
   var thead=document.createElement('thead'); var hr=document.createElement('tr'); hr.style.background='var(--navy)';
-  ['Persona','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Total','Deuda','Comentario','Neto',''].forEach(function(c,ci){
+  ['Persona','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Total',''].forEach(function(c,ci){
     var th=document.createElement('th');
     th.style.cssText='padding:10px '+(ci===0?'14px':'8px')+';text-align:'+(ci===0?'left':ci===8?'right':'center')+';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.55);white-space:nowrap;';
     th.textContent=c; hr.appendChild(th);
@@ -3995,12 +3935,6 @@ function agregarSemanaApoyos() {
     var dk=['lun','mar','mie','jue','vie','sab','dom'];
     if(ci>=1&&ci<=7) td.className='atot-'+dk[ci-1];
     if(ci===8) td.className='atot-total';
-    // Celda Deuda (placeholder)
-    if(ci===8){
-      var tdDeuTot=document.createElement('td'); tdDeuTot.style.cssText='padding:8px 6px;background:rgba(255,180,180,.06);'; tdDeuTot.textContent='—'; tfRow.appendChild(tdDeuTot);
-      // Celda Neto total
-      var tdNetoTot=document.createElement('td'); tdNetoTot.style.cssText='padding:8px 10px;text-align:right;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent3);background:rgba(209,250,229,.2);'; tdNetoTot.className='atot-neto'; tdNetoTot.textContent='S/ 0.00'; tfRow.appendChild(tdNetoTot);
-    }
     td.textContent=c; tfRow.appendChild(td);
   });
   tfoot.appendChild(tfRow); table.appendChild(tfoot);
@@ -4039,28 +3973,6 @@ function agregarFilaApoyo(sid, datos) {
   });
 
   var tdT=document.createElement('td'); tdT.style.cssText='padding:5px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--navy2);'; tdT.className='afila-total'; tdT.textContent=datos&&datos.total>0?datos.total.toFixed(2):'—'; tr.appendChild(tdT);
-
-  // Deuda (se resta al neto)
-  var tdDeuA=document.createElement('td'); tdDeuA.style.cssText='padding:3px 5px;background:rgba(255,180,180,.08);';
-  var inDeuA=document.createElement('input'); inDeuA.type='number'; inDeuA.placeholder='0'; inDeuA.step='0.01'; inDeuA.min='0';
-  inDeuA.className='apoyo-deuda';
-  inDeuA.style.cssText='width:100%;padding:5px 7px;border:1px solid #ffb3b3;border-radius:5px;font-size:12px;font-family:var(--mono);text-align:right;background:rgba(255,245,245,.8);outline:none;min-width:65px;';
-  if(datos&&datos.deuda>0){ inDeuA.value=datos.deuda; inDeuA.style.background='#fff5f5'; }
-  inDeuA.addEventListener('input',function(){recalcApoyo(sid);});
-  tdDeuA.appendChild(inDeuA); tr.appendChild(tdDeuA);
-
-  // Descripción de la deuda
-  var tdDeuDescA=document.createElement('td'); tdDeuDescA.style.cssText='padding:3px 5px;background:rgba(255,180,180,.05);min-width:110px;';
-  var inDeuDescA=document.createElement('input'); inDeuDescA.type='text'; inDeuDescA.placeholder='Comentario...';
-  inDeuDescA.className='apoyo-comentario';
-  inDeuDescA.style.cssText='width:100%;padding:5px 7px;border:1px solid #ffb3b3;border-radius:5px;font-size:11px;font-family:var(--font);background:rgba(255,245,245,.8);outline:none;';
-  if(datos&&datos.comentario){ inDeuDescA.value=datos.comentario; }
-  tdDeuDescA.appendChild(inDeuDescA); tr.appendChild(tdDeuDescA);
-
-  // Neto = Total - Deuda
-  var tdNetoA=document.createElement('td'); tdNetoA.style.cssText='padding:5px 8px;text-align:right;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent3);background:rgba(209,250,229,.2);white-space:nowrap;';
-  tdNetoA.className='afila-neto'; tdNetoA.textContent='—'; tr.appendChild(tdNetoA);
-
   var tdR=document.createElement('td'); tdR.style.cssText='padding:4px;text-align:center;';
   var btn=document.createElement('button'); btn.className='rm'; btn.style.cssText='width:26px;height:26px;font-size:15px;'; btn.textContent='×';
   btn.addEventListener('click',function(){tr.remove();recalcApoyo(sid);});
@@ -4077,10 +3989,6 @@ function recalcApoyo(sid){
     var rowT=0;
     dk.forEach(function(d){var inp=row.querySelector('.apoyo-dia-'+d);var v=inp?(parseFloat(inp.value)||0):0;colT[d]+=v;rowT+=v;});
     var tc=row.querySelector('.afila-total'); if(tc) tc.textContent=rowT>0?rowT.toFixed(2):'—';
-    // Neto = Total - Deuda
-    var deudaRow=parseFloat((row.querySelector('.apoyo-deuda')||{}).value||0)||0;
-    var neto=rowT-deudaRow;
-    var tn=row.querySelector('.afila-neto'); if(tn){ tn.textContent='S/ '+neto.toFixed(2); tn.style.color=neto>=0?'var(--accent3)':'var(--red)'; }
     gt+=rowT;
   });
   dk.forEach(function(d){var el=panel.querySelector('.atot-'+d);if(el)el.textContent=colT[d]>0?colT[d].toFixed(2):'0.00';});
@@ -4098,8 +4006,6 @@ async function guardarApoyos(sid){
     var f={nombre:nom.value.trim().toUpperCase(),notionId:row.dataset.notionId||''};
     dk.forEach(function(d){var inp=row.querySelector('.apoyo-dia-'+d);f[d]=inp?(parseFloat(inp.value)||0):0;});
     f.total=dk.reduce(function(s,d){return s+f[d];},0);
-    var inDeu=row.querySelector('.apoyo-deuda'); f.deuda=inDeu?(parseFloat(inDeu.value)||0):0;
-    var inDeuDesc=row.querySelector('.apoyo-comentario'); f.comentario=inDeuDesc?inDeuDesc.value.trim():'';
     filas.push(f);
   });
   if(!filas.length){showToast('Agrega al menos una persona',true);return;}
@@ -4109,7 +4015,7 @@ async function guardarApoyos(sid){
     var f=filas[i];
     try{
       setSyncStatus('loading','Guardando '+(i+1)+'/'+filas.length+'...');
-      var props={'Nombre':{title:[{text:{content:f.nombre}}]},'Periodo':{rich_text:[{text:{content:lbl}}]},'Mes':{rich_text:[{text:{content:mes}}]},'Año':{rich_text:[{text:{content:String(anio)}}]},'Deuda':{number:f.deuda||0},'Comentario':{rich_text:[{text:{content:f.comentario||''}}]},'Total':{number:f.total}};
+      var props={'Nombre':{title:[{text:{content:f.nombre}}]},'Periodo':{rich_text:[{text:{content:lbl}}]},'Mes':{rich_text:[{text:{content:mes}}]},'Año':{rich_text:[{text:{content:String(anio)}}]},'Total':{number:f.total}};
       dk.forEach(function(d){props[dkMap[d]]={number:f[d]};});
       if(f.notionId){
         await notionRequest('PATCH','/pages/'+f.notionId,{properties:props});
@@ -4305,13 +4211,6 @@ async function cargarApoyosSemanalesDelMes(mes, anio){
         var val=n(dkMap[d]);
         if(inp&&val>0){ inp.value=val; inp.style.background='#f0faf0'; inp.style.borderColor='#b7dfb9'; }
       });
-      // Cargar deuda si existe
-      var inDeu2=filaExistente.querySelector('.apoyo-deuda');
-      var deudaVal=n('Deuda');
-      if(inDeu2&&deudaVal>0){inDeu2.value=deudaVal;inDeu2.style.background='#fff5f5';}
-      var inComent2=filaExistente.querySelector('.apoyo-comentario');
-      var comentarioVal=t('Comentario');
-      if(inComent2&&comentarioVal){inComent2.value=comentarioVal;}
       recalcApoyo(panel.id);
     });
     showToast('✓ Apoyos semanales cargados: '+periodosOrdenados.length+' semana(s)');
@@ -5755,7 +5654,7 @@ function renderYapeResumen(){
 }
 
 
-}
+
 
 // ── Calendario del mes ──
 function renderYapeCalendar(){
@@ -6148,76 +6047,7 @@ function exportYapeExcel(){
 
 
 // ══ AUTO-INICIO ══
-
-// Verificar si hay API Key guardada en este dispositivo
-function checkApiKeyAndStart() {
-  var savedKey = cfg.apiKey || '';
-  if (!savedKey) {
-    // No hay apikey — mostrar pantalla de setup
-    document.getElementById('screen-setup').style.display = 'flex';
-    document.getElementById('screen-login').style.display = 'none';
-    // Prellenar proxy con el valor guardado o el predeterminado
-    var proxyInput = document.getElementById('setup-proxy');
-    if (proxyInput) proxyInput.value = cfg.proxy || 'https://cajacaja-proxy.vercel.app/api/notion';
-  } else {
-    // Hay apikey — mostrar login normalmente
-    document.getElementById('screen-setup').style.display = 'none';
-    document.getElementById('screen-login').style.display = 'flex';
-    if (currentUser) initApp();
-  }
-}
-
-function guardarSetupConfig() {
-  var key   = (document.getElementById('setup-apikey').value || '').trim();
-  var proxy = (document.getElementById('setup-proxy').value  || '').trim();
-  var err   = document.getElementById('setup-error');
-  err.style.display = 'none';
-
-  // Validar API Key
-  if (!key) {
-    err.textContent = 'Ingresa la API Key para continuar.';
-    err.style.display = 'block';
-    document.getElementById('setup-apikey').focus();
-    return;
-  }
-  if (!key.startsWith('secret_') && !key.startsWith('ntn_')) {
-    err.textContent = 'La API Key debe comenzar con "secret_" o "ntn_".';
-    err.style.display = 'block';
-    document.getElementById('setup-apikey').focus();
-    return;
-  }
-  // Validar proxy URL (debe comenzar con https://)
-  if (proxy && !proxy.startsWith('https://')) {
-    err.textContent = 'La URL del proxy debe comenzar con "https://".';
-    err.style.display = 'block';
-    document.getElementById('setup-proxy').focus();
-    return;
-  }
-
-  // Guardar en cfg y localStorage
-  cfg.apiKey = key;
-  cfg.proxy  = proxy || 'https://cajacaja-proxy.vercel.app/api/notion';
-  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-
-  // Ir al login
-  document.getElementById('screen-setup').style.display = 'none';
-  document.getElementById('screen-login').style.display = 'flex';
-  updateSyncStatus();
-  showToast('✓ Configuración guardada en este dispositivo');
-}
-
-function saltarSetupConfig() {
-  // Continuar sin configurar (modo offline / localStorage)
-  document.getElementById('screen-setup').style.display = 'none';
-  document.getElementById('screen-login').style.display = 'flex';
-  if (currentUser) initApp();
-}
-
-// Alias para compatibilidad con versiones anteriores
-function guardarSetupApiKey() { guardarSetupConfig(); }
-function saltarSetupApiKey()   { saltarSetupConfig(); }
-
-checkApiKeyAndStart();
+if(currentUser){initApp();}
 </script>
 </body>
 </html>
