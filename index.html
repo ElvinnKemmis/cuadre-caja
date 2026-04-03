@@ -1416,8 +1416,6 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 var CFG_KEY='cajaDiaria_config',SESSION_KEY='cajaDiaria_session';
 var cfg={};
 try{cfg=JSON.parse(localStorage.getItem(CFG_KEY))||{};}catch(e){cfg={};}
-if(!cfg.apiKey) cfg.apiKey = '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';
-if(!cfg.proxy)  cfg.proxy  = 'https://cajacaja-proxy.vercel.app/api/notion';
 cfg.dbId='970859ae413d48b285c581c64a27758a';
 cfg.usersDbId=cfg.usersDbId||'9c02cca25d884f0eb41ccda0a9be827d';
 cfg.cortesDbId='47dbf845b3774f04b637cf617e3f0978';
