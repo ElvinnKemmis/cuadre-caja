@@ -2672,8 +2672,48 @@ async function guardarCorte(){
   var d=new Date(fechaInput+'T12:00:00'),lbl=d.toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
   var data={fecha:fechaInput,fechaLabel:lbl,ing:{biffe:{cant:parseFloat(document.getElementById('ing-biffe-cant').value)||0,merma:parseFloat(document.getElementById('ing-biffe-merma').value)||0,unidad:document.getElementById('ing-biffe-unidad').value},cerdo:{cant:parseFloat(document.getElementById('ing-cerdo-cant').value)||0,merma:parseFloat(document.getElementById('ing-cerdo-merma').value)||0,unidad:document.getElementById('ing-cerdo-unidad').value},fino:{cant:parseFloat(document.getElementById('ing-fino-cant').value)||0,merma:parseFloat(document.getElementById('ing-fino-merma').value)||0,unidad:document.getElementById('ing-fino-unidad').value}},cortes:{churrasco:parseFloat(document.getElementById('corte-churrasco').value)||0,chuleta:parseFloat(document.getElementById('corte-chuleta').value)||0,chorizo:parseFloat(document.getElementById('corte-chorizo').value)||0,biffe:parseFloat(document.getElementById('corte-biffe').value)||0,pollo:parseFloat(document.getElementById('corte-pollo').value)||0,cerdo:parseFloat(document.getElementById('corte-cerdo').value)||0,fino:parseFloat(document.getElementById('corte-fino').value)||0}};
   var btn=document.getElementById('btn-guardar-corte');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
-  var local=[];try{local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];}catch(e){}local.push(data);localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));
-  if(cfg.apiKey){try{setSyncStatus('loading','Guardando corte...');var dbId=(cfg.cortesDbId||CORTES_DB_ID).replace(/-/g,'');await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:{'Fecha':{title:[{text:{content:lbl}}]},'Fecha ISO':{rich_text:[{text:{content:fechaInput}}]},'Biffe Cant':{number:data.ing.biffe.cant},'Biffe Merma':{number:data.ing.biffe.merma},'Biffe Unidad':{rich_text:[{text:{content:data.ing.biffe.unidad}}]},'Cerdo Cant':{number:data.ing.cerdo.cant},'Cerdo Merma':{number:data.ing.cerdo.merma},'Cerdo Unidad':{rich_text:[{text:{content:data.ing.cerdo.unidad}}]},'Fino Cant':{number:data.ing.fino.cant},'Fino Merma':{number:data.ing.fino.merma},'Fino Unidad':{rich_text:[{text:{content:data.ing.fino.unidad}}]},'Churrasco':{number:data.cortes.churrasco},'Chuleta':{number:data.cortes.chuleta},'Chorizo':{number:data.cortes.chorizo},'Biffe Corte':{number:data.cortes.biffe},'Pollo':{number:data.cortes.pollo},'Cerdo Corte':{number:data.cortes.cerdo},'Fino Corte':{number:data.cortes.fino}}});setSyncStatus('ok','Sincronizado');showToast('✓ Corte guardado: '+lbl);}catch(e){setSyncStatus('err','Error sync');showToast('Guardado local. Error: '+e.message,true);}}else{showToast('Corte guardado localmente');}
+
+  // ── UPSERT localStorage: actualizar si existe, agregar si no ──
+  try{
+    var local=JSON.parse(localStorage.getItem('cajaDiaria_cortes'))||[];
+    var idxLocal=local.findIndex(function(x){return x.fecha===fechaInput;});
+    if(idxLocal>=0){local[idxLocal]=data;}else{local.push(data);}
+    localStorage.setItem('cajaDiaria_cortes',JSON.stringify(local));
+  }catch(e){}
+
+  if(cfg.apiKey){
+    try{
+      setSyncStatus('loading','Guardando corte...');
+      var dbId=(cfg.cortesDbId||CORTES_DB_ID).replace(/-/g,'');
+      var props={'Fecha':{title:[{text:{content:lbl}}]},'Fecha ISO':{rich_text:[{text:{content:fechaInput}}]},'Biffe Cant':{number:data.ing.biffe.cant},'Biffe Merma':{number:data.ing.biffe.merma},'Biffe Unidad':{rich_text:[{text:{content:data.ing.biffe.unidad}}]},'Cerdo Cant':{number:data.ing.cerdo.cant},'Cerdo Merma':{number:data.ing.cerdo.merma},'Cerdo Unidad':{rich_text:[{text:{content:data.ing.cerdo.unidad}}]},'Fino Cant':{number:data.ing.fino.cant},'Fino Merma':{number:data.ing.fino.merma},'Fino Unidad':{rich_text:[{text:{content:data.ing.fino.unidad}}]},'Churrasco':{number:data.cortes.churrasco},'Chuleta':{number:data.cortes.chuleta},'Chorizo':{number:data.cortes.chorizo},'Biffe Corte':{number:data.cortes.biffe},'Pollo':{number:data.cortes.pollo},'Cerdo Corte':{number:data.cortes.cerdo},'Fino Corte':{number:data.cortes.fino}};
+
+      // Buscar si ya existe un registro para esta fecha en Notion
+      var existing=cortesRecords.find(function(r){return r.fecha===fechaInput;});
+      if(existing&&existing.pageId){
+        // ── PATCH: actualizar el registro existente ──
+        await notionRequest('PATCH','/pages/'+existing.pageId,{properties:props});
+        setSyncStatus('ok','Sincronizado');
+        showToast('✓ Corte actualizado: '+lbl);
+      }else{
+        // Buscar en Notion por si no estaba en memoria (ej: recarga reciente)
+        var bq=await notionRequest('POST','/databases/'+dbId+'/query',{
+          filter:{property:'Fecha ISO',rich_text:{equals:fechaInput}}
+        });
+        if(bq.results&&bq.results.length>0){
+          // ── PATCH: existe en Notion aunque no estaba en cortesRecords ──
+          await notionRequest('PATCH','/pages/'+bq.results[0].id,{properties:props});
+          setSyncStatus('ok','Sincronizado');
+          showToast('✓ Corte actualizado: '+lbl);
+        }else{
+          // ── POST: no existe, crear nuevo ──
+          await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:props});
+          setSyncStatus('ok','Sincronizado');
+          showToast('✓ Corte guardado: '+lbl);
+        }
+      }
+    }catch(e){setSyncStatus('err','Error sync');showToast('Guardado local. Error: '+e.message,true);}
+  }else{showToast('Corte guardado localmente');}
+
   if(btn){btn.disabled=false;btn.innerHTML='💾 Guardar Ingresos y Cortes';}
   document.getElementById('corte-fecha').value=localDateStr();['biffe','cerdo','fino'].forEach(function(t){document.getElementById('ing-'+t+'-cant').value='';document.getElementById('ing-'+t+'-merma').value='';document.getElementById('ing-'+t+'-unidad').value='kg';document.getElementById('neto-'+t).textContent='0.00';});['churrasco','chuleta','chorizo','biffe','pollo','cerdo','fino'].forEach(function(c){document.getElementById('corte-'+c).value='';});loadCortes();
 }
