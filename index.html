@@ -3803,6 +3803,7 @@ function initPersonal() {
   loadEventos('faltas');
   loadEventos('permisos');
   loadEventos('descanso');
+  loadDeudasPersonal();
 }
 
 function cargarPersonalDelMes() {
@@ -4304,7 +4305,10 @@ async function loadDeudasPersonal(){
   deudasPersonal = [];
 
   if(cfg.apiKey){
-    var dbIdDD = (cfg.deudasDiariasDbId||cfg.deudasDbId||'').replace(/-/g,'');
+    // Auto-crear BD si no existe todavía
+    if(!cfg.deudasDiariasDbId) await ensureDeudasDiariasDB();
+
+    var dbIdDD = (cfg.deudasDiariasDbId||'').replace(/-/g,'');
 
     if(dbIdDD){
       // ── Leer de Personal - Deudas Diarias (fecha exacta por registro) ──
@@ -4361,7 +4365,7 @@ async function loadDeudasPersonal(){
   }
 
   aplicarDeudasATabla();
-  if(calTabActiva==='deudas') renderDeudasCalendar();
+  renderDeudasCalendar();
 }
 
 // Suma deudas del mes/año activo y las refleja en la columna Deuda de cada fila
@@ -4587,9 +4591,11 @@ async function confirmarDeudaPersonal(){
 
   deudasPersonal.push(nuevaDeuda);
   aplicarDeudasATabla();
-  if(calTabActiva==='deudas') renderDeudasCalendar();
+  renderDeudasCalendar();
   showToast('✓ Deuda de S/ '+monto.toFixed(2)+' registrada para '+trabajador+(desc?' — '+desc:''));
   closeModal('modal-deuda-personal');
+  // Recargar desde BD para mostrar fechas exactas en calendario
+  loadDeudasPersonal();
 }
 
 async function eliminarDeudaPersonal(deuda){
