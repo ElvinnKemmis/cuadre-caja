@@ -567,7 +567,11 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
       </div>
       <div class="config-pre-field" style="margin-bottom:0;">
         <label>BD Deudas Personal</label>
-        <input type="text" id="pre-deudasdbid" placeholder="ID... (nueva BD)"/>
+        <input type="text" id="pre-deudasdbid" placeholder="ID... (legacy)"/>
+      </div>
+      <div class="config-pre-field" style="margin-bottom:0;">
+        <label>BD Deudas Diarias ⭐</label>
+        <input type="text" id="pre-deudasdiariasdbid" placeholder="ID de Personal - Deudas Diarias"/>
       </div>
     </div>
     <div class="config-pre-status" id="pre-status"></div>
@@ -1256,7 +1260,6 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);">Bonos</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);">Apoyos</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:#ffb3b3;">Deuda</th>
-          <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);">Descripción Deuda</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);background:rgba(255,255,255,.1);">Pago Quincenal</th>
           <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;color:#ffd700;">Saldo a Pagar</th>
           <th style="padding:10px 14px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.55);">Total Mes</th>
@@ -1264,7 +1267,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
         </tr></thead>
         <tbody id="tbody-personal"></tbody>
         <tfoot><tr style="background:var(--surface2);border-top:2px solid var(--border);">
-          <td colspan="11" style="padding:9px 14px;font-size:12px;font-weight:700;color:var(--navy2);">TOTAL DEL MES</td>
+          <td colspan="10" style="padding:9px 14px;font-size:12px;font-weight:700;color:var(--navy2);">TOTAL DEL MES</td>
           <td id="ptot-personal" style="padding:9px 14px;text-align:right;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--navy2);">S/ 0.00</td>
           <td></td>
         </tr></tfoot>
@@ -1960,8 +1963,8 @@ var APOYOS_DB_ID='df3c7563edc049f8ad05cbd65294bfb1';
 var APOYOS_DIARIOS_DB_ID='9e24ef78fea249afa2665133e832f079';
 var DEUDAS_DB_ID=''; // legacy — ya no se usa
 cfg.deudasDbId=cfg.deudasDbId||'';
-var DEUDAS_DIARIAS_DB_ID=''; // Personal - Deudas Diarias — se configura en cfg.deudasDiariasDbId
-cfg.deudasDiariasDbId=cfg.deudasDiariasDbId||'';
+var DEUDAS_DIARIAS_DB_ID=cfg.deudasDiariasDbId||'33b91c46cadd81b7886dc62e809859f5'; // Personal - Deudas Diarias
+cfg.deudasDiariasDbId=cfg.deudasDiariasDbId||DEUDAS_DIARIAS_DB_ID;
 var VACACIONES_DB_ID='4ee25e748eae407bbe7f7e25f90dded4';
 var FALTAS_DB_ID='e88495700106473c9becebc65019aeed';
 var PERMISOS_DB_ID='8702cc45c037403e985991494a2b5b9b';
@@ -1988,6 +1991,52 @@ async function notionRequest(method,path,body){
 }
 
 // ══ LOGIN ══
+// ══ CARGA DE CONFIGURACIÓN DESDE BD NOTION ══
+// Lee la BD "Configuración del Sistema" y actualiza cfg con todos los IDs configurados allí
+// Clave → Valor mapeados directamente a cfg[clave]
+async function loadSistemaConfig(){
+  if(!cfg.apiKey) return;
+  try{
+    // Buscar la BD "Configuración del Sistema" por nombre
+    var searchRes = await notionRequest('POST','/search',{
+      query:'Configuración del Sistema',
+      filter:{value:'database',property:'object'},
+      page_size:3
+    });
+    if(!searchRes.results||!searchRes.results.length) return;
+
+    var cfgDbId = searchRes.results[0].id.replace(/-/g,'');
+    var result = await notionRequest('POST','/databases/'+cfgDbId+'/query',{page_size:50});
+    if(!result.results||!result.results.length) return;
+
+    var updated = false;
+    result.results.forEach(function(page){
+      var p = page.properties;
+      // Nombre = Clave, Valor = Valor
+      var clave = p.Nombre&&p.Nombre.title&&p.Nombre.title[0]?p.Nombre.title[0].text.content.trim():'';
+      var valor = p.Valor&&p.Valor.rich_text&&p.Valor.rich_text[0]?p.Valor.rich_text[0].text.content.trim():'';
+      if(!clave||!valor) return;
+      // Aplicar a cfg si el valor es diferente al actual
+      if(cfg[clave]!==valor){
+        cfg[clave] = valor;
+        updated = true;
+      }
+    });
+
+    if(updated){
+      localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+      // Actualizar constantes globales con los valores cargados
+      if(cfg.deudasDiariasDbId) DEUDAS_DIARIAS_DB_ID = cfg.deudasDiariasDbId;
+    }
+    // Asegurarse de que deudasDiariasDbId esté en la BD de config del sistema
+    if(DEUDAS_DIARIAS_DB_ID && !cfg._deudasDiariasRegistrado){
+      cfg._deudasDiariasRegistrado = true;
+      localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+      saveSistemaConfigValue('deudasDiariasDbId', DEUDAS_DIARIAS_DB_ID);
+    }
+  }catch(e){ /* No bloquear login si falla */ }
+}
+
 async function doLogin(){
   var usuario=document.getElementById('inp-user').value.trim().toLowerCase();
   var password=document.getElementById('inp-pass').value;
@@ -2006,6 +2055,8 @@ async function doLogin(){
     if(storedHash!==hash){showLoginError('Usuario o contraseña incorrectos.');return;}
     currentUser={pageId:page.id,usuario:usuario,nombre:nombre,rol:rol};
     sessionStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));
+    // Cargar configuración desde BD Notion antes de inicializar la app
+    await loadSistemaConfig();
     initApp();
   }catch(e){showLoginError('Error al conectar: '+e.message);}
   finally{setLoginLoading(false);}
@@ -3903,14 +3954,6 @@ function agregarFilaPersonal(datos) {
   });
   tdDeuda.appendChild(inDeuda); tr.appendChild(tdDeuda);
 
-  // Descripción de deuda
-  var tdDescDeuda = document.createElement('td'); tdDescDeuda.style.cssText='padding:4px 5px;';
-  var inDescDeuda = document.createElement('input'); inDescDeuda.type='text'; inDescDeuda.placeholder='descripción...';
-  inDescDeuda.className='pers-deuda-desc';
-  inDescDeuda.style.cssText='width:100%;min-width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);background:var(--surface2);outline:none;color:var(--text);';
-  if(datos&&datos.deudaDesc){ inDescDeuda.value=datos.deudaDesc; inDescDeuda.style.background='#fff0f0'; inDescDeuda.style.borderColor='#e53e3e'; }
-  tdDescDeuda.appendChild(inDescDeuda); tr.appendChild(tdDescDeuda);
-
   // Pago Quincenal (highlight especial)
   var tdQ = document.createElement('td'); tdQ.style.cssText='padding:4px 5px;background:rgba(235,182,22,.08);';
   var inQ = makeInp('pers-quincenal', datos?datos.pagoQuincenal:null);
@@ -4305,10 +4348,10 @@ async function loadDeudasPersonal(){
   deudasPersonal = [];
 
   if(cfg.apiKey){
-    // Auto-crear BD si no existe todavía
-    if(!cfg.deudasDiariasDbId) await ensureDeudasDiariasDB();
+    // Auto-crear/buscar BD si no está disponible todavía
+    if(!DEUDAS_DIARIAS_DB_ID) await ensureDeudasDiariasDB();
 
-    var dbIdDD = (cfg.deudasDiariasDbId||'').replace(/-/g,'');
+    var dbIdDD = DEUDAS_DIARIAS_DB_ID ? DEUDAS_DIARIAS_DB_ID.replace(/-/g,'') : '';
 
     if(dbIdDD){
       // ── Leer de Personal - Deudas Diarias (fecha exacta por registro) ──
@@ -4390,7 +4433,6 @@ function aplicarDeudasATabla(){
     var suma = sumaPorTrabajador[nom]||0;
     var desc = descPorTrabajador[nom]||'';
     var inpDeuda = tr.querySelector('.pers-deuda');
-    var inpDesc  = tr.querySelector('.pers-deuda-desc');
     if(inpDeuda){
       if(suma > 0){
         inpDeuda.value = suma.toFixed(2);
@@ -4401,11 +4443,6 @@ function aplicarDeudasATabla(){
         inpDeuda.style.background  = 'var(--surface2)';
         inpDeuda.style.borderColor = 'var(--border)';
       }
-    }
-    if(inpDesc && desc){
-      inpDesc.value = desc;
-      inpDesc.style.background  = '#fff0f0';
-      inpDesc.style.borderColor = '#e53e3e';
     }
     calcFilaPersonal(tr);
   });
@@ -4461,28 +4498,58 @@ function abrirModalDeudaPersonal(fecha, deudasDelDia){
   openModal('modal-deuda-personal');
 }
 
-// ── Crear automáticamente la BD "Personal - Deudas Diarias" en Notion si no existe ──
+// ── Guardar un valor en la BD Configuración del Sistema ──
+async function saveSistemaConfigValue(clave, valor){
+  if(!cfg.apiKey) return;
+  try{
+    var searchRes = await notionRequest('POST','/search',{
+      query:'Configuración del Sistema',
+      filter:{value:'database',property:'object'},
+      page_size:3
+    });
+    if(!searchRes.results||!searchRes.results.length) return;
+    var cfgDbId = searchRes.results[0].id.replace(/-/g,'');
+    // Buscar si ya existe la clave
+    var bq = await notionRequest('POST','/databases/'+cfgDbId+'/query',{
+      filter:{property:'Nombre',title:{equals:clave}}
+    });
+    var props = {
+      'Nombre':{title:[{text:{content:clave}}]},
+      'Valor' :{rich_text:[{text:{content:valor}}]}
+    };
+    // Buscar la columna Descripcion para agregar hint
+    var desc = '';
+    if(clave==='deudasDiariasDbId') desc='ID de la BD: Personal - Deudas Diarias';
+    if(desc) props['Descripcion']={rich_text:[{text:{content:desc}}]};
+
+    if(bq.results&&bq.results.length>0){
+      await notionRequest('PATCH','/pages/'+bq.results[0].id,{properties:props});
+    } else {
+      await notionRequest('POST','/pages',{parent:{database_id:cfgDbId},properties:props});
+    }
+  }catch(e){/* No bloquear si falla escribir config */}
+}
+
+// ── Obtener/crear BD "Personal - Deudas Diarias" ──
+// ID hardcodeado igual que FALTAS_DB_ID, VACACIONES_DB_ID, etc.
 async function ensureDeudasDiariasDB(){
-  if(cfg.deudasDiariasDbId) return cfg.deudasDiariasDbId; // ya existe
+  // Usar constante global si ya está definida
+  if(DEUDAS_DIARIAS_DB_ID) return DEUDAS_DIARIAS_DB_ID;
+  if(cfg.deudasDiariasDbId){ DEUDAS_DIARIAS_DB_ID=cfg.deudasDiariasDbId.replace(/-/g,''); return DEUDAS_DIARIAS_DB_ID; }
   if(!cfg.apiKey) return '';
 
+  // Intentar crear la BD automáticamente junto a Personal-Pagos
   try{
-    // Obtener el parent de la BD Personal-Pagos para crear la nueva en el mismo lugar
     var dbIdP = (cfg.personalDbId||PERSONAL_DB_ID).replace(/-/g,'');
     var dbInfo = await notionRequest('GET','/databases/'+dbIdP, null);
-    var parentPageId = dbInfo.parent && dbInfo.parent.page_id ? dbInfo.parent.page_id.replace(/-/g,'') : null;
+    var parentPageId = dbInfo.parent&&dbInfo.parent.page_id ? dbInfo.parent.page_id.replace(/-/g,'') : null;
+    if(!parentPageId) throw new Error('sin parent');
 
-    if(!parentPageId){
-      showToast('⚠ No se pudo obtener el padre de Personal-Pagos para crear la BD de deudas',true);
-      return '';
-    }
-
-    // Crear la nueva BD "Personal - Deudas Diarias"
     var newDb = await notionRequest('POST','/databases',{
-      parent: {type:'page_id', page_id: parentPageId},
-      title: [{type:'text', text:{content:'Personal - Deudas Diarias'}}],
-      icon: {type:'emoji', emoji:'💳'},
-      properties: {
+      parent:{type:'page_id', page_id:parentPageId},
+      title:[{type:'text', text:{content:'Personal - Deudas Diarias'}}],
+      icon:{type:'emoji', emoji:'💳'},
+      properties:{
         'Nombre'     :{title:{}},
         'Trabajador' :{rich_text:{}},
         'Fecha'      :{rich_text:{}},
@@ -4492,14 +4559,15 @@ async function ensureDeudasDiariasDB(){
         'Año'        :{rich_text:{}}
       }
     });
-
-    // Guardar el ID en config
+    DEUDAS_DIARIAS_DB_ID  = newDb.id.replace(/-/g,'');
     cfg.deudasDiariasDbId = newDb.id;
     localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-    showToast('✓ BD "Personal - Deudas Diarias" creada automáticamente en Notion');
-    return newDb.id;
+    var el=document.getElementById('cfg-deudasdiariasdbid'); if(el) el.value=newDb.id;
+    saveSistemaConfigValue('deudasDiariasDbId', newDb.id);
+    showToast('✓ BD "Personal - Deudas Diarias" creada en Notion');
+    return DEUDAS_DIARIAS_DB_ID;
   }catch(e){
-    showToast('⚠ Error creando BD de deudas: '+e.message+'. Créala manualmente en Notion y configura el ID en ⚙️ Config.',true);
+    showToast('⚠ Comparte la BD "Personal - Deudas Diarias" con la integración CajaDiaria en Notion',true);
     return '';
   }
 }
@@ -4565,14 +4633,12 @@ async function confirmarDeudaPersonal(){
           'Deuda'     :{number:nuevaTotal},
           'Comentario':{rich_text:[{text:{content:nuevaDesc.substring(0,2000)}}]}
         }});
-        // Actualizar DOM tabla
+        // Actualizar DOM tabla — solo columna Deuda (descripción ya no tiene columna visual)
         document.querySelectorAll('#tbody-personal tr').forEach(function(tr){
           var nomEl=tr.querySelector('.prov-input-nombre');
           if(!nomEl||nomEl.value.trim().toUpperCase()!==trabajador.toUpperCase()) return;
           var inpD=tr.querySelector('.pers-deuda');
-          var inpDD=tr.querySelector('.pers-deuda-desc');
           if(inpD){ inpD.value=nuevaTotal.toFixed(2); inpD.style.background='#fff0f0'; inpD.style.borderColor='#e53e3e'; }
-          if(inpDD){ inpDD.value=nuevaDesc; inpDD.style.background='#fff0f0'; inpDD.style.borderColor='#e53e3e'; }
           calcFilaPersonal(tr);
         });
         setSyncStatus('ok','Sincronizado');
@@ -7850,6 +7916,7 @@ function irAConfig(){
   if(cfg.cortesiasDbId) document.getElementById('pre-cortesiasdbid').value=cfg.cortesiasDbId;
   if(cfg.proveedoresDbId) document.getElementById('pre-proveedoresdbid').value=cfg.proveedoresDbId;
   if(cfg.deudasDbId) { var pdEl=document.getElementById('pre-deudasdbid'); if(pdEl) pdEl.value=cfg.deudasDbId; }
+  if(cfg.deudasDiariasDbId) { var pddEl=document.getElementById('pre-deudasdiariasdbid'); if(pddEl) pddEl.value=cfg.deudasDiariasDbId; }
   document.getElementById('pre-status').textContent='';
   document.getElementById('pre-status').className='config-pre-status';
   document.getElementById('screen-config').style.display='flex';
@@ -7867,6 +7934,7 @@ async function preConfigGuardarYProbar(){
   cfg.cortesiasDbId=(document.getElementById('pre-cortesiasdbid').value||'').trim()||CORTEIAS_DB_ID;
   cfg.proveedoresDbId=(document.getElementById('pre-proveedoresdbid').value||'').trim()||PROVEEDORES_DB_ID;
   cfg.deudasDbId=(document.getElementById('pre-deudasdbid').value||'').trim()||'';
+  cfg.deudasDiariasDbId=(document.getElementById('pre-deudasdiariasdbid').value||'').trim()||cfg.deudasDiariasDbId||'';
   localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
   // Probar conexión
   var btn=document.getElementById('btn-pre-test');
@@ -7893,7 +7961,7 @@ function setPreStatus(type, msg){
 }
 // Mostrar pantalla correcta al inicio
 if(currentUser && cfg.apiKey){
-  initApp();
+  loadSistemaConfig().then(function(){ initApp(); });
 } else if(cfg.apiKey){
   // Hay config pero no sesión → ir al login
   irAlLogin();
