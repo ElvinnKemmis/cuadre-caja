@@ -1666,9 +1666,8 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
       <div class="field"><label>ID BD Cortes</label><input type="text" id="cfg-cortesdbid"/><div class="config-hint">ID de "Cortes Diarios"</div></div>
       <div class="field"><label>ID BD Cortesías</label><input type="text" id="cfg-cortesiasdbid"/><div class="config-hint">ID de "Cortesías"</div></div>
       <div class="field"><label>ID BD Proveedores</label><input type="text" id="cfg-proveedoresdbid"/><div class="config-hint">ID de "Registro Proveedores"</div></div>
-      <div class="field"><label>ID BD Deudas Personal</label><input type="text" id="cfg-deudasdbid"/><div class="config-hint">ID de "Deudas del Personal" (legacy)</div></div>
-      <div class="field"><label>ID BD Deudas Diarias ⭐</label><input type="text" id="cfg-deudasdiariasdbid"/><div class="config-hint">ID de "Personal - Deudas Diarias" (nueva BD para registro por fecha)</div></div>
-      <div class="field"><label>ID BD Pagos Fijos</label><input type="text" id="cfg-pagosfijosdbid"/><div class="config-hint">ID de "Pagos Fijos Mensuales" (opcional)</div></div>
+      <div class="field"><label>ID BD Deudas Diarias ⭐</label><input type="text" id="cfg-deudasdiariasdbid"/><div class="config-hint">ID de "Personal - Deudas Diarias"</div></div>
+      <div class="field"><label>ID BD Pagos Fijos</label><input type="text" id="cfg-pagosfijosdbid"/><div class="config-hint">ID de "Pagos Fijos Mensuales" (usa Gastos-Registro si no se especifica)</div></div>
       <div class="field"><label>URL del Proxy</label><input type="text" id="cfg-proxy"/><div class="config-hint">Proxy CORS para conectar con Notion</div></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:14px;">
@@ -1953,6 +1952,8 @@ cfg.cortesiasDbId='4bbc15b5b14a4ca4880f671a90843f82';
 cfg.proveedoresDbId=cfg.proveedoresDbId||'d09bb9b4c33a4606b2518da51cf052d8';
 cfg.personalDbId=cfg.personalDbId||'158124a7c1d149af88855d2ce879918a';
 cfg.apoyosDbId=cfg.apoyosDbId||'df3c7563edc049f8ad05cbd65294bfb1';
+cfg.pagosFijosDbId=cfg.pagosFijosDbId||'b8bad63ce20746d29097d5b9b8e9dcdc'; // usa GASTOS_DB_ID por defecto
+cfg.deudasDiariasDbId=cfg.deudasDiariasDbId||'33b91c46-cadd-81b7-886d-c62e809859f5';
 var DB_ID='970859ae413d48b285c581c64a27758a';
 var USERS_DB_ID='9c02cca25d884f0eb41ccda0a9be827d';
 var CORTES_DB_ID='47dbf845b3774f04b637cf617e3f0978';
@@ -1961,10 +1962,7 @@ var PROVEEDORES_DB_ID='d09bb9b4c33a4606b2518da51cf052d8';
 var PERSONAL_DB_ID='158124a7c1d149af88855d2ce879918a';
 var APOYOS_DB_ID='df3c7563edc049f8ad05cbd65294bfb1';
 var APOYOS_DIARIOS_DB_ID='9e24ef78fea249afa2665133e832f079';
-var DEUDAS_DB_ID=''; // legacy — ya no se usa
-cfg.deudasDbId=cfg.deudasDbId||'';
-var DEUDAS_DIARIAS_DB_ID=cfg.deudasDiariasDbId||'33b91c46cadd81b7886dc62e809859f5'; // Personal - Deudas Diarias
-cfg.deudasDiariasDbId=cfg.deudasDiariasDbId||DEUDAS_DIARIAS_DB_ID;
+var DEUDAS_DIARIAS_DB_ID=cfg.deudasDiariasDbId.replace(/-/g,'');
 var VACACIONES_DB_ID='4ee25e748eae407bbe7f7e25f90dded4';
 var FALTAS_DB_ID='e88495700106473c9becebc65019aeed';
 var PERMISOS_DB_ID='8702cc45c037403e985991494a2b5b9b';
@@ -2569,8 +2567,35 @@ async function saveUser(){var pageId=document.getElementById('modal-user-pageid'
 async function delUser(i){var u=allUsers[i];if(u.usuario===currentUser.usuario){showToast('No puedes eliminar tu propio usuario',true);return;}if(!confirm('¿Eliminar el usuario "'+u.usuario+'"?'))return;try{await notionRequest('PATCH','/pages/'+u.pageId,{archived:true});allUsers.splice(i,1);renderUsers();showToast('✓ Usuario "'+u.usuario+'" eliminado');}catch(e){showToast('Error: '+e.message,true);}}
 
 // ══ CONFIG ══
-function saveConfig(){cfg.apiKey=document.getElementById('cfg-apikey').value.trim();cfg.dbId=document.getElementById('cfg-dbid').value.trim()||DB_ID;cfg.usersDbId=document.getElementById('cfg-usersdbid').value.trim()||USERS_DB_ID;cfg.cortesDbId=document.getElementById('cfg-cortesdbid').value.trim()||CORTES_DB_ID;cfg.cortesiasDbId=document.getElementById('cfg-cortesiasdbid').value.trim()||CORTEIAS_DB_ID;cfg.proveedoresDbId=document.getElementById('cfg-proveedoresdbid').value.trim()||PROVEEDORES_DB_ID;cfg.deudasDbId=document.getElementById('cfg-deudasdbid').value.trim()||'';var ddEl=document.getElementById('cfg-deudasdiariasdbid');cfg.deudasDiariasDbId=ddEl?ddEl.value.trim():'';var pfEl=document.getElementById('cfg-pagosfijosdbid');cfg.pagosFijosDbId=pfEl?pfEl.value.trim():'';cfg.proxy=document.getElementById('cfg-proxy').value.trim();localStorage.setItem(CFG_KEY,JSON.stringify(cfg));showToast('Configuración guardada');updateSyncStatus();}
-function loadConfigUI(){if(cfg.apiKey)document.getElementById('cfg-apikey').value=cfg.apiKey;document.getElementById('cfg-dbid').value=cfg.dbId||DB_ID;document.getElementById('cfg-usersdbid').value=cfg.usersDbId||USERS_DB_ID;document.getElementById('cfg-cortesdbid').value=cfg.cortesDbId||CORTES_DB_ID;document.getElementById('cfg-cortesiasdbid').value=cfg.cortesiasDbId||CORTEIAS_DB_ID;document.getElementById('cfg-proveedoresdbid').value=cfg.proveedoresDbId||PROVEEDORES_DB_ID;var dEl=document.getElementById('cfg-deudasdbid');if(dEl)dEl.value=cfg.deudasDbId||'';var ddEl=document.getElementById('cfg-deudasdiariasdbid');if(ddEl)ddEl.value=cfg.deudasDiariasDbId||'';var pfEl=document.getElementById('cfg-pagosfijosdbid');if(pfEl)pfEl.value=cfg.pagosFijosDbId||'';document.getElementById('cfg-proxy').value=cfg.proxy||'https://cajacaja-proxy.vercel.app/api/notion';}
+function saveConfig(){
+  cfg.apiKey=document.getElementById('cfg-apikey').value.trim();
+  cfg.dbId=document.getElementById('cfg-dbid').value.trim()||DB_ID;
+  cfg.usersDbId=document.getElementById('cfg-usersdbid').value.trim()||USERS_DB_ID;
+  cfg.cortesDbId=document.getElementById('cfg-cortesdbid').value.trim()||CORTES_DB_ID;
+  cfg.cortesiasDbId=document.getElementById('cfg-cortesiasdbid').value.trim()||CORTEIAS_DB_ID;
+  cfg.proveedoresDbId=document.getElementById('cfg-proveedoresdbid').value.trim()||PROVEEDORES_DB_ID;
+  var ddEl=document.getElementById('cfg-deudasdiariasdbid');
+  cfg.deudasDiariasDbId=(ddEl?ddEl.value.trim():'')||'33b91c46-cadd-81b7-886d-c62e809859f5';
+  var pfEl=document.getElementById('cfg-pagosfijosdbid');
+  cfg.pagosFijosDbId=(pfEl?pfEl.value.trim():'')||GASTOS_DB_ID;
+  cfg.proxy=document.getElementById('cfg-proxy').value.trim();
+  localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
+  showToast('Configuración guardada');
+  updateSyncStatus();
+}
+function loadConfigUI(){
+  if(cfg.apiKey)document.getElementById('cfg-apikey').value=cfg.apiKey;
+  document.getElementById('cfg-dbid').value=cfg.dbId||DB_ID;
+  document.getElementById('cfg-usersdbid').value=cfg.usersDbId||USERS_DB_ID;
+  document.getElementById('cfg-cortesdbid').value=cfg.cortesDbId||CORTES_DB_ID;
+  document.getElementById('cfg-cortesiasdbid').value=cfg.cortesiasDbId||CORTEIAS_DB_ID;
+  document.getElementById('cfg-proveedoresdbid').value=cfg.proveedoresDbId||PROVEEDORES_DB_ID;
+  var ddEl=document.getElementById('cfg-deudasdiariasdbid');
+  if(ddEl)ddEl.value=cfg.deudasDiariasDbId||'33b91c46-cadd-81b7-886d-c62e809859f5';
+  var pfEl=document.getElementById('cfg-pagosfijosdbid');
+  if(pfEl)pfEl.value=cfg.pagosFijosDbId||'b8bad63c-e207-46d2-9097-d5b9b8e9dcdc';
+  document.getElementById('cfg-proxy').value=cfg.proxy||'https://cajacaja-proxy.vercel.app/api/notion';
+}
 async function testConnection(){setSyncStatus('loading','Probando...');try{await notionRequest('GET','/databases/'+(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,''),null);setSyncStatus('ok','Conectado');showToast('✓ Conexión exitosa con Notion');}catch(e){setSyncStatus('err','Error');showToast('Error: '+e.message,true);}}
 function setSyncStatus(state,label){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-label').textContent=label;}
 function updateSyncStatus(){setSyncStatus(cfg.apiKey?'ok':'','Notion '+(cfg.apiKey?'conectado':'sin configurar'));}
@@ -7933,8 +7958,8 @@ async function preConfigGuardarYProbar(){
   cfg.cortesDbId=(document.getElementById('pre-cortesdbid').value||'').trim()||CORTES_DB_ID;
   cfg.cortesiasDbId=(document.getElementById('pre-cortesiasdbid').value||'').trim()||CORTEIAS_DB_ID;
   cfg.proveedoresDbId=(document.getElementById('pre-proveedoresdbid').value||'').trim()||PROVEEDORES_DB_ID;
-  cfg.deudasDbId=(document.getElementById('pre-deudasdbid').value||'').trim()||'';
-  cfg.deudasDiariasDbId=(document.getElementById('pre-deudasdiariasdbid').value||'').trim()||cfg.deudasDiariasDbId||'';
+  cfg.deudasDiariasDbId=(document.getElementById('pre-deudasdiariasdbid')?document.getElementById('pre-deudasdiariasdbid').value:'').trim()||'33b91c46-cadd-81b7-886d-c62e809859f5';
+  cfg.pagosFijosDbId=cfg.pagosFijosDbId||'b8bad63ce20746d29097d5b9b8e9dcdc';
   localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
   // Probar conexión
   var btn=document.getElementById('btn-pre-test');
