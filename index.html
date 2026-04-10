@@ -1435,7 +1435,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     </div>
     <!-- Banner informativo para cajero -->
     <div id="gastos-cajero-banner" style="display:none;background:#f0f9ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#1e40af;">
-      💡 Registra los gastos del día. Solo se guardarán tus registros y serán visibles en "Mis gastos" abajo.
+      💡 Ves los gastos registrados en caja del mes. También puedes registrar tus gastos YAPE abajo.
     </div>
     <div id="gastos-form-filas"></div>
     <div style="display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap;">
@@ -1952,6 +1952,7 @@ cfg.cortesiasDbId='4bbc15b5b14a4ca4880f671a90843f82';
 cfg.proveedoresDbId=cfg.proveedoresDbId||'d09bb9b4c33a4606b2518da51cf052d8';
 cfg.personalDbId=cfg.personalDbId||'158124a7c1d149af88855d2ce879918a';
 cfg.apoyosDbId=cfg.apoyosDbId||'df3c7563edc049f8ad05cbd65294bfb1';
+cfg.apoyosDiariosDbId=cfg.apoyosDiariosDbId||'9e24ef78fea249afa2665133e832f079';
 cfg.pagosFijosDbId=cfg.pagosFijosDbId||'b8bad63ce20746d29097d5b9b8e9dcdc'; // usa GASTOS_DB_ID por defecto
 cfg.deudasDiariasDbId=cfg.deudasDiariasDbId||'33b91c46-cadd-81b7-886d-c62e809859f5';
 var DB_ID='970859ae413d48b285c581c64a27758a';
@@ -2010,11 +2011,12 @@ async function loadSistemaConfig(){
     var updated = false;
     result.results.forEach(function(page){
       var p = page.properties;
-      // Nombre = Clave, Valor = Valor
       var clave = p.Nombre&&p.Nombre.title&&p.Nombre.title[0]?p.Nombre.title[0].text.content.trim():'';
       var valor = p.Valor&&p.Valor.rich_text&&p.Valor.rich_text[0]?p.Valor.rich_text[0].text.content.trim():'';
       if(!clave||!valor) return;
-      // Aplicar a cfg si el valor es diferente al actual
+      // Solo sobreescribir si el valor actual está vacío o es diferente
+      // No sobreescribir con valores que parecen inválidos (muy cortos para un ID)
+      if(clave.endsWith('DbId') && valor.replace(/-/g,'').length < 30) return;
       if(cfg[clave]!==valor){
         cfg[clave] = valor;
         updated = true;
@@ -2024,7 +2026,8 @@ async function loadSistemaConfig(){
     if(updated){
       localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
       // Actualizar constantes globales con los valores cargados
-      if(cfg.deudasDiariasDbId) DEUDAS_DIARIAS_DB_ID = cfg.deudasDiariasDbId;
+      if(cfg.deudasDiariasDbId) DEUDAS_DIARIAS_DB_ID = cfg.deudasDiariasDbId.replace(/-/g,'');
+      if(cfg.apoyosDiariosDbId) APOYOS_DIARIOS_DB_ID = cfg.apoyosDiariosDbId.replace(/-/g,'');
     }
     // Asegurarse de que deudasDiariasDbId esté en la BD de config del sistema
     if(DEUDAS_DIARIAS_DB_ID && !cfg._deudasDiariasRegistrado){
@@ -4326,7 +4329,7 @@ function renderCalUnificado(){
 async function loadApoyosDiarios(){
   if(cfg.apiKey){
     try{
-      var dbId=APOYOS_DIARIOS_DB_ID.replace(/-/g,'');
+      var dbId=(cfg.apoyosDiariosDbId||APOYOS_DIARIOS_DB_ID).replace(/-/g,'');
       var result=await notionRequest('POST','/databases/'+dbId+'/query',{
         sorts:[{property:'Fecha',direction:'descending'}]
       });
@@ -5010,20 +5013,26 @@ async function confirmarApoyo(){
   var nuevoApoyo={trabajador:trabajador,fecha:fecha,monto:monto,descripcion:desc,mes:mes,anio:anio};
   if(cfg.apiKey){
     try{
-      var dbId=APOYOS_DIARIOS_DB_ID.replace(/-/g,'');
-      var props={
+      var dbId=(cfg.apoyosDiariosDbId||APOYOS_DIARIOS_DB_ID).replace(/-/g,'');
+      var propsApoyo={
         'Nombre'     :{title:[{text:{content:trabajador+' — '+fecha}}]},
         'Trabajador' :{rich_text:[{text:{content:trabajador}}]},
         'Fecha'      :{rich_text:[{text:{content:fecha}}]},
         'Monto'      :{number:monto},
         'Descripcion':{rich_text:[{text:{content:desc||''}}]},
         'Mes'        :{rich_text:[{text:{content:mes}}]},
-        'Año'        :{rich_text:[{text:{content:anio}}]},
-        'Tipo'       :{rich_text:[{text:{content:'apoyo'}}]}
+        'Año'        :{rich_text:[{text:{content:anio}}]}
       };
-      var created=await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:props});
+      // Intentar con campo Tipo primero; si falla (columna no existe), guardar sin él
+      var created;
+      try{
+        created=await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:Object.assign({},propsApoyo,{'Tipo':{rich_text:[{text:{content:'apoyo'}}]}})});
+      }catch(eTipo){
+        created=await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:propsApoyo});
+      }
       nuevoApoyo.id=created.id;
-    }catch(e){showToast('Error guardando en Notion: '+e.message,true);}
+      setSyncStatus('ok','Sincronizado');
+    }catch(e){showToast('Error guardando apoyo en Notion: '+e.message,true);}
   }
 
   // Cache local
@@ -5601,7 +5610,7 @@ function vacCalNext(){vacCalMes++;if(vacCalMes>11){vacCalMes=0;vacCalAnio++;}ren
 async function loadVacaciones(){
   if(cfg.apiKey){
     try{
-      var dbId=VACACIONES_DB_ID.replace(/-/g,'');
+      var dbId=(cfg.vacacionesDbId||VACACIONES_DB_ID).replace(/-/g,'');
       var result=await notionRequest('POST','/databases/'+dbId+'/query',{
         sorts:[{property:'Fecha Inicio',direction:'ascending'}]
       });
@@ -5746,7 +5755,7 @@ async function confirmarVacaciones(){
 
   if(cfg.apiKey){
     try{
-      var dbId=VACACIONES_DB_ID.replace(/-/g,'');
+      var dbId=(cfg.vacacionesDbId||VACACIONES_DB_ID).replace(/-/g,'');
       var props={
         'Nombre':{title:[{text:{content:trabajador+' — '+inicio+(inicio!==fin?' al '+fin:'')}}]},
         'Trabajador':{rich_text:[{text:{content:trabajador}}]},
@@ -6039,10 +6048,29 @@ async function loadGastosAdmin() {
     }catch(e){}
 
   } else {
-    // ── CAJERO: solo cargar SUS gastos YAPE ──
+    // ── CAJERO: cargar gastos de CAJA (todos) + sus gastos YAPE ──
     var cargadoDesdeNotion = false;
 
     if(cfg.apiKey){
+      // 1. Gastos de CAJA — desde Registros Cuadre de Caja (misma fuente que admin)
+      try{
+        var dbIdCaja=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
+        var resCaja=await notionRequest('POST','/databases/'+dbIdCaja+'/query',{sorts:[{property:'Fecha ISO',direction:'descending'}]});
+        resCaja.results.forEach(function(page){
+          var p=page.properties;
+          var fechaISO=p['Fecha ISO'].rich_text[0]?p['Fecha ISO'].rich_text[0].text.content:'';
+          var fechaLabel=p.Fecha.title[0]?p.Fecha.title[0].text.content:'';
+          if(fechaISO){ var pp=fechaISO.split('-'); if(MESES[parseInt(pp[1])-1]!==mes||pp[0]!==String(anio)) return; }
+          var glist=[]; try{glist=JSON.parse(p['Gastos Detalle'].rich_text[0]&&p['Gastos Detalle'].rich_text[0].text.content||'[]');}catch(e){}
+          glist.forEach(function(g){
+            var catGasto=(g.categoria&&g.categoria!=='CAJA')?g.categoria:'OTROS';
+            gastosAllRecords.push({fecha:fechaISO,fechaLabel:fechaLabel,descripcion:g.concepto,
+              monto:parseFloat(g.monto)||0,categoria:catGasto,tipo:'caja',mes:mes,anio:String(anio)});
+          });
+        });
+      }catch(e){}
+
+      // 2. Gastos YAPE propios del cajero — desde Gastos-Registro
       try{
         var dbId3=GASTOS_DB_ID.replace(/-/g,'');
         var result3=await notionRequest('POST','/databases/'+dbId3+'/query',{
@@ -6224,11 +6252,13 @@ function renderGastosAgrupados() {
   }
 
   // ── DETALLE POR CATEGORÍA ──
-  // Cajero: solo registros YAPE (tipo adicional). Sin eliminar.
+  // Cajero: ve todos los gastos de CAJA + sus propios YAPE. No puede eliminar CAJA.
   // Admin: todos, con filtros.
   var filtrados = gastosAllRecords.filter(function(g){
     if(!esAdmin){
-      // Solo YAPE, solo adicionales
+      // Gastos de caja: todos visibles
+      if(g.tipo==='caja') return true;
+      // Gastos adicionales: solo sus YAPE
       return g.categoria==='YAPE' && g.tipo==='adicional';
     }
     var catOk = !catFil || g.categoria===catFil;
@@ -6244,8 +6274,7 @@ function renderGastosAgrupados() {
   if(!esAdmin){
     var cajHdr = document.createElement('div');
     cajHdr.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:12px;';
-    cajHdr.innerHTML='<span style="font-size:13px;font-weight:700;color:#7c3aed;">💳 Mis gastos YAPE registrados</span>'
-      +'<span style="font-size:11px;color:var(--muted);">'+mes+' '+anio+'</span>';
+    cajHdr.innerHTML='<span style="font-size:13px;font-weight:700;color:#1e40af;">📋 Gastos del mes — '+mes+' '+anio+'</span>';
     cont.appendChild(cajHdr);
   }
 
@@ -6325,8 +6354,18 @@ function renderGastosAgrupados() {
         badge.textContent=g.tipo==='caja'?'CAJA':'ADICIONAL'; tdT.appendChild(badge); tr.appendChild(tdT);
       }
 
-      // Descripción
-      var tdD=document.createElement('td'); tdD.style.cssText='padding:9px 8px;font-size:13px;'; tdD.textContent=g.descripcion||'—'; tr.appendChild(tdD);
+      // Descripción — con badge de origen para cajero
+      var tdD=document.createElement('td'); tdD.style.cssText='padding:9px 8px;font-size:13px;';
+      if(!esAdmin){
+        var srcBadge=document.createElement('span');
+        var isCaja=g.tipo==='caja';
+        srcBadge.style.cssText='font-size:9px;font-weight:700;padding:1px 6px;border-radius:6px;margin-right:6px;'
+          +(isCaja?'background:#dbeafe;color:#1e40af;':'background:#ede9fe;color:#7c3aed;');
+        srcBadge.textContent=isCaja?'CAJA':'YAPE';
+        tdD.appendChild(srcBadge);
+      }
+      tdD.appendChild(document.createTextNode(g.descripcion||'—'));
+      tr.appendChild(tdD);
 
       // Monto
       var tdM=document.createElement('td'); tdM.style.cssText='padding:9px 16px;text-align:right;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--red);white-space:nowrap;'; tdM.textContent='S/ '+g.monto.toFixed(2); tr.appendChild(tdM);
