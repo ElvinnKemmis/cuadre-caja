@@ -3532,50 +3532,90 @@ async function loadCortesias(){
   if(cfg.apiKey){
     try{
       var dbId=(cfg.cortesiasDbId||CORTEIAS_DB_ID).replace(/-/g,'');
-      var result=await notionRequest('POST','/databases/'+dbId+'/query',{
-        sorts:[{property:'Fecha',direction:'descending'}]
-      });
+
+      var anoStr = String(cortCalAnio);
+      var mesStr = String(cortCalMes + 1).padStart(2,'0');
+      var prefijo = anoStr + '-' + mesStr + '-'; // ej: "2026-04-"
 
       // Mapa de nombres de mes en español → número
-      var MESES = {
+      var MESES_NUM = {
         'enero':'01','febrero':'02','marzo':'03','abril':'04',
         'mayo':'05','junio':'06','julio':'07','agosto':'08',
         'septiembre':'09','octubre':'10','noviembre':'11','diciembre':'12'
       };
 
-      cortesiasRecords = result.results.map(function(page){
+      // Traer TODOS los registros (sin filtro de fecha) para no perder
+      // los que no tienen Fecha ISO guardado
+      var allResults = [];
+      var cursor = undefined;
+      do {
+        var queryOpts = {
+          sorts: [{property:'Fecha ISO', direction:'ascending'}],
+          page_size: 100
+        };
+        if(cursor) queryOpts.start_cursor = cursor;
+        var result = await notionRequest('POST','/databases/'+dbId+'/query', queryOpts);
+        allResults = allResults.concat(result.results);
+        cursor = result.has_more ? result.next_cursor : undefined;
+      } while(cursor);
+
+      var allMapped = allResults.map(function(page){
         var p = page.properties;
-        // Usar SOLO la columna Fecha (título) — ignorar Fecha ISO por completo
         var lbl = p.Fecha && p.Fecha.title && p.Fecha.title[0]
-          ? p.Fecha.title[0].plain_text || p.Fecha.title[0].text.content
-          : '';
+          ? p.Fecha.title[0].plain_text || p.Fecha.title[0].text.content : '';
         var detalle = p.Detalle && p.Detalle.rich_text && p.Detalle.rich_text[0]
           ? p.Detalle.rich_text[0].text.content : '';
         var cantidad = p.Cantidad && p.Cantidad.number != null ? p.Cantidad.number : 0;
 
-        // Parsear fecha desde el label: "01 de abril de 2026" → "2026-04-01"
-        var fecha = '';
-        if(lbl){
-          // Eliminar todos los " de " y dividir
+        // Leer Fecha ISO
+        var fechaISO = p['Fecha ISO'] && p['Fecha ISO'].rich_text && p['Fecha ISO'].rich_text[0]
+          ? p['Fecha ISO'].rich_text[0].text.content : '';
+
+        // Si no hay Fecha ISO, parsear desde el label (ej: "1 de Abril de 2026")
+        if(!fechaISO && lbl){
           var limpio = lbl.toLowerCase().replace(/ de /g, ' ').trim();
           var partes = limpio.split(/\s+/);
-          // partes = ["01", "abril", "2026"]
           if(partes.length >= 3){
             var dia  = partes[0].padStart(2,'0');
-            var mes  = MESES[partes[1]] || '01';
+            var mes  = MESES_NUM[partes[1]] || '01';
             var anio = partes[2];
-            fecha = anio + '-' + mes + '-' + dia;
+            fechaISO = anio + '-' + mes + '-' + dia;
           }
         }
 
+        // Si tampoco hay label pero hay fecha en otra propiedad, intentar parsearla
+        if(!fechaISO) return null;
+
         return {
-          pageId   : page.id,
+          pageId    : page.id,
           fechaLabel: lbl,
-          fecha    : fecha,
-          cantidad : cantidad,
-          detalle  : detalle
+          fecha     : fechaISO,
+          cantidad  : cantidad,
+          detalle   : detalle
         };
-      }).filter(function(r){ return r.fecha !== ''; }); // descartar registros sin fecha válida
+      }).filter(function(r){ return r && r.fecha; });
+
+      // Filtrar solo el mes/año activo del calendario (client-side)
+      cortesiasRecords = allMapped.filter(function(r){
+        return r.fecha.startsWith(prefijo);
+      });
+
+      // Actualizar Fecha ISO en Notion para los registros que no la tenían
+      // (silenciosamente en segundo plano para no bloquear la UI)
+      allMapped.forEach(function(r){
+        var original = allResults.find(function(p){ return p.id === r.pageId; });
+        if(!original) return;
+        var tieneISO = original.properties['Fecha ISO'] &&
+          original.properties['Fecha ISO'].rich_text &&
+          original.properties['Fecha ISO'].rich_text[0] &&
+          original.properties['Fecha ISO'].rich_text[0].text.content;
+        if(!tieneISO && r.fecha){
+          // Guardar Fecha ISO para que próximas cargas sean más eficientes
+          notionRequest('PATCH','/pages/'+r.pageId,{
+            properties:{'Fecha ISO':{rich_text:[{text:{content:r.fecha}}]}}
+          }).catch(function(){});
+        }
+      });
 
       // Cache local
       try{ localStorage.setItem('cajaDiaria_cortesias', JSON.stringify(cortesiasRecords)); }catch(e){}
@@ -3586,6 +3626,8 @@ async function loadCortesias(){
     }
   } else {
     try{ cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[]; }catch(e){ cortesiasRecords=[]; }
+    var prefLS = String(cortCalAnio)+'-'+String(cortCalMes+1).padStart(2,'0')+'-';
+    cortesiasRecords = cortesiasRecords.filter(function(r){ return r.fecha && r.fecha.startsWith(prefLS); });
   }
 
   renderCalendarioCortesias();
@@ -6110,13 +6152,22 @@ async function loadGastosAdmin() {
       try{
         var dbId=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
         var result=await notionRequest('POST','/databases/'+dbId+'/query',{sorts:[{property:'Fecha ISO',direction:'descending'}]});
+        var fechasVistasAdmin={};
         result.results.forEach(function(page){
           var p=page.properties;
-          var fechaISO=p['Fecha ISO'].rich_text[0]?p['Fecha ISO'].rich_text[0].text.content:'';
-          var fechaLabel=p.Fecha.title[0]?p.Fecha.title[0].text.content:'';
-          if(fechaISO){ var pp=fechaISO.split('-'); if(MESES[parseInt(pp[1])-1]!==mes||pp[0]!==String(anio)) return; }
-          var glist=[]; try{glist=JSON.parse(p['Gastos Detalle'].rich_text[0]&&p['Gastos Detalle'].rich_text[0].text.content||'[]');}catch(e){}
+          var fechaISO=p['Fecha ISO']&&p['Fecha ISO'].rich_text[0]?p['Fecha ISO'].rich_text[0].text.content:'';
+          if(!fechaISO) return;
+          var pp=fechaISO.split('-'); if(MESES[parseInt(pp[1])-1]!==mes||pp[0]!==String(anio)) return;
+          if(fechasVistasAdmin[fechaISO]) return;
+          fechasVistasAdmin[fechaISO]=true;
+          var fechaLabel=p.Fecha&&p.Fecha.title&&p.Fecha.title[0]?p.Fecha.title[0].text.content:'';
+          var glist=[]; try{glist=JSON.parse(p['Gastos Detalle']&&p['Gastos Detalle'].rich_text[0]?p['Gastos Detalle'].rich_text[0].text.content||'[]':'[]');}catch(e){}
+          // Deduplicar items dentro del glist por concepto+monto+categoria
+          var gastosVistosA={};
           glist.forEach(function(g){
+            var key=(g.concepto||'')+'|'+(g.monto||0)+'|'+(g.categoria||'');
+            if(gastosVistosA[key]) return;
+            gastosVistosA[key]=true;
             var catGasto = (g.categoria && g.categoria !== 'CAJA') ? g.categoria : 'OTROS';
             gastosAllRecords.push({fecha:fechaISO,fechaLabel:fechaLabel,descripcion:g.concepto,
               monto:parseFloat(g.monto)||0,categoria:catGasto,tipo:'caja',mes:mes,anio:String(anio)});
@@ -6168,13 +6219,24 @@ async function loadGastosAdmin() {
       try{
         var dbIdCaja=(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,'');
         var resCaja=await notionRequest('POST','/databases/'+dbIdCaja+'/query',{sorts:[{property:'Fecha ISO',direction:'descending'}]});
+        // Deduplicar por fechaISO — quedarse solo con el registro más reciente por fecha
+        var fechasVistas={};
         resCaja.results.forEach(function(page){
           var p=page.properties;
-          var fechaISO=p['Fecha ISO'].rich_text[0]?p['Fecha ISO'].rich_text[0].text.content:'';
-          var fechaLabel=p.Fecha.title[0]?p.Fecha.title[0].text.content:'';
-          if(fechaISO){ var pp=fechaISO.split('-'); if(MESES[parseInt(pp[1])-1]!==mes||pp[0]!==String(anio)) return; }
-          var glist=[]; try{glist=JSON.parse(p['Gastos Detalle'].rich_text[0]&&p['Gastos Detalle'].rich_text[0].text.content||'[]');}catch(e){}
+          var fechaISO=p['Fecha ISO']&&p['Fecha ISO'].rich_text[0]?p['Fecha ISO'].rich_text[0].text.content:'';
+          if(!fechaISO) return;
+          var pp=fechaISO.split('-');
+          if(MESES[parseInt(pp[1])-1]!==mes||pp[0]!==String(anio)) return;
+          if(fechasVistas[fechaISO]) return;
+          fechasVistas[fechaISO]=true;
+          var fechaLabel=p.Fecha&&p.Fecha.title&&p.Fecha.title[0]?p.Fecha.title[0].text.content:'';
+          var glist=[]; try{glist=JSON.parse(p['Gastos Detalle']&&p['Gastos Detalle'].rich_text[0]?p['Gastos Detalle'].rich_text[0].text.content||'[]':'[]');}catch(e){}
+          // Deduplicar items dentro del glist por concepto+monto+categoria
+          var gastosVistos={};
           glist.forEach(function(g){
+            var key=(g.concepto||'')+'|'+(g.monto||0)+'|'+(g.categoria||'');
+            if(gastosVistos[key]) return;
+            gastosVistos[key]=true;
             var catGasto=(g.categoria&&g.categoria!=='CAJA')?g.categoria:'OTROS';
             gastosAllRecords.push({fecha:fechaISO,fechaLabel:fechaLabel,descripcion:g.concepto,
               monto:parseFloat(g.monto)||0,categoria:catGasto,tipo:'caja',mes:mes,anio:String(anio)});
@@ -6271,6 +6333,18 @@ async function loadGastosAdmin() {
     }
   }
 
+  // ── Deduplicar gastos de CAJA por fecha+descripcion+monto (última línea de defensa) ──
+  // Cubre casos donde el glist en Notion tiene duplicados internos O
+  // hay múltiples registros para la misma fecha en la BD
+  var vistosDedup={};
+  gastosAllRecords = gastosAllRecords.filter(function(g){
+    if(g.tipo!=='caja') return true; // no filtrar adicionales/YAPE
+    var key=g.fecha+'|'+(g.descripcion||'').trim()+'|'+g.monto+'|'+g.categoria;
+    if(vistosDedup[key]) return false;
+    vistosDedup[key]=true;
+    return true;
+  });
+
   renderGastosAgrupados();
 }
 
@@ -6289,11 +6363,6 @@ function renderGastosAgrupados() {
     // Ocultar controles de filtro para cajero
     if(filtroControls) filtroControls.style.display='none';
     if(chipsEl) chipsEl.style.display='none';
-    // Forzar filtro a YAPE y texto vacío
-    var selCat = document.getElementById('gastos-filtro-cat');
-    var inpTxt = document.getElementById('gastos-filtro-texto');
-    if(selCat) selCat.value='YAPE';
-    if(inpTxt) inpTxt.value='';
   } else {
     if(filtroControls) filtroControls.style.display='';
     if(chipsEl) chipsEl.style.display='';
