@@ -2282,9 +2282,17 @@ async function guardar(){
     document.getElementById('cuadreCaja').value='';
     resetMozosGastos();
     document.getElementById('fecha').value=localDateStr();
+    cancelarEdicion(); // limpiar modo edición si estaba activo
     updateBadge();calc();
   }catch(e){setSyncStatus('err','Error');showToast('Error: '+e.message,true);}
   btn.disabled=false;btn.innerHTML='💾 Guardar registro del día';
+}
+
+function cancelarEdicion(){
+  var btn=document.getElementById('btn-guardar');
+  if(btn){ btn.dataset.editPageId=''; btn.textContent='💾 Guardar registro del día'; btn.style.background=''; }
+  var aviso=document.getElementById('form-edit-aviso');
+  if(aviso) aviso.remove();
 }
 
 // ══ REPORTE ══
@@ -2542,16 +2550,78 @@ function abrirDetalleReporte(r){
     }); cont.appendChild(gastosTable);
   }
 
-  // Botón eliminar
-  var btnDel=document.createElement('button'); btnDel.className='btn-del'; btnDel.style.cssText='margin-top:16px;width:100%;';
+  // Botones de acción
+  var acciones=document.createElement('div'); acciones.style.cssText='margin-top:16px;display:flex;gap:10px;';
+
+  // Botón Modificar
+  var btnEdit=document.createElement('button'); btnEdit.className='btn-save'; btnEdit.style.cssText='flex:1;';
+  btnEdit.textContent='✏️ Modificar';
+  btnEdit.addEventListener('click',function(){
+    closeModal('modal-rep-detalle');
+    cargarRegistroEnForm(r);
+  });
+  acciones.appendChild(btnEdit);
+
+  // Botón Eliminar
+  var btnDel=document.createElement('button'); btnDel.className='btn-del'; btnDel.style.cssText='flex:1;';
   btnDel.textContent='🗑 Eliminar registro';
   btnDel.addEventListener('click',function(){
     var idx=reportRecords.indexOf(r);
     if(idx>=0) delRecord(idx);
     closeModal('modal-rep-detalle');
   });
-  cont.appendChild(btnDel);
+  acciones.appendChild(btnDel);
+  cont.appendChild(acciones);
   openModal('modal-rep-detalle');
+}
+
+// Carga un registro existente en la pestaña Registro para poder modificarlo
+function cargarRegistroEnForm(r){
+  switchTab('form');
+
+  // Fecha
+  var fechaEl=document.getElementById('fecha'); if(fechaEl) fechaEl.value=r.fecha;
+
+  // Campos numéricos
+  var ef=document.getElementById('efectivo'); if(ef) ef.value=r.efectivo||0;
+  var ch=document.getElementById('cajaHoy'); if(ch) ch.value=r.cajaHoy||0;
+  var ca=document.getElementById('cajaAyer'); if(ca) ca.value=r.cajaAyer||0;
+
+  // Mozos
+  document.getElementById('mozos-list').innerHTML=''; mzC=0;
+  if(r.mozos&&r.mozos.length){
+    r.mozos.forEach(function(m){ if(m.nombre||m.monto) addMozo(m.nombre||'',m.monto||''); });
+  } else { addMozo('',''); }
+
+  // Gastos
+  document.getElementById('gastos-list').innerHTML=''; gsC=0;
+  if(r.glist&&r.glist.length){
+    r.glist.forEach(function(g){ addGasto(g.concepto||'',g.monto||'',g.categoria||'GENERALES'); });
+  } else { addGasto('','','GENERALES'); }
+
+  // Marcar que estamos editando este registro
+  var btnGuardar=document.getElementById('btn-guardar');
+  if(btnGuardar){
+    btnGuardar.dataset.editPageId=r.pageId||'';
+    btnGuardar.textContent='💾 Actualizar registro';
+    btnGuardar.style.background='#d97706'; // naranja para indicar edición
+  }
+
+  // Aviso visual
+  var aviso=document.getElementById('form-edit-aviso');
+  if(!aviso){
+    aviso=document.createElement('div'); aviso.id='form-edit-aviso';
+    aviso.style.cssText='background:#fffbeb;border:1.5px solid #d97706;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;';
+    var formCont=document.querySelector('#view-form .panel');
+    if(formCont) formCont.insertBefore(aviso, formCont.firstChild);
+  }
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var pp=r.fecha.split('-');
+  var lbl=parseInt(pp[2])+' de '+MESES[parseInt(pp[1])-1]+' de '+pp[0];
+  aviso.innerHTML='✏️ <strong>Modo edición</strong> — Modificando el registro del <strong>'+lbl+'</strong>.'
+    +'<button onclick="cancelarEdicion()" style="background:none;border:1px solid #d97706;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;color:#92400e;margin-left:10px;">✕ Cancelar</button>';
+
+  sumMz(); sumGs(); calc();
 }
 
 async function delRecord(i){var r=reportRecords[i];if(!confirm('¿Eliminar el registro del '+r.fechaLabel+'?'))return;try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});reportRecords.splice(i,1);renderReporte();showToast('Registro eliminado');}catch(e){showToast('Error: '+e.message,true);}}
@@ -5099,10 +5169,10 @@ function agregarSemanaApoyos() {
   var table=document.createElement('table'); table.style.cssText='width:100%;border-collapse:collapse;min-width:680px;';
 
   var thead=document.createElement('thead'); var hr=document.createElement('tr'); hr.style.background='var(--navy)';
-  ['Persona','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Deuda','Descripción','Total',''].forEach(function(c,ci){
+  ['Persona','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Deuda','Pago Deuda','Descripción','Total',''].forEach(function(c,ci){
     var th=document.createElement('th');
-    var isDeuda=(ci===8); var isDesc=(ci===9); var isTotal=(ci===10);
-    th.style.cssText='padding:10px '+(ci===0?'14px':'8px')+';text-align:'+(ci===0?'left':isTotal||isDeuda?'right':'center')+';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:'+(isDeuda?'#ffb3b3':isDesc?'rgba(255,255,255,.4)':'rgba(255,255,255,.55)')+';white-space:nowrap;';
+    var isDeuda=(ci===8); var isPagoDeuda=(ci===9); var isDesc=(ci===10); var isTotal=(ci===11);
+    th.style.cssText='padding:10px '+(ci===0?'14px':'8px')+';text-align:'+(ci===0?'left':isTotal||isDeuda||isPagoDeuda?'right':'center')+';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:'+(isDeuda?'#ffb3b3':isPagoDeuda?'#90ee90':isDesc?'rgba(255,255,255,.4)':'rgba(255,255,255,.55)')+';white-space:nowrap;';
     if(isDeuda) th.style.borderLeft='2px solid rgba(255,255,255,.15)';
     if(isTotal) th.style.borderLeft='2px solid rgba(255,255,255,.15)';
     th.textContent=c; hr.appendChild(th);
@@ -5111,16 +5181,17 @@ function agregarSemanaApoyos() {
   var tbody=document.createElement('tbody'); tbody.className='apoyo-tbody'; table.appendChild(tbody);
 
   var tfoot=document.createElement('tfoot'); var tfRow=document.createElement('tr'); tfRow.style.cssText='background:var(--surface2);border-top:2px solid var(--border);';
-  ['TOTAL','0.00','0.00','0.00','0.00','0.00','0.00','0.00','0.00','','0.00',''].forEach(function(c,ci){
+  ['TOTAL','0.00','0.00','0.00','0.00','0.00','0.00','0.00','0.00','0.00','','0.00',''].forEach(function(c,ci){
     var td=document.createElement('td');
-    var isDeuda=(ci===8); var isTotal=(ci===10);
-    td.style.cssText='padding:9px '+(ci===0?'14px':'8px')+';font-family:var(--mono);font-size:12px;font-weight:700;color:'+(isDeuda?'var(--red)':isTotal?'var(--navy2)':'var(--navy2)')+';text-align:'+(ci===0?'left':isDeuda||isTotal?'right':'center')+';';
+    var isDeuda=(ci===8); var isPagoDeuda=(ci===9); var isTotal=(ci===11);
+    td.style.cssText='padding:9px '+(ci===0?'14px':'8px')+';font-family:var(--mono);font-size:12px;font-weight:700;color:'+(isDeuda?'var(--red)':isPagoDeuda?'#38a169':isTotal?'var(--navy2)':'var(--navy2)')+';text-align:'+(ci===0?'left':isDeuda||isPagoDeuda||isTotal?'right':'center')+';';
     if(isDeuda) td.style.borderLeft='2px solid var(--border)';
     if(isTotal) td.style.borderLeft='2px solid var(--border)';
     var dk=['lun','mar','mie','jue','vie','sab','dom'];
     if(ci>=1&&ci<=7) td.className='atot-'+dk[ci-1];
     if(ci===8) td.className='atot-deuda';
-    if(ci===10) td.className='atot-total';
+    if(ci===9) td.className='atot-pagodeuda';
+    if(ci===11) td.className='atot-total';
     td.textContent=c; tfRow.appendChild(td);
   });
   tfoot.appendChild(tfRow); table.appendChild(tfoot);
@@ -5175,7 +5246,22 @@ function agregarFilaApoyo(sid, datos) {
   });
   tdDeuda.appendChild(inDeuda); tr.appendChild(tdDeuda);
 
-  // Descripción de deuda
+  // Pago de Deuda (monto positivo que reduce la deuda)
+  var tdPagoDeuda=document.createElement('td'); tdPagoDeuda.style.cssText='padding:4px 5px;';
+  var inPagoDeuda=document.createElement('input'); inPagoDeuda.type='number'; inPagoDeuda.placeholder='0'; inPagoDeuda.step='0.01'; inPagoDeuda.min='0';
+  inPagoDeuda.className='apoyo-pago-deuda';
+  inPagoDeuda.style.cssText='width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);text-align:right;background:var(--surface2);outline:none;';
+  if(datos&&datos.pagoDeuda>0){
+    inPagoDeuda.value=datos.pagoDeuda;
+    inPagoDeuda.style.background='#f0fff4';
+    inPagoDeuda.style.borderColor='#38a169';
+  }
+  inPagoDeuda.addEventListener('input',function(){
+    if(parseFloat(inPagoDeuda.value)>0){inPagoDeuda.style.background='#f0fff4';inPagoDeuda.style.borderColor='#38a169';}
+    else{inPagoDeuda.style.background='var(--surface2)';inPagoDeuda.style.borderColor='var(--border)';}
+    recalcApoyo(sid);
+  });
+  tdPagoDeuda.appendChild(inPagoDeuda); tr.appendChild(tdPagoDeuda);
   var tdDescAp=document.createElement('td'); tdDescAp.style.cssText='padding:4px 5px;';
   var inDescAp=document.createElement('input'); inDescAp.type='text'; inDescAp.placeholder='descripción...';
   inDescAp.className='apoyo-deuda-desc';
@@ -5199,34 +5285,37 @@ function agregarFilaApoyo(sid, datos) {
 function recalcApoyo(sid){
   var panel=document.getElementById(sid); if(!panel) return;
   var dk=['lun','mar','mie','jue','vie','sab','dom'];
-  var colT={lun:0,mar:0,mie:0,jue:0,vie:0,sab:0,dom:0}; var gt=0; var gd=0; var gNeto=0;
+  var colT={lun:0,mar:0,mie:0,jue:0,vie:0,sab:0,dom:0}; var gt=0; var gd=0; var gpd=0; var gNeto=0;
   panel.querySelectorAll('.apoyo-tbody tr').forEach(function(row){
     var rowT=0;
     dk.forEach(function(d){var inp=row.querySelector('.apoyo-dia-'+d);var v=inp?(parseFloat(inp.value)||0):0;colT[d]+=v;rowT+=v;});
     var deuda=parseFloat((row.querySelector('.apoyo-deuda')||{}).value)||0;
-    var neto=rowT-deuda;
+    var pagoDeuda=parseFloat((row.querySelector('.apoyo-pago-deuda')||{}).value)||0;
+    var neto=rowT-deuda+pagoDeuda;
     var tc=row.querySelector('.afila-total');
     if(tc){
-      if(deuda>0){
+      if(deuda>0||pagoDeuda>0){
         tc.textContent=neto.toFixed(2);
         tc.style.color=neto<0?'var(--red)':'var(--accent2)';
-        tc.title='Días: S/'+rowT.toFixed(2)+' − Deuda: S/'+deuda.toFixed(2)+' = S/'+neto.toFixed(2);
+        tc.title='Días: S/'+rowT.toFixed(2)+(deuda>0?' − Deuda: S/'+deuda.toFixed(2):'')+(pagoDeuda>0?' + Pago: S/'+pagoDeuda.toFixed(2):'');
       } else {
         tc.textContent=rowT>0?rowT.toFixed(2):'—';
         tc.style.color='var(--navy2)';
         tc.title='';
       }
     }
-    gt+=rowT; gd+=deuda; gNeto+=(rowT-deuda);
+    gt+=rowT; gd+=deuda; gpd+=pagoDeuda; gNeto+=(rowT-deuda+pagoDeuda);
   });
   dk.forEach(function(d){var el=panel.querySelector('.atot-'+d);if(el)el.textContent=colT[d]>0?colT[d].toFixed(2):'0.00';});
   var deudaEl=panel.querySelector('.atot-deuda');
   if(deudaEl){ deudaEl.textContent=gd>0?gd.toFixed(2):'0.00'; deudaEl.style.color=gd>0?'var(--red)':'var(--navy2)'; }
+  var pdEl=panel.querySelector('.atot-pagodeuda');
+  if(pdEl){ pdEl.textContent=gpd>0?gpd.toFixed(2):'0.00'; pdEl.style.color=gpd>0?'#38a169':'var(--navy2)'; }
   var totEl=panel.querySelector('.atot-total');
   if(totEl){
     totEl.textContent=gNeto.toFixed(2);
     totEl.style.color=gNeto<0?'var(--red)':'var(--navy2)';
-    totEl.title=gd>0?'Días: S/'+gt.toFixed(2)+' − Deudas: S/'+gd.toFixed(2)+' = S/'+gNeto.toFixed(2):'';
+    totEl.title=(gd>0||gpd>0)?'Días: S/'+gt.toFixed(2)+(gd>0?' − Deudas: S/'+gd.toFixed(2):'')+(gpd>0?' + Pagos: S/'+gpd.toFixed(2):''):'';
   }
 }
 
@@ -5242,7 +5331,9 @@ async function guardarApoyos(sid){
     dk.forEach(function(d){var inp=row.querySelector('.apoyo-dia-'+d);f[d]=inp?(parseFloat(inp.value)||0):0;});
     f.total=dk.reduce(function(s,d){return s+f[d];},0);
     var inpDeu=row.querySelector('.apoyo-deuda'); f.deuda=inpDeu?(parseFloat(inpDeu.value)||0):0;
+    var inpPD=row.querySelector('.apoyo-pago-deuda'); f.pagoDeuda=inpPD?(parseFloat(inpPD.value)||0):0;
     var inpDsc=row.querySelector('.apoyo-deuda-desc'); f.deudaDesc=inpDsc?inpDsc.value.trim():'';
+    f.totalNeto = f.total - f.deuda + f.pagoDeuda;
     filas.push(f);
   });
   if(!filas.length){showToast('Agrega al menos una persona',true);return;}
@@ -5267,19 +5358,29 @@ async function guardarApoyos(sid){
   }
 
   var dbId=(cfg.apoyosDbId||APOYOS_DB_ID).replace(/-/g,''); var errores=0;
+
+  // Asegurar que la columna "Pago Deuda" exista en la BD antes de guardar
+  if(cfg.apiKey){
+    try{
+      await notionRequest('PATCH','/databases/'+dbId,{
+        properties:{'Pago Deuda':{number:{format:'number'}}}
+      });
+    }catch(e){ /* La columna ya existe o no hay permisos para crearla — continuar igual */ }
+  }
   for(var i=0;i<filas.length;i++){
     var f=filas[i];
     try{
       setSyncStatus('loading','Guardando '+(i+1)+'/'+filas.length+'...');
       // Props completas — Deuda y Comentario siempre incluidas (nombres exactos de columnas en Notion)
       var props={
-        'Nombre'    :{title:[{text:{content:f.nombre}}]},
-        'Periodo'   :{rich_text:[{text:{content:lbl}}]},
-        'Mes'       :{rich_text:[{text:{content:mes}}]},
-        'Año'       :{rich_text:[{text:{content:String(anio)}}]},
-        'Total'     :{number:f.total},
-        'Deuda'     :{number:f.deuda||0},
-        'Comentario':{rich_text:[{text:{content:f.deudaDesc||''}}]}
+        'Nombre'     :{title:[{text:{content:f.nombre}}]},
+        'Periodo'    :{rich_text:[{text:{content:lbl}}]},
+        'Mes'        :{rich_text:[{text:{content:mes}}]},
+        'Año'        :{rich_text:[{text:{content:String(anio)}}]},
+        'Total'      :{number:f.totalNeto||f.total},
+        'Deuda'      :{number:f.deuda||0},
+        'Pago Deuda' :{number:f.pagoDeuda||0},
+        'Comentario' :{rich_text:[{text:{content:f.deudaDesc||''}}]}
       };
       dk.forEach(function(d){props[dkMap[d]]={number:f[d]};});
 
@@ -5299,11 +5400,14 @@ async function guardarApoyos(sid){
       // Si el error es por otro motivo, reintentar con props mínimas
       try{
         var propsBase={
-          'Nombre':{title:[{text:{content:f.nombre}}]},
-          'Periodo':{rich_text:[{text:{content:lbl}}]},
-          'Mes':{rich_text:[{text:{content:mes}}]},
-          'Año':{rich_text:[{text:{content:String(anio)}}]},
-          'Total':{number:f.total}
+          'Nombre'     :{title:[{text:{content:f.nombre}}]},
+          'Periodo'    :{rich_text:[{text:{content:lbl}}]},
+          'Mes'        :{rich_text:[{text:{content:mes}}]},
+          'Año'        :{rich_text:[{text:{content:String(anio)}}]},
+          'Total'      :{number:f.totalNeto||f.total},
+          'Deuda'      :{number:f.deuda||0},
+          'Pago Deuda' :{number:f.pagoDeuda||0},
+          'Comentario' :{rich_text:[{text:{content:f.deudaDesc||''}}]}
         };
         dk.forEach(function(d){propsBase[dkMap[d]]={number:f[d]};});
         if(f.notionId){
@@ -5399,10 +5503,10 @@ async function cargarApoyosSemanalesDelMes(mes, anio){
   function getDeudaLS(nombre, periodo){
     for(var i=0;i<lsApoyos.length;i++){
       if(lsApoyos[i].nombre===nombre&&lsApoyos[i].periodo===periodo){
-        return {deuda:lsApoyos[i].deuda||0, deudaDesc:lsApoyos[i].deudaDesc||''};
+        return {deuda:lsApoyos[i].deuda||0, deudaDesc:lsApoyos[i].deudaDesc||'', pagoDeuda:lsApoyos[i].pagoDeuda||0};
       }
     }
-    return {deuda:0, deudaDesc:''};
+    return {deuda:0, deudaDesc:'', pagoDeuda:0};
   }
 
   // Si solo hay localStorage (sin Notion), cargarlo directamente
@@ -5506,10 +5610,10 @@ async function cargarApoyosSemanalesDelMes(mes, anio){
         var scrollDiv=document.createElement('div'); scrollDiv.style.overflowX='auto';
         var table=document.createElement('table'); table.style.cssText='width:100%;border-collapse:collapse;min-width:680px;';
         var thead=document.createElement('thead'); var hr=document.createElement('tr'); hr.style.background='var(--navy)';
-        ['Persona','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Deuda','Descripción','Total',''].forEach(function(c,ci){
+        ['Persona','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Deuda','Pago Deuda','Descripción','Total',''].forEach(function(c,ci){
           var th=document.createElement('th');
-          var isDeuda=(ci===8);var isDesc=(ci===9);var isTotal=(ci===10);
-          th.style.cssText='padding:10px '+(ci===0?'14px':'8px')+';text-align:'+(ci===0?'left':isTotal||isDeuda?'right':'center')+';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:'+(isDeuda?'#ffb3b3':isDesc?'rgba(255,255,255,.4)':'rgba(255,255,255,.55)')+';white-space:nowrap;';
+          var isDeuda=(ci===8); var isPagoDeuda=(ci===9); var isDesc=(ci===10); var isTotal=(ci===11);
+          th.style.cssText='padding:10px '+(ci===0?'14px':'8px')+';text-align:'+(ci===0?'left':isTotal||isDeuda||isPagoDeuda?'right':'center')+';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:'+(isDeuda?'#ffb3b3':isPagoDeuda?'#90ee90':isDesc?'rgba(255,255,255,.4)':'rgba(255,255,255,.55)')+';white-space:nowrap;';
           if(isDeuda) th.style.borderLeft='2px solid rgba(255,255,255,.15)';
           if(isTotal) th.style.borderLeft='2px solid rgba(255,255,255,.15)';
           th.textContent=c; hr.appendChild(th);
@@ -5575,17 +5679,25 @@ async function cargarApoyosSemanalesDelMes(mes, anio){
 
       // Cargar deuda: primero Notion, si no hay → usar localStorage
       var deudaNotionVal = n('Deuda');
-      var deudaNotionDesc = t('Comentario');  // columna real en Notion = 'Comentario'
+      var pagoDeudaNotionVal = n('Pago Deuda');
+      var deudaNotionDesc = t('Comentario');
       var lsData = getDeudaLS(nombre.toUpperCase(), periodo);
       var deudaFinal = deudaNotionVal > 0 ? deudaNotionVal : lsData.deuda;
+      var pagoDeudaFinal = pagoDeudaNotionVal > 0 ? pagoDeudaNotionVal : (lsData.pagoDeuda||0);
       var deudaDescFinal = deudaNotionDesc || lsData.deudaDesc;
 
       var inpDeu=filaExistente.querySelector('.apoyo-deuda');
+      var inpPD=filaExistente.querySelector('.apoyo-pago-deuda');
       var inpDsc=filaExistente.querySelector('.apoyo-deuda-desc');
       if(inpDeu && deudaFinal>0){
         inpDeu.value=deudaFinal;
         inpDeu.style.background='#fff0f0';
         inpDeu.style.borderColor='#e53e3e';
+      }
+      if(inpPD && pagoDeudaFinal>0){
+        inpPD.value=pagoDeudaFinal;
+        inpPD.style.background='#f0fff4';
+        inpPD.style.borderColor='#38a169';
       }
       if(inpDsc && deudaDescFinal){
         inpDsc.value=deudaDescFinal;
