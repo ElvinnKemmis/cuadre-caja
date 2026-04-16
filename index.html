@@ -212,6 +212,39 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 .btn-cancel{background:none;border:1px solid var(--border);color:var(--muted);padding:9px 20px;border-radius:8px;font-family:var(--font);font-size:13px;cursor:pointer;}
 .toast{position:fixed;bottom:28px;right:28px;background:var(--accent2);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:500;display:none;z-index:999;box-shadow:0 4px 18px rgba(0,0,0,.2);}
 .toast.err{background:var(--red);}
+/* ════════════════════════════════════
+   HAMBURGER & MOBILE NAV DRAWER
+════════════════════════════════════ */
+.hamburger-btn{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:5px;
+  width:40px;height:40px;
+  background:none;border:none;cursor:pointer;
+  padding:4px;border-radius:8px;
+  transition:background .15s;
+  margin-left:auto;
+  flex-shrink:0;
+}
+.hamburger-btn:hover{background:rgba(255,255,255,.1);}
+.ham-line{
+  display:block;width:22px;height:2px;
+  background:#fff;border-radius:2px;
+  transition:transform .25s, opacity .25s;
+}
+.hamburger-btn.open .ham-line:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger-btn.open .ham-line:nth-child(2){opacity:0;}
+.hamburger-btn.open .ham-line:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+.nav-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.45);z-index:199;
+  backdrop-filter:blur(2px);
+}
+.nav-overlay.open{display:block;}
+
 @media(max-width:900px){
   .sum-bar{grid-template-columns:repeat(2,1fr);}
   .form-grid,.config-grid{grid-template-columns:1fr;}
@@ -222,51 +255,73 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
    RESPONSIVE COMPLETO — Tablet & Mobile
 ════════════════════════════════════ */
 
-/* ── Tablet (≤ 768px) ── */
+/* ── Tablet (≤ 768px) — nav como drawer lateral ── */
 @media(max-width:768px){
   /* Header */
   .app-header{
-    padding:0 12px;
-    height:auto;
-    min-height:52px;
-    flex-wrap:wrap;
-    gap:0;
+    padding:0 14px;
+    height:56px;
+    position:sticky;top:0;z-index:200;
   }
-  .app-logo{
-    padding-right:12px;
-    border-right:none;
-    min-height:52px;
-  }
+  .app-logo{padding-right:0;border-right:none;}
   .logo-text{font-size:13px;}
+
+  /* Mostrar hamburger */
+  .hamburger-btn{display:flex;}
+
+  /* Tabs → Drawer lateral */
   .tabs{
-    width:100%;
-    order:3;
+    position:fixed;
+    top:56px;left:0;bottom:0;
+    width:240px;
+    background:var(--accent);
+    flex-direction:column;
+    align-items:stretch;
+    padding:12px 0 24px;
+    overflow-y:auto;
+    transform:translateX(-100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    z-index:200;
+    box-shadow:4px 0 24px rgba(0,0,0,.3);
     border-top:1px solid rgba(255,255,255,.08);
-    padding:0 4px;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
+    gap:2px;
   }
+  .tabs.open{transform:translateX(0);}
+
   .tab-btn{
-    padding:10px 12px;
-    font-size:11px;
-    gap:4px;
-    border-bottom-width:2px;
-    flex-shrink:0;
+    width:100%;
+    justify-content:flex-start;
+    padding:13px 20px;
+    font-size:13px;
+    border-bottom:none;
+    border-left:3px solid transparent;
+    border-radius:0;
+    gap:10px;
+    white-space:normal;
+    text-align:left;
   }
-  .hdr-right{gap:6px;min-height:52px;}
+  .tab-btn:hover{background:rgba(255,255,255,.08);}
+  .tab-btn.active{
+    color:#fff;
+    border-left-color:var(--accent3);
+    border-bottom-color:transparent;
+    background:rgba(255,255,255,.1);
+  }
+
+  /* Ocultar indicadores en header para dar espacio */
   .sync-indicator,.day-pill{display:none;}
   .user-name,.user-role{display:none;}
+
+  /* Mostrar solo avatar + salir en hdr-right */
+  .hdr-right{gap:8px;margin-left:auto;}
 
   /* Views */
   .view{padding:14px 12px;}
 
   /* Banners y totales */
   .total-banner{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:6px;
-    padding:14px 16px;
-    border-radius:10px;
+    flex-direction:column;align-items:flex-start;
+    gap:6px;padding:14px 16px;border-radius:10px;
   }
   .total-val{font-size:26px;}
 
@@ -296,25 +351,15 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 
   /* Modales */
   .modal{
-    padding:20px 16px;
-    margin:12px;
+    padding:20px 16px;margin:12px;
     max-width:calc(100vw - 24px);
-    border-radius:12px;
-    max-height:90vh;
-    overflow-y:auto;
+    border-radius:12px;max-height:90vh;overflow-y:auto;
   }
   .modal-actions{flex-wrap:wrap;gap:8px;}
   .modal-actions button{flex:1;min-width:100px;text-align:center;justify-content:center;}
 
   /* Toast */
-  .toast{
-    bottom:16px;
-    right:12px;
-    left:12px;
-    text-align:center;
-    font-size:12px;
-    padding:10px 16px;
-  }
+  .toast{bottom:16px;right:12px;left:12px;text-align:center;font-size:12px;padding:10px 16px;}
 
   /* Fecha save bar */
   .fecha-save-bar{flex-direction:column;align-items:stretch;gap:10px;padding:14px;}
@@ -328,7 +373,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   /* Login */
   .login-box{padding:28px 20px;border-radius:16px;}
 
-  /* Botones save/export */
+  /* Botones */
   .btn-save,.btn-export,.btn-refresh{font-size:12px;padding:9px 14px;}
 
   /* Config pre */
@@ -344,74 +389,52 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 
 /* ── Mobile (≤ 600px) ── */
 @media(max-width:600px){
-  /* Header compacto */
-  .app-header{padding:0 10px;}
+  .app-header{padding:0 10px;height:52px;}
+  .tabs{top:52px;}
   .app-logo{gap:8px;}
   .logo-icon{width:28px;height:28px;font-size:14px;}
   .logo-text{font-size:12px;}
-  .tab-btn{padding:9px 10px;font-size:10px;}
   .btn-logout{padding:4px 8px;font-size:10px;}
   .user-pill{padding:3px 8px 3px 4px;}
   .user-avatar{width:22px;height:22px;font-size:10px;}
 
-  /* Views */
   .view{padding:10px 8px;}
-
-  /* Totales */
   .total-val{font-size:22px;}
   .total-banner{padding:12px 14px;}
-
-  /* Sum bar */
   .sum-bar{grid-template-columns:1fr 1fr;gap:8px;}
   .sc{padding:12px 14px;}
   .sc-val{font-size:16px;}
 
-  /* Tables */
   table{min-width:420px;}
   thead th{padding:9px 8px;font-size:9px;}
   tbody td{padding:9px 8px;font-size:12px;}
   tbody td:first-child{padding-left:12px;}
 
-  /* Rep header */
   .rep-title{font-size:16px;}
-
-  /* Panels */
   .panel{padding:12px;}
   .panel-title{font-size:12px;}
 
-  /* Calendarios más compactos */
   .cal-dia{min-height:40px;padding:3px 2px;}
   .cal-dia-num{font-size:10px;margin-bottom:2px;}
   .cal-dia-badge,.falta-badge,.permiso-badge,.descanso-badge,.vac-badge{
     font-size:8px;padding:1px 4px;
   }
 
-  /* Grids de semanas/apoyos — scroll horizontal */
   #prov-semanas-container .panel,
   #apoyos-semanas-container .panel,
-  #bebidas-semanas-container .panel{
-    padding:12px 10px;
-  }
+  #bebidas-semanas-container .panel{padding:12px 10px;}
 
-  /* Inputs en tablas de semanas */
   .prov-input-nombre{font-size:11px;padding:5px 7px;}
   .prov-input-dia{font-size:11px;padding:4px 6px;width:60px;}
 
-  /* Modales más grandes en mobile */
-  .modal{
-    margin:8px;
-    padding:16px 14px;
-    max-width:calc(100vw - 16px);
-  }
+  .modal{margin:8px;padding:16px 14px;max-width:calc(100vw - 16px);}
   .modal-title{font-size:14px;margin-bottom:14px;}
 
-  /* Botones de acción */
   .btn-save{font-size:13px;padding:12px 16px;}
   .btn-success,.btn-primary{font-size:12px;padding:9px 14px;}
   .add-btn{font-size:11px;padding:7px 10px;}
   .rm{width:26px;height:26px;font-size:15px;}
 
-  /* Form rows de gastos */
   .gasto-form-row{
     grid-template-columns:1fr 1fr !important;
     grid-template-rows:auto auto auto;
@@ -422,33 +445,21 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   .gasto-form-row .gf-monto{grid-column:1;}
   .gasto-form-row .rm{grid-column:2;justify-self:end;}
 
-  /* Tabla personal — ocultar columna descripción deuda en móvil */
   #tbody-personal .prov-input-nombre{font-size:11px;}
-
-  /* Panel title con botones — wrap */
   .panel-title{flex-wrap:wrap;gap:6px;}
   .panel-title > div{flex-wrap:wrap;gap:6px;}
-
-  /* Rep hdr */
   .rep-hdr{gap:8px;}
   .rep-hdr > div{flex-wrap:wrap;gap:6px;}
-
-  /* Resumen del mes — cards trabajadores */
   #res-detalle-trabajadores{grid-template-columns:1fr 1fr!important;}
-
-  /* Fecha save bar */
   .fecha-save-bar{gap:8px;padding:12px;}
 
-  /* Selects y inputs */
   select{font-size:13px;padding:8px 10px;}
   input[type=text],input[type=number],input[type=date],input[type=password]{
     font-size:13px;padding:8px 10px;
   }
 
-  /* Yape calendar */
   #yape-calendar .cal-dia{min-height:44px;}
 
-  /* Summary panels gradient */
   [style*="grid-template-columns:repeat(auto-fit"]{
     grid-template-columns:1fr 1fr!important;
   }
@@ -458,35 +469,24 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 @media(max-width:400px){
   .sum-bar{grid-template-columns:1fr;}
   .total-val{font-size:20px;}
-
   .app-header{padding:0 8px;}
-  .tab-btn{padding:8px 8px;font-size:9px;gap:2px;}
-
   .view{padding:8px 6px;}
-
-  /* Calendarios muy compactos */
   .cal-dia{min-height:34px;padding:2px 1px;border-radius:4px;}
   .cal-dia-num{font-size:9px;}
   .cal-dia-badge,.falta-badge,.permiso-badge,.descanso-badge{display:none;}
-
-  /* Ocultar texto secundario en botones */
   .btn-export > span,.btn-refresh > span{display:none;}
-
-  /* Una columna en tarjetas de trabajadores */
   #res-detalle-trabajadores{grid-template-columns:1fr!important;}
-
-  /* Form grid proveedores — prov-input-dia más pequeño */
   .prov-input-dia{width:52px;font-size:10px;padding:3px 4px;}
-
-  /* Modal full-width */
   .modal{margin:6px;padding:14px 12px;}
   .modal-actions{flex-direction:column;}
   .modal-actions button{width:100%;}
+  /* Drawer más estrecho */
+  .tabs{width:220px;}
 }
 
 /* ── Touch: tap targets más grandes ── */
 @media(hover:none) and (pointer:coarse){
-  .tab-btn{min-height:44px;}
+  .hamburger-btn{min-height:44px;min-width:44px;}
   .btn-save,.btn-success,.btn-primary,.btn-export,.btn-refresh{min-height:44px;}
   .add-btn{min-height:40px;}
   .rm,.btn-del,.btn-edit{min-width:36px;min-height:36px;}
@@ -494,6 +494,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   input[type=password],select{min-height:42px;}
   .cal-dia{min-height:48px;}
   .modal-actions button{min-height:44px;}
+  .tab-btn{min-height:48px;}
 }
 
 /* ── Tablas con scroll en cualquier pantalla chica ── */
@@ -605,7 +606,13 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <div class="logo-icon">🍽️</div>
     <div><div class="logo-text">EL MÁS GAUCHITO</div></div>
   </div>
-  <div class="tabs">
+  <!-- Hamburger button — solo visible en móvil/tablet -->
+  <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileNav()" aria-label="Menú de navegación">
+    <span class="ham-line"></span>
+    <span class="ham-line"></span>
+    <span class="ham-line"></span>
+  </button>
+  <div class="tabs" id="main-tabs">
     <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">📋 Registro</button>
     <button class="tab-btn" onclick="switchTab('proveedores')" id="tab-proveedores">🧾 Proveedores</button>
     <button class="tab-btn" onclick="switchTab('cortesias')" id="tab-cortesias">🎁 Cortesías</button>
@@ -630,6 +637,8 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <button class="btn-logout" onclick="doLogout()">Salir</button>
   </div>
 </div>
+<!-- Overlay para cerrar menú móvil al tocar fuera -->
+<div class="nav-overlay" id="nav-overlay" onclick="closeMobileNav()"></div>
 
 <!-- FORMULARIO -->
 <div class="view active" id="view-form">
@@ -2135,8 +2144,36 @@ function initApp(){
   switchTab('form');
 }
 
+// ══ MOBILE NAV ══
+function toggleMobileNav(){
+  var tabs=document.getElementById('main-tabs');
+  var btn=document.getElementById('hamburger-btn');
+  var overlay=document.getElementById('nav-overlay');
+  var isOpen=tabs.classList.contains('open');
+  if(isOpen){ closeMobileNav(); } else {
+    tabs.classList.add('open');
+    btn.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+}
+function closeMobileNav(){
+  var tabs=document.getElementById('main-tabs');
+  var btn=document.getElementById('hamburger-btn');
+  var overlay=document.getElementById('nav-overlay');
+  tabs.classList.remove('open');
+  btn.classList.remove('open');
+  overlay.classList.remove('open');
+  document.body.style.overflow='';
+}
+// Cerrar al cambiar de orientación o redimensionar a desktop
+window.addEventListener('resize',function(){
+  if(window.innerWidth>768) closeMobileNav();
+});
+
 // ══ TABS ══
 function switchTab(t){
+  if(window.innerWidth<=768) closeMobileNav();
   var esAdmin=currentUser&&currentUser.rol==='administrador';
   var esBarman=currentUser&&currentUser.rol==='barman';
   // Barman solo puede acceder a bebidas y profile
