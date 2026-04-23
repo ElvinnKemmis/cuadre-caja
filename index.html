@@ -2904,107 +2904,286 @@ function getProductosSeleccionados(){
   return items;
 }
 
-// ── Generar e imprimir proforma ──
+// ── Generar proforma PDF ──
 function imprimirProforma(reserva){
-  var area=document.getElementById('proforma-print-area'); if(!area) return;
+  // Mostrar modal de selección de acción
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:16px;padding:28px 24px;max-width:340px;width:92%;box-shadow:0 24px 60px rgba(0,0,0,.25);text-align:center;';
+  box.innerHTML='<div style="font-size:16px;font-weight:800;color:#1f2937;margin-bottom:6px;">🖨 Generar Proforma</div>'
+    +'<div style="font-size:12px;color:#6b7280;margin-bottom:20px;">Selecciona la acción</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;">'
+      +'<button id="btn-pdf-dl" style="padding:14px 16px;border:2px solid #b45309;border-radius:10px;background:#b45309;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">⬇ Descargar PDF<br><span style="font-size:10px;font-weight:400;opacity:.85;">Descarga el archivo .pdf en tu dispositivo</span></button>'
+      +'<button id="btn-pdf-termica" style="padding:14px 16px;border:2px solid #0ea5e9;border-radius:10px;background:#0ea5e9;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🧾 Imprimir Térmica 80mm<br><span style="font-size:10px;font-weight:400;opacity:.85;">Envía directo a la impresora térmica</span></button>'
+      +'<button id="btn-pdf-cancel" style="padding:10px;border:none;background:none;color:#9ca3af;font-size:12px;cursor:pointer;">Cancelar</button>'
+    +'</div>';
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function cerrar(){ document.body.removeChild(overlay); }
+  document.getElementById('btn-pdf-cancel').onclick=cerrar;
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) cerrar(); });
+
+  document.getElementById('btn-pdf-dl').onclick=function(){
+    cerrar(); descargarProformaPDF(reserva);
+  };
+  document.getElementById('btn-pdf-termica').onclick=function(){
+    cerrar(); imprimirTermica(reserva);
+  };
+}
+
+// ── Descargar PDF real con jsPDF ──
+function descargarProformaPDF(reserva){
+  var jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+  if(!jsPDF){
+    showToast('⚠ Librería PDF no disponible, intenta recargar la página',true);
+    return;
+  }
+
   var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var pp=(reserva.fecha||'').split('-');
   var fechaLbl=pp.length===3?parseInt(pp[2])+' de '+MESES[parseInt(pp[1])-1]+' de '+pp[0]:(reserva.fecha||'—');
-  var productos=reserva.productos||[];
-  var totalConsumo=productos.reduce(function(s,p){return s+p.subtotal;},0);
-  var adelanto=parseFloat(reserva.adelanto)||0;
-  var saldo=totalConsumo-adelanto;
   var hoy=new Date();
   var fechaEmision=hoy.getDate()+'/'+String(hoy.getMonth()+1).padStart(2,'0')+'/'+hoy.getFullYear();
+  var productos=reserva.productos||[];
+  var totalConsumo=productos.reduce(function(s,p){return s+(parseFloat(p.subtotal)||0);},0);
+  var adelanto=parseFloat(reserva.adelanto)||0;
+  var saldo=Math.max(0,totalConsumo-adelanto);
 
-  var filasProd=productos.map(function(p,i){
-    return '<tr style="border-bottom:1px solid #e5e7eb;">'
-      +'<td style="padding:8px 12px;font-size:13px;">'+(i+1)+'</td>'
-      +'<td style="padding:8px 12px;font-size:13px;">'+p.nombre+'</td>'
-      +'<td style="padding:8px 12px;text-align:center;font-size:13px;">'+p.cantidad+'</td>'
-      +'<td style="padding:8px 12px;text-align:right;font-family:monospace;font-size:13px;">S/ '+p.precio.toFixed(2)+'</td>'
-      +'<td style="padding:8px 12px;text-align:right;font-family:monospace;font-size:13px;font-weight:700;">S/ '+p.subtotal.toFixed(2)+'</td>'
-      +'</tr>';
-  }).join('');
+  var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var W=210, M=15;
 
-  if(!filasProd) filasProd='<tr><td colspan="5" style="padding:16px;text-align:center;color:#9ca3af;font-style:italic;">Sin productos seleccionados</td></tr>';
+  // ── Header fondo café ──
+  doc.setFillColor(180,83,9);
+  doc.rect(0,0,W,40,'F');
 
-  area.innerHTML=''
-  +'<div style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;color:#1f2937;">'
+  // Nombre restaurante
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text('EL MAS GAUCHITO',M,13);
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica','normal');
+  doc.text('Restaurante de Parrillas',M,19);
+  doc.text('RUC: 20614108101',M,24);
+  doc.text('Av. Machu Picchu Mz A Lot 5 - San Juan de Lurigancho',M,29);
 
-    // Encabezado
-    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #b45309;">'
-      +'<div>'
-        +'<div style="font-size:24px;font-weight:900;color:#b45309;letter-spacing:-0.5px;">🍽️ EL MÁS GAUCHITO</div>'
-        +'<div style="font-size:11px;color:#6b7280;margin-top:4px;">Restaurante de Parrillas</div>'
-        +'<div style="font-size:11px;color:#6b7280;">RUC: 20614108101</div>'
-        +'<div style="font-size:11px;color:#6b7280;">Av. Machu Picchu Mz A Lot 5 — San Juan de Lurigancho</div>'
-      +'</div>'
-      +'<div style="text-align:right;">'
-        +'<div style="font-size:20px;font-weight:800;color:#1f2937;background:#f3f4f6;padding:8px 16px;border-radius:8px;">PROFORMA</div>'
-        +'<div style="font-size:11px;color:#6b7280;margin-top:6px;">Fecha de emisión: '+fechaEmision+'</div>'
-        +'<div style="font-size:11px;color:#6b7280;">Fecha de reserva: '+fechaLbl+'</div>'
-        +(reserva.hora?'<div style="font-size:11px;color:#6b7280;">Hora: '+reserva.hora+'</div>':'')
-      +'</div>'
-    +'</div>'
+  // PROFORMA label
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(19);
+  doc.text('PROFORMA',W-M,14,{align:'right'});
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  doc.text('Emision: '+fechaEmision,W-M,20,{align:'right'});
+  doc.text('Reserva: '+fechaLbl,W-M,25,{align:'right'});
+  if(reserva.hora) doc.text('Hora: '+reserva.hora,W-M,30,{align:'right'});
 
-    // Datos cliente
-    +'<div style="background:#f9fafb;border-radius:8px;padding:14px 16px;margin-bottom:20px;border:1px solid #e5e7eb;">'
-      +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:8px;">Datos del Cliente</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
-        +'<div><span style="font-size:11px;color:#9ca3af;">Nombre:</span><br><span style="font-size:14px;font-weight:700;color:#1f2937;">'+(reserva.cliente||'—')+'</span></div>'
-        +(reserva.comensales?'<div><span style="font-size:11px;color:#9ca3af;">Comensales:</span><br><span style="font-size:14px;font-weight:700;color:#1f2937;">'+reserva.comensales+' personas</span></div>':'')
-        +(reserva.telefono?'<div><span style="font-size:11px;color:#9ca3af;">Teléfono:</span><br><span style="font-size:14px;font-weight:700;color:#1f2937;">'+reserva.telefono+'</span></div>':'')
-        +'<div><span style="font-size:11px;color:#9ca3af;">Estado:</span><br><span style="font-size:14px;font-weight:700;color:#059669;">'+reserva.estado+'</span></div>'
-      +'</div>'
-      +(reserva.descripcion?'<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;"><span style="font-size:11px;color:#9ca3af;">Indicaciones: </span><span style="font-size:12px;color:#374151;font-style:italic;">'+reserva.descripcion+'</span></div>':'')
-    +'</div>'
+  var y=48;
 
-    // Tabla de productos
-    +'<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">'
-      +'<thead>'
-        +'<tr style="background:#b45309;color:#fff;">'
-          +'<th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:36px;">#</th>'
-          +'<th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Producto</th>'
-          +'<th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:70px;">Cant.</th>'
-          +'<th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:90px;">P/U</th>'
-          +'<th style="padding:10px 12px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:100px;">Subtotal</th>'
-        +'</tr>'
-      +'</thead>'
-      +'<tbody>'+filasProd+'</tbody>'
-    +'</table>'
+  // ── Datos del cliente ──
+  doc.setFillColor(249,250,251);
+  doc.setDrawColor(229,231,235);
+  var cliH=reserva.descripcion?28:22;
+  doc.rect(M,y,W-2*M,cliH,'FD');
+  doc.setTextColor(107,114,128);
+  doc.setFontSize(7); doc.setFont('helvetica','bold');
+  doc.text('DATOS DEL CLIENTE',M+3,y+5);
+  doc.setTextColor(31,41,55);
+  doc.setFontSize(11); doc.setFont('helvetica','bold');
+  doc.text(reserva.cliente||'—',M+3,y+12);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  var info='';
+  if(reserva.comensales) info+='Comensales: '+reserva.comensales+'   ';
+  if(reserva.telefono) info+='Tel: '+reserva.telefono+'   ';
+  info+='Estado: '+reserva.estado;
+  doc.setTextColor(107,114,128);
+  doc.text(info,M+3,y+18);
+  if(reserva.descripcion){
+    doc.setFontSize(7.5); doc.setTextColor(107,114,128);
+    doc.text('Notas: '+(reserva.descripcion).substring(0,90),M+3,y+24);
+  }
+  y+=cliH+6;
 
-    // Totales
-    +'<div style="display:flex;justify-content:flex-end;margin-bottom:24px;">'
-      +'<div style="min-width:260px;">'
-        +'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:#f9fafb;border-radius:6px 6px 0 0;border:1px solid #e5e7eb;">'
-          +'<span style="font-size:13px;color:#6b7280;">Total consumo</span>'
-          +'<span style="font-family:monospace;font-size:13px;font-weight:700;color:#1f2937;">S/ '+totalConsumo.toFixed(2)+'</span>'
+  // ── Tabla de productos ──
+  var tableRows=productos.map(function(p,i){
+    return [i+1, p.nombre, p.cantidad,
+      'S/ '+parseFloat(p.precio).toFixed(2),
+      'S/ '+parseFloat(p.subtotal).toFixed(2)];
+  });
+  if(!tableRows.length) tableRows=[['-','Sin productos seleccionados','-','-','-']];
+
+  doc.autoTable({
+    startY:y,
+    margin:{left:M,right:M},
+    head:[['#','Producto','Cant.','P/U','Subtotal']],
+    body:tableRows,
+    headStyles:{fillColor:[180,83,9],textColor:[255,255,255],fontStyle:'bold',fontSize:8.5,halign:'center'},
+    bodyStyles:{fontSize:9,textColor:[31,41,55]},
+    columnStyles:{
+      0:{cellWidth:10,halign:'center'},
+      1:{cellWidth:'auto'},
+      2:{cellWidth:16,halign:'center'},
+      3:{cellWidth:26,halign:'right'},
+      4:{cellWidth:30,halign:'right',fontStyle:'bold'}
+    },
+    alternateRowStyles:{fillColor:[249,250,251]}
+  });
+  y=doc.lastAutoTable.finalY+5;
+
+  // ── Totales ──
+  var bx=W-M-68;
+  // Total consumo
+  doc.setFillColor(249,250,251); doc.setDrawColor(229,231,235);
+  doc.rect(bx,y,68,10,'FD');
+  doc.setTextColor(107,114,128); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+  doc.text('Total consumo',bx+3,y+7);
+  doc.setTextColor(31,41,55); doc.setFont('helvetica','bold');
+  doc.text('S/ '+totalConsumo.toFixed(2),bx+65,y+7,{align:'right'});
+  y+=10;
+
+  if(adelanto>0){
+    doc.setFillColor(240,253,244); doc.setDrawColor(134,239,172);
+    doc.rect(bx,y,68,10,'FD');
+    doc.setTextColor(22,163,74); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+    doc.text('(-) Adelanto',bx+3,y+7);
+    doc.setFont('helvetica','bold');
+    doc.text('S/ '+adelanto.toFixed(2),bx+65,y+7,{align:'right'});
+    y+=10;
+  }
+
+  // Saldo a pagar
+  doc.setFillColor(180,83,9);
+  doc.rect(bx,y,68,12,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('SALDO A PAGAR',bx+3,y+8.5);
+  doc.setFontSize(11);
+  doc.text('S/ '+saldo.toFixed(2),bx+65,y+8.5,{align:'right'});
+  y+=18;
+
+  // ── Pie ──
+  doc.setDrawColor(229,231,235); doc.line(M,y,W-M,y); y+=5;
+  doc.setTextColor(156,163,175); doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.text('Proforma referencial. No tiene valor tributario.',W/2,y,{align:'center'});
+  doc.text('Gracias por elegirnos! - El Mas Gauchito · San Juan de Lurigancho',W/2,y+5,{align:'center'});
+
+  // ── Descargar ──
+  var nombre=(reserva.cliente||'cliente').replace(/\s+/g,'_');
+  doc.save('Proforma_'+nombre+'_'+(reserva.fecha||'').replace(/-/g,'')+'.pdf');
+  showToast('✓ PDF descargado');
+}
+
+// ── Imprimir Térmica 80mm (iframe oculto, sin nueva ventana) ──
+function imprimirTermica(reserva){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var pp=(reserva.fecha||'').split('-');
+  var fechaLbl=pp.length===3?parseInt(pp[2])+'/'+String(parseInt(pp[1])).padStart(2,'0')+'/'+pp[0]:(reserva.fecha||'—');
+  var hoy=new Date();
+  var fechaEmision=hoy.getDate()+'/'+String(hoy.getMonth()+1).padStart(2,'0')+'/'+hoy.getFullYear();
+  var productos=reserva.productos||[];
+  var totalConsumo=productos.reduce(function(s,p){return s+(parseFloat(p.subtotal)||0);},0);
+  var adelanto=parseFloat(reserva.adelanto)||0;
+  var saldo=Math.max(0,totalConsumo-adelanto);
+
+  var lineasProd='';
+  if(productos.length){
+    productos.forEach(function(p){
+      var sub='S/ '+parseFloat(p.subtotal).toFixed(2);
+      var linea=p.cantidad+'x '+htmlEsc(p.nombre);
+      lineasProd+='<div class="prod-row">'
+        +'<span class="prod-nom">'+linea+'</span>'
+        +'<span class="prod-sub">'+sub+'</span>'
         +'</div>'
-        +(adelanto>0?'<div style="display:flex;justify-content:space-between;padding:8px 12px;background:#f0fdf4;border:1px solid #86efac;border-top:none;">'
-          +'<span style="font-size:13px;color:#16a34a;">(-) Adelanto</span>'
-          +'<span style="font-family:monospace;font-size:13px;font-weight:700;color:#16a34a;">S/ '+adelanto.toFixed(2)+'</span>'
-        +'</div>':'')
-        +'<div style="display:flex;justify-content:space-between;padding:10px 12px;background:#b45309;border-radius:0 0 6px 6px;">'
-          +'<span style="font-size:14px;font-weight:800;color:#fff;">SALDO A PAGAR</span>'
-          +'<span style="font-family:monospace;font-size:16px;font-weight:900;color:#fff;">S/ '+Math.max(0,saldo).toFixed(2)+'</span>'
-        +'</div>'
-      +'</div>'
-    +'</div>'
+        +'<div class="prod-pu">  @ S/ '+parseFloat(p.precio).toFixed(2)+' c/u</div>';
+    });
+  } else {
+    lineasProd='<div style="text-align:center;font-style:italic;padding:6px 0;color:#888;">Sin productos</div>';
+  }
 
-    // Pie
-    +'<div style="border-top:2px solid #e5e7eb;padding-top:14px;text-align:center;">'
-      +'<div style="font-size:11px;color:#9ca3af;">Este documento es una proforma referencial. No tiene valor tributario.</div>'
-      +'<div style="font-size:11px;color:#9ca3af;margin-top:4px;">¡Gracias por elegirnos! — El Más Gauchito · San Juan de Lurigancho</div>'
-    +'</div>'
+  var html='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">'
+  +'<title>Ticket '+htmlEsc(reserva.cliente||'')+'</title>'
+  +'<style>'
+  +'*{margin:0;padding:0;box-sizing:border-box;}'
+  // 80mm = ~302px, but @page width controls print width
+  +'body{font-family:"Courier New",Courier,monospace;font-size:9pt;color:#000;background:#fff;width:76mm;margin:0 auto;}'
+  +'@page{size:80mm auto;margin:3mm 2mm;}'
+  +'.center{text-align:center;}'
+  +'.bold{font-weight:bold;}'
+  +'.sep{border-top:1px dashed #000;margin:4px 0;}'
+  +'.sep2{border-top:2px solid #000;margin:4px 0;}'
+  +'.titulo{font-size:13pt;font-weight:900;text-align:center;letter-spacing:1px;}'
+  +'.sub{font-size:8pt;text-align:center;}'
+  +'.proforma-lbl{font-size:11pt;font-weight:900;text-align:center;border:2px solid #000;padding:2px 0;margin:5px 0;letter-spacing:3px;}'
+  +'.dato{display:flex;justify-content:space-between;font-size:8.5pt;padding:1px 0;}'
+  +'.prod-row{display:flex;justify-content:space-between;font-size:9pt;padding:2px 0;}'
+  +'.prod-nom{flex:1;}'
+  +'.prod-sub{font-weight:bold;white-space:nowrap;margin-left:4px;}'
+  +'.prod-pu{font-size:7.5pt;color:#555;padding-bottom:2px;}'
+  +'.tot-row{display:flex;justify-content:space-between;font-size:9pt;padding:2px 0;}'
+  +'.saldo{display:flex;justify-content:space-between;font-size:11pt;font-weight:900;padding:3px 0;}'
+  +'.footer{font-size:7.5pt;text-align:center;margin-top:6px;color:#444;}'
+  +'@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}}'
+  +'</style></head><body>'
 
-  +'</div>';
+  // Cabecera
+  +'<div class="titulo">EL MAS GAUCHITO</div>'
+  +'<div class="sub">Restaurante de Parrillas</div>'
+  +'<div class="sub">RUC: 20614108101</div>'
+  +'<div class="sub">Av. Machu Picchu Mz A Lot 5</div>'
+  +'<div class="sub">San Juan de Lurigancho</div>'
+  +'<div class="proforma-lbl">PROFORMA</div>'
+  +'<div class="sep"></div>'
 
-  area.style.display='block';
-  setTimeout(function(){
-    window.print();
-    setTimeout(function(){ area.style.display='none'; area.innerHTML=''; },500);
-  },100);
+  // Datos emisión y reserva
+  +'<div class="dato"><span>Emision:</span><span>'+fechaEmision+'</span></div>'
+  +'<div class="dato"><span>Reserva:</span><span>'+fechaLbl+'</span></div>'
+  +(reserva.hora?'<div class="dato"><span>Hora:</span><span>'+reserva.hora+'</span></div>':'')
+  +'<div class="sep"></div>'
+
+  // Datos cliente
+  +'<div class="bold" style="font-size:10pt;padding:2px 0;">'+htmlEsc(reserva.cliente||'—')+'</div>'
+  +(reserva.comensales?'<div class="dato"><span>Comensales:</span><span>'+reserva.comensales+'</span></div>':'')
+  +(reserva.telefono?'<div class="dato"><span>Tel:</span><span>'+htmlEsc(reserva.telefono)+'</span></div>':'')
+  +'<div class="dato"><span>Estado:</span><span class="bold">'+htmlEsc(reserva.estado||'')+'</span></div>'
+  +(reserva.descripcion?'<div style="font-size:7.5pt;color:#555;padding:2px 0;font-style:italic;">'+htmlEsc(reserva.descripcion)+'</div>':'')
+  +'<div class="sep2"></div>'
+
+  // Productos
+  +'<div class="bold center" style="font-size:8pt;padding-bottom:3px;">DETALLE DEL PEDIDO</div>'
+  +lineasProd
+  +'<div class="sep2"></div>'
+
+  // Totales
+  +'<div class="tot-row"><span>Total consumo</span><span class="bold">S/ '+totalConsumo.toFixed(2)+'</span></div>'
+  +(adelanto>0?'<div class="tot-row"><span>(-) Adelanto</span><span>S/ '+adelanto.toFixed(2)+'</span></div>':'')
+  +'<div class="sep"></div>'
+  +'<div class="saldo"><span>SALDO A PAGAR</span><span>S/ '+saldo.toFixed(2)+'</span></div>'
+  +'<div class="sep2"></div>'
+
+  // Pie
+  +'<div class="footer">'
+    +'<div>Documento referencial.</div>'
+    +'<div>No tiene valor tributario.</div>'
+    +'<div style="margin-top:4px;">Gracias por elegirnos!</div>'
+    +'<div>El Mas Gauchito</div>'
+  +'</div>'
+  +'</body></html>';
+
+  // Imprimir via iframe oculto — sin abrir ventana nueva
+  var iframe=document.createElement('iframe');
+  iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(html);
+  iframe.contentDocument.close();
+  iframe.onload=function(){
+    try{
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }catch(e){ showToast('⚠ Error al imprimir: '+e.message,true); }
+    setTimeout(function(){ document.body.removeChild(iframe); },2000);
+  };
+  showToast('🧾 Enviando a impresora térmica...');
 }
 
 async function ensureReservasDB(){
@@ -3098,13 +3277,17 @@ async function loadReservas(){
         });
         try{localStorage.setItem('cajaDiaria_reservas',JSON.stringify(reservasRecords));}catch(e){}
       }catch(e){
-        try{reservasRecords=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];}catch(e2){}
+        try{reservasRecords=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];}catch(e2){reservasRecords=[];}
         reservasRecords=reservasRecords.filter(function(r){return r.mes===mes&&String(r.anio)===anio;});
+        // Asegurar campo productos en registros antiguos
+        reservasRecords.forEach(function(r){if(!r.productos)r.productos=[];});
       }
     }
   } else {
-    try{reservasRecords=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];}catch(e){}
+    try{reservasRecords=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];}catch(e){reservasRecords=[];}
     reservasRecords=reservasRecords.filter(function(r){return r.mes===mes&&String(r.anio)===anio;});
+    // Asegurar campo productos en registros antiguos
+    reservasRecords.forEach(function(r){if(!r.productos)r.productos=[];});
   }
 
   renderReservasResumen();
@@ -3354,6 +3537,12 @@ async function confirmarReserva(){
     setSyncStatus('loading','Guardando reserva...');
     var dbId=await ensureReservasDB();
     if(dbId){
+      // Asegurar que la columna Productos exista en la BD
+      try{
+        await notionRequest('PATCH','/databases/'+dbId,{
+          properties:{'Productos':{rich_text:{}}}
+        });
+      }catch(e){ /* columna ya existe o sin permisos — continuar */ }
       try{
         var props={
           'Nombre'     :{title:[{text:{content:cliente+' — '+fecha+(hora?' '+hora:'')}}]},
@@ -3375,7 +3564,7 @@ async function confirmarReserva(){
       }catch(e){ showToast('⚠ Error guardando en Notion: '+e.message,false); }
     }
   }
-  // localStorage
+  // localStorage — guardar completo con productos
   try{
     var ls=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];
     ls.push(nuevaRes);
@@ -3394,8 +3583,19 @@ async function actualizarEstadoReserva(reserva, nuevoEstado, btnEl){
   // Actualizar en memoria
   var idx=reservasRecords.findIndex(function(r){return r.id===reserva.id;});
   if(idx>=0) reservasRecords[idx].estado=nuevoEstado;
-  // Persistencia localStorage
-  try{localStorage.setItem('cajaDiaria_reservas',JSON.stringify(reservasRecords));}catch(e){}
+  // Persistencia localStorage — actualizar también en la lista global
+  try{
+    var ls=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];
+    var lsIdx=ls.findIndex(function(r){return r.id===reserva.id;});
+    if(lsIdx>=0){ ls[lsIdx].estado=nuevoEstado; }
+    else {
+      // Si no estaba en LS, agregar el registro completo
+      var rec=reservasRecords[idx]||reserva;
+      rec.estado=nuevoEstado;
+      ls.push(rec);
+    }
+    localStorage.setItem('cajaDiaria_reservas',JSON.stringify(ls));
+  }catch(e){}
   // Notion
   if(cfg.apiKey && reserva.id){
     try{
