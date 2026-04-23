@@ -616,6 +616,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">📋 Registro</button>
     <button class="tab-btn" onclick="switchTab('proveedores')" id="tab-proveedores">🧾 Proveedores</button>
     <button class="tab-btn" onclick="switchTab('cortesias')" id="tab-cortesias">🎁 Cortesías</button>
+    <button class="tab-btn" onclick="switchTab('reservas')" id="tab-reservas">📅 Reservas</button>
     <button class="tab-btn" onclick="switchTab('report')" id="tab-report">📊 Reporte</button>
     <button class="tab-btn" onclick="switchTab('reporte-yape')" id="tab-yape" style="display:none">💳 Reporte Yape</button>
     <button class="tab-btn" onclick="switchTab('cortes')" id="tab-cortes">🥩 Cortes</button>
@@ -1051,6 +1052,114 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     </div>
     <!-- Tabla oculta para compatibilidad con código existente -->
     <table style="display:none;"><tbody id="cortesias-body"></tbody></table>
+  </div>
+</div>
+
+<!-- RESERVAS -->
+<div class="view" id="view-reservas">
+  <div class="rep-hdr" style="margin-bottom:20px;">
+    <div class="rep-title">📅 Reservas</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:6px;">Mes</label>
+        <select id="reservas-mes" onchange="loadReservas()" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;">
+          <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
+          <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
+          <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:6px;">Año</label>
+        <input type="number" id="reservas-anio" value="2026" min="2020" max="2099" onchange="loadReservas()" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:85px;"/>
+      </div>
+      <button class="btn-refresh" onclick="loadReservas()" style="padding:7px 14px;font-size:12px;">↺ Actualizar</button>
+    </div>
+  </div>
+
+  <!-- Resumen del mes -->
+  <div id="reservas-resumen" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
+
+  <!-- Calendario de reservas -->
+  <div class="panel">
+    <div class="panel-title" style="justify-content:space-between;margin-bottom:16px;">
+      <span id="reservas-cal-titulo" style="font-size:15px;font-weight:700;color:var(--navy2);">Abril 2026</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-refresh" onclick="resCalPrev()" style="padding:6px 12px;">◀</button>
+        <button class="btn-refresh" onclick="resCalNext()" style="padding:6px 12px;">▶</button>
+      </div>
+    </div>
+    <div id="reservas-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
+    <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:12px;height:12px;background:#fef3c7;border:2px solid #f59e0b;border-radius:3px;"></div>Hoy
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:12px;height:12px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);border:2px solid #0ea5e9;border-radius:3px;"></div>Con reservas
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de reservas del mes -->
+  <div class="panel" style="margin-top:16px;">
+    <div class="panel-title" style="margin-bottom:14px;">📋 Reservas del mes</div>
+    <div id="reservas-lista-cont"></div>
+    <div id="reservas-lista-empty" style="display:none;text-align:center;padding:30px;color:var(--muted);font-size:13px;">No hay reservas registradas este mes.</div>
+  </div>
+</div>
+
+<!-- MODAL RESERVA -->
+<div class="modal-overlay" id="modal-reserva">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title" id="modal-reserva-titulo">📅 Reservas del día</div>
+    <div style="background:var(--surface2);border-radius:8px;padding:8px 14px;margin-bottom:16px;border:1px solid var(--border);text-align:center;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Fecha seleccionada</div>
+      <div id="modal-reserva-fecha-lbl" style="font-size:15px;font-weight:700;color:var(--navy2);"></div>
+      <input type="hidden" id="modal-reserva-fecha-val"/>
+    </div>
+    <!-- Reservas existentes en este día -->
+    <div id="modal-reserva-lista" style="margin-bottom:14px;max-height:200px;overflow-y:auto;"></div>
+    <!-- Formulario nueva reserva -->
+    <div style="border-top:1px solid var(--border);padding-top:14px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:12px;">➕ Nueva reserva</div>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field" style="margin-bottom:0;">
+          <label>👤 Nombre</label>
+          <input type="text" id="res-nombre" placeholder="Nombre del cliente" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;text-transform:uppercase;color:var(--text);"/>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>👥 Comensales</label>
+          <input type="number" id="res-comensales" placeholder="N° personas" min="1" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--mono);background:var(--surface2);outline:none;width:100%;color:var(--text);"/>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>📞 Teléfono</label>
+          <input type="text" id="res-telefono" placeholder="Número de contacto" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;color:var(--text);"/>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>🕐 Hora</label>
+          <input type="time" id="res-hora" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;color:var(--text);"/>
+        </div>
+        <div class="field" style="margin-bottom:0;grid-column:1/-1;">
+          <label>📝 Indicaciones / Descripción</label>
+          <textarea id="res-descripcion" placeholder="Alergias, ocasión especial, preferencias de mesa..." rows="2" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;resize:vertical;color:var(--text);font-size:13px;"></textarea>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>💰 Adelanto (S/)</label>
+          <input type="number" id="res-adelanto" placeholder="0.00" step="0.01" min="0" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--mono);background:var(--surface2);outline:none;width:100%;color:var(--text);"/>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>📊 Estado</label>
+          <select id="res-estado" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;color:var(--text);">
+            <option value="Confirmada">✅ Confirmada</option>
+            <option value="Pendiente">⏳ Pendiente</option>
+            <option value="Cancelada">❌ Cancelada</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="closeModal('modal-reserva')">Cerrar</button>
+      <button class="btn-save" onclick="confirmarReserva()" style="background:#0ea5e9;">✓ Registrar Reserva</button>
+    </div>
   </div>
 </div>
 
@@ -1677,6 +1786,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
       <div class="field"><label>ID BD Proveedores</label><input type="text" id="cfg-proveedoresdbid"/><div class="config-hint">ID de "Registro Proveedores"</div></div>
       <div class="field"><label>ID BD Deudas Diarias ⭐</label><input type="text" id="cfg-deudasdiariasdbid"/><div class="config-hint">ID de "Personal - Deudas Diarias"</div></div>
       <div class="field"><label>ID BD Pagos Fijos</label><input type="text" id="cfg-pagosfijosdbid"/><div class="config-hint">ID de "Pagos Fijos Mensuales" (usa Gastos-Registro si no se especifica)</div></div>
+      <div class="field"><label>ID BD Reservas 📅</label><input type="text" id="cfg-reservasdbid"/><div class="config-hint">ID de "Reservas" (se crea automáticamente si no existe)</div></div>
       <div class="field"><label>URL del Proxy</label><input type="text" id="cfg-proxy"/><div class="config-hint">Proxy CORS para conectar con Notion</div></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:14px;">
@@ -1980,6 +2090,8 @@ var DESCANSO_DB_ID='10ad3d648595404ba953d604d7436cce';
 var BEBIDAS_DB_ID='a369db86d09a41bea3f9579363187146';
 var YAPE_DB_ID='bc137ce7f07e4787a182686b8afce249';
 var GASTOS_DB_ID='b8bad63ce20746d29097d5b9b8e9dcdc';
+var RESERVAS_DB_ID=''; // Se crea automáticamente si no existe
+cfg.reservasDbId=cfg.reservasDbId||'';
 
 var currentUser=null;
 try{currentUser=JSON.parse(sessionStorage.getItem(SESSION_KEY));}catch(e){}
@@ -2128,7 +2240,7 @@ function initApp(){
   document.getElementById('tab-gastos-admin').style.display=(esAdminNav||(!esAdminNav&&!esBarmanNav))?'flex':'none';
   document.getElementById('tab-pagos-fijos').style.display=esAdminNav?'flex':'none';
   document.getElementById('tab-bebidas').style.display=(esAdminNav||esBarmanNav)?'flex':'none';
-  var tabsCajero=['tab-form','tab-proveedores','tab-cortesias','tab-report','tab-cortes'];
+  var tabsCajero=['tab-form','tab-proveedores','tab-cortesias','tab-reservas','tab-report','tab-cortes'];
   tabsCajero.forEach(function(id){
     var el=document.getElementById(id);
     if(el) el.style.display=esBarmanNav?'none':'flex';
@@ -2213,6 +2325,7 @@ function switchTab(t){
     cortCalMes=new Date().getMonth();
     loadCortesias();
   }
+  if(t==='reservas') initReservas();
   if(t==='proveedores') initProveedores();
   if(t==='personal') initPersonal();
   if(t==='gastos-admin') initGastosAdmin();
@@ -2664,6 +2777,428 @@ function cargarRegistroEnForm(r){
 async function delRecord(i){var r=reportRecords[i];if(!confirm('¿Eliminar el registro del '+r.fechaLabel+'?'))return;try{await notionRequest('PATCH','/pages/'+r.pageId,{archived:true});reportRecords.splice(i,1);renderReporte();showToast('Registro eliminado');}catch(e){showToast('Error: '+e.message,true);}}
 function exportExcel(){if(!reportRecords.length){showToast('No hay registros',true);return;}var wb=XLSX.utils.book_new();var rows=[['FECHA','EFECTIVO','CAJA HOY','CAJA AYER','PROPINAS','GASTOS','CUADRE DE CAJA']];reportRecords.forEach(function(r){rows.push([r.fechaLabel,r.efectivo,r.cajaHoy,r.cajaAyer,r.propinas,r.gastos,r.cuadreCaja]);});var wsR=XLSX.utils.aoa_to_sheet(rows);wsR['!cols']=[{wch:24},{wch:12},{wch:12},{wch:12},{wch:12},{wch:12},{wch:16}];XLSX.utils.book_append_sheet(wb,wsR,'RESUMEN');reportRecords.forEach(function(r){var d=new Date(r.fecha+'T12:00:00');var sn=String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+d.getFullYear();var aoa=[['','CUADRE DE CAJA =','','','','','',r.cuadreCaja],['','EFECTIVO',r.efectivo,'','','CATEGORÍA','GASTO','MONTO'],['','CAJA HOY',r.cajaHoy,'','',r.glist[0]?(r.glist[0].categoria||''):'',r.glist[0]?r.glist[0].concepto:'',r.glist[0]?r.glist[0].monto:''],['','CAJA AYER',r.cajaAyer,'','',r.glist[1]?(r.glist[1].categoria||''):'',r.glist[1]?r.glist[1].concepto:'',r.glist[1]?r.glist[1].monto:'']];for(var i=2;i<r.glist.length;i++) aoa.push(['','','','','',r.glist[i].categoria||'',r.glist[i].concepto,r.glist[i].monto]);aoa.push(['','MOZO','MONTO','TOTAL PROPINAS','','','','']);r.mozos.forEach(function(m,mi){aoa.push(['',m.nombre,m.monto,mi===0?r.propinas:'','','','','']);});var ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=[{wch:4},{wch:28},{wch:12},{wch:16},{wch:4},{wch:14},{wch:10},{wch:10}];XLSX.utils.book_append_sheet(wb,ws,sn);});XLSX.writeFile(wb,'Reporte_Cuadre_Caja.xlsx');showToast('✓ Excel descargado — '+reportRecords.length+' día(s)');}
 
+// ══ RESERVAS ══
+var reservasRecords = [];
+var resCalAnio = new Date().getFullYear();
+var resCalMes  = new Date().getMonth();
+
+function resCalPrev(){ resCalMes--; if(resCalMes<0){resCalMes=11;resCalAnio--;} renderReservasCalendar(); }
+function resCalNext(){ resCalMes++; if(resCalMes>11){resCalMes=0;resCalAnio++;} renderReservasCalendar(); }
+
+function initReservas(){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var hoy=new Date();
+  var selM=document.getElementById('reservas-mes');
+  var selA=document.getElementById('reservas-anio');
+  if(selM&&!selM._init){selM.value=MESES[hoy.getMonth()];selM._init=true;}
+  if(selA&&!selA._init){selA.value=hoy.getFullYear();selA._init=true;}
+  resCalMes=hoy.getMonth(); resCalAnio=hoy.getFullYear();
+  loadReservas();
+}
+
+async function ensureReservasDB(){
+  if(RESERVAS_DB_ID) return RESERVAS_DB_ID;
+  if(cfg.reservasDbId){ RESERVAS_DB_ID=cfg.reservasDbId.replace(/-/g,''); return RESERVAS_DB_ID; }
+  if(!cfg.apiKey) return '';
+  // Buscar BD por nombre
+  try{
+    var sr=await notionRequest('POST','/search',{query:'Reservas',filter:{value:'database',property:'object'},page_size:5});
+    if(sr.results&&sr.results.length>0){
+      var found=sr.results.find(function(r){
+        var t=r.title&&r.title[0]?r.title[0].plain_text||r.title[0].text.content:'';
+        return t.toLowerCase().indexOf('reserv')>=0;
+      });
+      if(found){
+        RESERVAS_DB_ID=found.id.replace(/-/g,'');
+        cfg.reservasDbId=found.id;
+        localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
+        saveSistemaConfigValue('reservasDbId',found.id);
+        return RESERVAS_DB_ID;
+      }
+    }
+  }catch(e){}
+  // Crear BD automáticamente junto a Personal-Pagos
+  try{
+    var dbInfoR=await notionRequest('GET','/databases/'+(cfg.personalDbId||PERSONAL_DB_ID).replace(/-/g,''),null);
+    var parentId=dbInfoR.parent&&dbInfoR.parent.page_id?dbInfoR.parent.page_id.replace(/-/g,''):null;
+    if(!parentId) throw new Error('sin parent');
+    var newDb=await notionRequest('POST','/databases',{
+      parent:{type:'page_id',page_id:parentId},
+      title:[{type:'text',text:{content:'Reservas'}}],
+      icon:{type:'emoji',emoji:'📅'},
+      properties:{
+        'Nombre'     :{title:{}},
+        'Cliente'    :{rich_text:{}},
+        'Comensales' :{number:{format:'number'}},
+        'Telefono'   :{rich_text:{}},
+        'Hora'       :{rich_text:{}},
+        'Estado'     :{rich_text:{}},
+        'Adelanto'   :{number:{format:'number'}},
+        'Descripcion':{rich_text:{}},
+        'Fecha'      :{rich_text:{}},
+        'Mes'        :{rich_text:{}},
+        'Año'        :{rich_text:{}}
+      }
+    });
+    RESERVAS_DB_ID=newDb.id.replace(/-/g,'');
+    cfg.reservasDbId=newDb.id;
+    localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
+    saveSistemaConfigValue('reservasDbId',newDb.id);
+    showToast('✓ BD "Reservas" creada en Notion');
+    return RESERVAS_DB_ID;
+  }catch(e){
+    showToast('⚠ Configura el ID de la BD Reservas en ⚙️ Config',true);
+    return '';
+  }
+}
+
+async function loadReservas(){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var selM=document.getElementById('reservas-mes');
+  var selA=document.getElementById('reservas-anio');
+  var mes=selM?selM.value:MESES[resCalMes];
+  var anio=selA?String(selA.value):String(resCalAnio);
+  resCalMes=MESES.indexOf(mes); if(resCalMes<0) resCalMes=new Date().getMonth();
+  resCalAnio=parseInt(anio);
+
+  reservasRecords=[];
+
+  if(cfg.apiKey){
+    var dbId=await ensureReservasDB();
+    if(dbId){
+      try{
+        var result=await notionRequest('POST','/databases/'+dbId+'/query',{
+          filter:{and:[{property:'Mes',rich_text:{equals:mes}},{property:'Año',rich_text:{equals:anio}}]},
+          sorts:[{property:'Fecha',direction:'ascending'}]
+        });
+        reservasRecords=result.results.map(function(page){
+          var p=page.properties;
+          function t(k){return p[k]&&p[k].rich_text&&p[k].rich_text[0]?p[k].rich_text[0].text.content:'';}
+          function n(k){return p[k]&&p[k].number!=null?p[k].number:0;}
+          return{
+            id:page.id, fecha:t('Fecha'), cliente:t('Cliente'),
+            comensales:n('Comensales'), telefono:t('Telefono'),
+            hora:t('Hora'), estado:t('Estado')||'Pendiente',
+            adelanto:n('Adelanto'), descripcion:t('Descripcion'),
+            mes:t('Mes'), anio:t('Año')
+          };
+        });
+        try{localStorage.setItem('cajaDiaria_reservas',JSON.stringify(reservasRecords));}catch(e){}
+      }catch(e){
+        try{reservasRecords=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];}catch(e2){}
+        reservasRecords=reservasRecords.filter(function(r){return r.mes===mes&&String(r.anio)===anio;});
+      }
+    }
+  } else {
+    try{reservasRecords=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];}catch(e){}
+    reservasRecords=reservasRecords.filter(function(r){return r.mes===mes&&String(r.anio)===anio;});
+  }
+
+  renderReservasResumen();
+  renderReservasCalendar();
+  renderReservasLista();
+}
+
+function renderReservasResumen(){
+  var cont=document.getElementById('reservas-resumen'); if(!cont) return;
+  var total=reservasRecords.length;
+  var confirmadas=reservasRecords.filter(function(r){return r.estado==='Confirmada';}).length;
+  var pendientes=reservasRecords.filter(function(r){return r.estado==='Pendiente';}).length;
+  var canceladas=reservasRecords.filter(function(r){return r.estado==='Cancelada';}).length;
+  var totalComensales=reservasRecords.reduce(function(s,r){return s+(r.comensales||0);},0);
+  var totalAdelanto=reservasRecords.reduce(function(s,r){return s+(r.adelanto||0);},0);
+  var cards=[
+    {icon:'📅',label:'Total Reservas',val:total,color:'#0ea5e9',bg:'#e0f2fe'},
+    {icon:'✅',label:'Confirmadas',val:confirmadas,color:'#10b981',bg:'#d1fae5'},
+    {icon:'⏳',label:'Pendientes',val:pendientes,color:'#f59e0b',bg:'#fef3c7'},
+    {icon:'👥',label:'Total Comensales',val:totalComensales,color:'#8b5cf6',bg:'#ede9fe'},
+    {icon:'💰',label:'Adelantos',val:'S/ '+totalAdelanto.toFixed(2),color:'#059669',bg:'#d1fae5'}
+  ];
+  cont.innerHTML='';
+  cards.forEach(function(c){
+    var div=document.createElement('div');
+    div.style.cssText='background:'+c.bg+';border-radius:12px;padding:14px 16px;border:1px solid '+c.color+'44;';
+    div.innerHTML='<div style="font-size:11px;color:'+c.color+';font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">'+c.icon+' '+c.label+'</div>'
+      +'<div style="font-family:var(--mono);font-size:22px;font-weight:800;color:'+c.color+';">'+c.val+'</div>';
+    cont.appendChild(div);
+  });
+}
+
+function renderReservasCalendar(){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var tituloEl=document.getElementById('reservas-cal-titulo');
+  if(tituloEl) tituloEl.textContent=MESES[resCalMes]+' '+resCalAnio;
+  var cal=document.getElementById('reservas-cal-grid'); if(!cal) return;
+  cal.innerHTML='';
+  DIAS.forEach(function(d){
+    var h=document.createElement('div');
+    h.style.cssText='padding:6px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;';
+    h.textContent=d; cal.appendChild(h);
+  });
+  var _n=new Date();
+  var hoy=_n.getFullYear()+'-'+String(_n.getMonth()+1).padStart(2,'0')+'-'+String(_n.getDate()).padStart(2,'0');
+  var primerDia=new Date(resCalAnio,resCalMes,1).getDay();
+  var diasEnMes=new Date(resCalAnio,resCalMes+1,0).getDate();
+  // Agrupar reservas por fecha
+  var porFecha={};
+  reservasRecords.forEach(function(r){
+    if(!porFecha[r.fecha]) porFecha[r.fecha]=[];
+    porFecha[r.fecha].push(r);
+  });
+  for(var i=0;i<primerDia;i++){
+    var b=document.createElement('div'); b.style.cssText='min-height:60px;'; cal.appendChild(b);
+  }
+  for(var d=1;d<=diasEnMes;d++){
+    var fechaStr=resCalAnio+'-'+String(resCalMes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var resDia=porFecha[fechaStr]||[];
+    var tieneRes=resDia.length>0;
+    var celda=document.createElement('div');
+    celda.style.cssText='min-height:60px;border-radius:8px;padding:5px 4px;cursor:pointer;transition:all .15s;border:2px solid '
+      +(fechaStr===hoy?'#f59e0b':(tieneRes?'#0ea5e9':'var(--border)'))+';'
+      +'background:'+(fechaStr===hoy?'#fef3c7':(tieneRes?'linear-gradient(135deg,#e0f2fe,#bae6fd)':'var(--surface2)'))+';';
+    celda.addEventListener('mouseenter',function(){this.style.transform='scale(1.04)';});
+    celda.addEventListener('mouseleave',function(){this.style.transform='';});
+    var num=document.createElement('div');
+    num.style.cssText='font-size:12px;font-weight:700;text-align:center;color:'+(tieneRes||fechaStr===hoy?'var(--navy2)':'var(--muted)')+';margin-bottom:3px;';
+    num.textContent=d; celda.appendChild(num);
+    if(tieneRes){
+      var cnt=document.createElement('div');
+      cnt.style.cssText='background:#0ea5e9;color:#fff;border-radius:8px;font-size:9px;font-weight:700;padding:1px 5px;text-align:center;margin-bottom:2px;';
+      cnt.textContent=resDia.length+' res.'; celda.appendChild(cnt);
+      var names=resDia.slice(0,2).map(function(r){return (r.cliente||'?').split(' ')[0];});
+      var nlbl=document.createElement('div');
+      nlbl.style.cssText='font-size:8px;color:#0369a1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      nlbl.textContent=names.join(', ')+(resDia.length>2?'…':''); celda.appendChild(nlbl);
+    } else {
+      var plus=document.createElement('div');
+      plus.style.cssText='font-size:9px;color:var(--muted);text-align:center;margin-top:4px;';
+      plus.textContent='+reserva'; celda.appendChild(plus);
+    }
+    (function(f,res){ celda.addEventListener('click',function(){ abrirModalReserva(f,res); }); })(fechaStr,resDia);
+    cal.appendChild(celda);
+  }
+}
+
+function renderReservasLista(){
+  var cont=document.getElementById('reservas-lista-cont');
+  var empty=document.getElementById('reservas-lista-empty');
+  if(!cont) return;
+  cont.innerHTML='';
+  if(!reservasRecords.length){ if(empty)empty.style.display='block'; return; }
+  if(empty)empty.style.display='none';
+  var ESTADO_COLORS={Confirmada:'#10b981',Pendiente:'#f59e0b',Cancelada:'#ef4444'};
+  var ESTADO_BG={Confirmada:'#d1fae5',Pendiente:'#fef3c7',Cancelada:'#fee2e2'};
+  var sorted=reservasRecords.slice().sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'');});
+  sorted.forEach(function(r){
+    var row=document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:90px 1fr auto auto auto;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);';
+    var col=ESTADO_COLORS[r.estado]||'#64748b';
+    var bg=ESTADO_BG[r.estado]||'#f1f5f9';
+
+    // Col fecha+hora
+    var tdF=document.createElement('div');
+    tdF.style.cssText='font-size:12px;color:var(--muted);font-weight:600;';
+    tdF.innerHTML=(r.fecha||'—')+'<div style="font-size:10px;">'+(r.hora||'Sin hora')+'</div>';
+
+    // Col info cliente
+    var tdI=document.createElement('div');
+    tdI.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--navy2);">'+htmlEsc(r.cliente||'Sin nombre')+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);">👥 '+(r.comensales||0)+' comensales'
+      +(r.telefono?' · 📞 '+htmlEsc(r.telefono):'')
+      +(r.descripcion?' · <em>'+htmlEsc(r.descripcion.substring(0,40))+'</em>':'')+'</div>';
+
+    // Col badge estado (clic para cambiar)
+    var tdE=document.createElement('div');
+    var badge=document.createElement('span');
+    badge.style.cssText='font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;background:'+bg+';color:'+col+';white-space:nowrap;cursor:default;';
+    badge.textContent=r.estado||'Pendiente';
+    tdE.appendChild(badge);
+
+    // Select de estado para actualizar
+    var sel=document.createElement('select');
+    sel.style.cssText='padding:5px 8px;border:1.5px solid '+col+';border-radius:8px;font-size:12px;font-family:var(--font);background:'+bg+';color:'+col+';font-weight:700;outline:none;cursor:pointer;min-width:120px;';
+    ['Confirmada','Pendiente','Cancelada'].forEach(function(e){
+      var o=document.createElement('option'); o.value=e; o.textContent=e;
+      if(e===r.estado) o.selected=true;
+      sel.appendChild(o);
+    });
+    // Actualizar badge al cambiar select
+    sel.addEventListener('change',function(){
+      var nuevo=sel.value;
+      var nc=ESTADO_COLORS[nuevo]||'#64748b';
+      var nb=ESTADO_BG[nuevo]||'#f1f5f9';
+      badge.style.background=nb; badge.style.color=nc; badge.textContent=nuevo;
+      sel.style.borderColor=nc; sel.style.background=nb; sel.style.color=nc;
+      btnUpd.style.display='inline-flex';
+    });
+
+    // Botón guardar estado
+    var btnUpd=document.createElement('button');
+    btnUpd.className='btn-save';
+    btnUpd.style.cssText='padding:5px 12px;font-size:11px;display:none;white-space:nowrap;min-height:30px;';
+    btnUpd.textContent='✓ Guardar';
+    (function(reserva, selEl){
+      btnUpd.addEventListener('click',function(){
+        actualizarEstadoReserva(reserva, selEl.value, btnUpd);
+      });
+    })(r, sel);
+
+    // Botón eliminar
+    var btnDel=document.createElement('button');
+    btnDel.className='btn-del';
+    btnDel.style.cssText='padding:5px 8px;font-size:11px;white-space:nowrap;min-height:30px;';
+    btnDel.textContent='🗑';
+    (function(reserva){ btnDel.addEventListener('click',function(){ eliminarReserva(reserva.id); }); })(r);
+
+    // Agrupar estado + acciones
+    var tdAcc=document.createElement('div');
+    tdAcc.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
+    tdAcc.appendChild(sel);
+    tdAcc.appendChild(btnUpd);
+
+    row.appendChild(tdF); row.appendChild(tdI); row.appendChild(tdE); row.appendChild(tdAcc); row.appendChild(btnDel);
+    cont.appendChild(row);
+  });
+}
+
+function htmlEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function abrirModalReserva(fecha, reservasDelDia){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var pp=fecha.split('-');
+  var lbl=parseInt(pp[2])+' de '+MESES[parseInt(pp[1])-1]+' de '+pp[0];
+  document.getElementById('modal-reserva-titulo').textContent='📅 Reservas — '+lbl;
+  document.getElementById('modal-reserva-fecha-lbl').textContent=lbl;
+  document.getElementById('modal-reserva-fecha-val').value=fecha;
+  // Limpiar form
+  ['res-nombre','res-comensales','res-telefono','res-hora','res-descripcion','res-adelanto'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('res-estado').value='Confirmada';
+  // Mostrar reservas existentes del día
+  var lista=document.getElementById('modal-reserva-lista'); lista.innerHTML='';
+  if(reservasDelDia&&reservasDelDia.length){
+    var tit=document.createElement('div');
+    tit.style.cssText='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:8px;';
+    tit.textContent='Reservas de este día'; lista.appendChild(tit);
+    reservasDelDia.forEach(function(r){
+      var ESTADO_COLORS={Confirmada:'#10b981',Pendiente:'#f59e0b',Cancelada:'#ef4444'};
+      var col=ESTADO_COLORS[r.estado]||'#64748b';
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #bae6fd;border-radius:8px;margin-bottom:6px;background:#f0f9ff;';
+      row.innerHTML='<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:13px;font-weight:600;color:#0369a1;">'+htmlEsc(r.cliente||'Sin nombre')+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);">'+
+          (r.hora?r.hora+' · ':'')+
+          '👥 '+(r.comensales||0)+
+          (r.telefono?' · 📞 '+htmlEsc(r.telefono):'')+
+          (r.descripcion?'<br><span style="font-style:italic;">'+htmlEsc(r.descripcion)+'</span>':'')+
+        '</div></div>'
+        +'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:'+col+'22;color:'+col+';">'+r.estado+'</span>';
+      var btnD=document.createElement('button'); btnD.className='btn-del'; btnD.style.cssText='padding:3px 7px;font-size:10px;flex-shrink:0;';
+      btnD.textContent='🗑';
+      (function(res){ btnD.addEventListener('click',function(){ eliminarReserva(res.id); closeModal('modal-reserva'); }); })(r);
+      row.appendChild(btnD); lista.appendChild(row);
+    });
+    var sep=document.createElement('div');
+    sep.style.cssText='border-top:1px solid var(--border);margin:12px 0 4px;';
+    lista.appendChild(sep);
+  }
+  openModal('modal-reserva');
+}
+
+async function confirmarReserva(){
+  var fecha=document.getElementById('modal-reserva-fecha-val').value;
+  var cliente=(document.getElementById('res-nombre').value||'').trim().toUpperCase();
+  var comensales=parseInt(document.getElementById('res-comensales').value)||0;
+  var telefono=(document.getElementById('res-telefono').value||'').trim();
+  var hora=document.getElementById('res-hora').value||'';
+  var descripcion=(document.getElementById('res-descripcion').value||'').trim();
+  var adelanto=parseFloat(document.getElementById('res-adelanto').value)||0;
+  var estado=document.getElementById('res-estado').value||'Pendiente';
+  if(!cliente){showToast('Ingresa el nombre del cliente',true);return;}
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var pp=fecha.split('-');
+  var mes=MESES[parseInt(pp[1])-1], anio=pp[0];
+  var nuevaRes={fecha:fecha,cliente:cliente,comensales:comensales,telefono:telefono,
+    hora:hora,estado:estado,adelanto:adelanto,descripcion:descripcion,mes:mes,anio:anio};
+  if(cfg.apiKey){
+    setSyncStatus('loading','Guardando reserva...');
+    var dbId=await ensureReservasDB();
+    if(dbId){
+      try{
+        var props={
+          'Nombre'     :{title:[{text:{content:cliente+' — '+fecha+(hora?' '+hora:'')}}]},
+          'Cliente'    :{rich_text:[{text:{content:cliente}}]},
+          'Comensales' :{number:comensales},
+          'Telefono'   :{rich_text:[{text:{content:telefono}}]},
+          'Hora'       :{rich_text:[{text:{content:hora}}]},
+          'Estado'     :{rich_text:[{text:{content:estado}}]},
+          'Adelanto'   :{number:adelanto},
+          'Descripcion':{rich_text:[{text:{content:descripcion.substring(0,2000)}}]},
+          'Fecha'      :{rich_text:[{text:{content:fecha}}]},
+          'Mes'        :{rich_text:[{text:{content:mes}}]},
+          'Año'        :{rich_text:[{text:{content:anio}}]}
+        };
+        var created=await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:props});
+        nuevaRes.id=created.id;
+        setSyncStatus('ok','Sincronizado');
+      }catch(e){ showToast('⚠ Error guardando en Notion: '+e.message,false); }
+    }
+  }
+  // localStorage
+  try{
+    var ls=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];
+    ls.push(nuevaRes);
+    localStorage.setItem('cajaDiaria_reservas',JSON.stringify(ls));
+  }catch(e){}
+  reservasRecords.push(nuevaRes);
+  renderReservasResumen();
+  renderReservasCalendar();
+  renderReservasLista();
+  showToast('✓ Reserva de '+cliente+' registrada para el '+fecha+(hora?' a las '+hora:''));
+  closeModal('modal-reserva');
+}
+
+async function actualizarEstadoReserva(reserva, nuevoEstado, btnEl){
+  if(btnEl){ btnEl.disabled=true; btnEl.textContent='Guardando...'; }
+  // Actualizar en memoria
+  var idx=reservasRecords.findIndex(function(r){return r.id===reserva.id;});
+  if(idx>=0) reservasRecords[idx].estado=nuevoEstado;
+  // Persistencia localStorage
+  try{localStorage.setItem('cajaDiaria_reservas',JSON.stringify(reservasRecords));}catch(e){}
+  // Notion
+  if(cfg.apiKey && reserva.id){
+    try{
+      setSyncStatus('loading','Actualizando estado...');
+      await notionRequest('PATCH','/pages/'+reserva.id,{
+        properties:{'Estado':{rich_text:[{text:{content:nuevoEstado}}]}}
+      });
+      setSyncStatus('ok','Sincronizado');
+    }catch(e){
+      showToast('⚠ Error actualizando en Notion: '+e.message, false);
+    }
+  }
+  if(btnEl){ btnEl.disabled=false; btnEl.textContent='✓ Guardado'; btnEl.style.background='#10b981'; }
+  renderReservasResumen();
+  renderReservasCalendar();
+  showToast('✓ Estado actualizado: '+reserva.cliente+' → '+nuevoEstado);
+}
+
+async function eliminarReserva(id){
+  if(!confirm('¿Eliminar esta reserva?')) return;
+  if(cfg.apiKey&&id){
+    try{ await notionRequest('PATCH','/pages/'+id,{archived:true}); setSyncStatus('ok','Sincronizado'); }catch(e){}
+  }
+  reservasRecords=reservasRecords.filter(function(r){return r.id!==id;});
+  try{localStorage.setItem('cajaDiaria_reservas',JSON.stringify(reservasRecords));}catch(e){}
+  renderReservasResumen();
+  renderReservasCalendar();
+  renderReservasLista();
+  showToast('Reserva eliminada');
+}
+
 // ══ PERFIL ══
 async function cambiarPassword(){var actual=document.getElementById('pass-actual').value,nueva=document.getElementById('pass-nueva').value,conf=document.getElementById('pass-confirm').value;if(!actual||!nueva||!conf){showToast('Completa todos los campos',true);return;}if(nueva.length<6){showToast('Mínimo 6 caracteres',true);return;}if(nueva!==conf){showToast('Las contraseñas no coinciden',true);return;}try{var hashActual=await sha256(actual);var page=await notionRequest('GET','/pages/'+currentUser.pageId,null);var stored=page.properties.Password.rich_text[0]&&page.properties.Password.rich_text[0].text.content||'';if(stored!==hashActual){showToast('Contraseña actual incorrecta',true);return;}await notionRequest('PATCH','/pages/'+currentUser.pageId,{properties:{'Password':{rich_text:[{text:{content:await sha256(nueva)}}]}}});showToast('✓ Contraseña actualizada');document.getElementById('pass-actual').value='';document.getElementById('pass-nueva').value='';document.getElementById('pass-confirm').value='';}catch(e){showToast('Error: '+e.message,true);}}
 
@@ -2688,6 +3223,8 @@ function saveConfig(){
   cfg.deudasDiariasDbId=(ddEl?ddEl.value.trim():'')||'33b91c46-cadd-81b7-886d-c62e809859f5';
   var pfEl=document.getElementById('cfg-pagosfijosdbid');
   cfg.pagosFijosDbId=(pfEl?pfEl.value.trim():'')||GASTOS_DB_ID;
+  var resEl=document.getElementById('cfg-reservasdbid');
+  cfg.reservasDbId=resEl?resEl.value.trim():'';
   cfg.proxy=document.getElementById('cfg-proxy').value.trim();
   localStorage.setItem(CFG_KEY,JSON.stringify(cfg));
   showToast('Configuración guardada');
@@ -2704,6 +3241,8 @@ function loadConfigUI(){
   if(ddEl)ddEl.value=cfg.deudasDiariasDbId||'33b91c46-cadd-81b7-886d-c62e809859f5';
   var pfEl=document.getElementById('cfg-pagosfijosdbid');
   if(pfEl)pfEl.value=cfg.pagosFijosDbId||'b8bad63c-e207-46d2-9097-d5b9b8e9dcdc';
+  var resEl=document.getElementById('cfg-reservasdbid');
+  if(resEl)resEl.value=cfg.reservasDbId||'';
   document.getElementById('cfg-proxy').value=cfg.proxy||'https://cajacaja-proxy.vercel.app/api/notion';
 }
 async function testConnection(){setSyncStatus('loading','Probando...');try{await notionRequest('GET','/databases/'+(cfg.dbId||DB_ID).replace(/\s/g,'').replace(/-/g,''),null);setSyncStatus('ok','Conectado');showToast('✓ Conexión exitosa con Notion');}catch(e){setSyncStatus('err','Error');showToast('Error: '+e.message,true);}}
