@@ -361,6 +361,15 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   /* Cortes grid */
   #cortes-grid{grid-template-columns:1fr!important;}
 
+  /* Reservas */
+  #reservas-resumen{grid-template-columns:repeat(2,1fr)!important;}
+  #reservas-lista-cont > div{
+    grid-template-columns:75px 1fr auto auto !important;
+    gap:6px !important; padding:10px 10px !important;
+  }
+  #modal-reserva .modal{max-width:98vw!important;margin:6px!important;}
+  #modal-reserva .form-grid{grid-template-columns:1fr 1fr!important;}
+
   /* Tablas: scroll horizontal */
   .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   table{min-width:500px;}
@@ -405,6 +414,18 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 
 /* ── Mobile (≤ 600px) ── */
 @media(max-width:600px){
+  /* Reservas */
+  #reservas-resumen{grid-template-columns:1fr 1fr!important;}
+  #reservas-lista-cont > div{grid-template-columns:1fr!important;padding:10px 8px!important;}
+  #reservas-lista-cont .btn-save,#reservas-lista-cont .btn-export,
+  #reservas-lista-cont .btn-edit,#reservas-lista-cont .btn-del{
+    padding:5px 8px!important;font-size:10px!important;min-height:32px!important;
+  }
+  #modal-reserva .form-grid{grid-template-columns:1fr!important;}
+  #modal-reserva .field[style*="grid-column"]{grid-column:1!important;}
+  #modal-reserva table{min-width:unset!important;font-size:11px!important;}
+  #modal-reserva .res-prod-cant{width:44px!important;}
+
   .app-header{padding:0 10px;height:52px;}
   .tabs{top:52px;}
   .app-logo{gap:8px;}
@@ -1131,13 +1152,14 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
       <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Fecha seleccionada</div>
       <div id="modal-reserva-fecha-lbl" style="font-size:15px;font-weight:700;color:var(--navy2);"></div>
       <input type="hidden" id="modal-reserva-fecha-val"/>
+      <input type="hidden" id="res-edit-id"/>
     </div>
     <!-- Reservas existentes en este día -->
     <div id="modal-reserva-lista" style="margin-bottom:14px;max-height:200px;overflow-y:auto;"></div>
     <!-- Formulario nueva reserva -->
     <div style="border-top:1px solid var(--border);padding-top:14px;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:12px;">➕ Nueva reserva</div>
-      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:10px;" autocomplete="off">
         <div class="field" style="margin-bottom:0;">
           <label>👤 Nombre</label>
           <input type="text" id="res-nombre" placeholder="Nombre del cliente" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;text-transform:uppercase;color:var(--text);"/>
@@ -2843,43 +2865,108 @@ function initReservas(){
 
 // ── Productos del menú para proforma ──
 var RESERVA_PRODUCTOS = [
-  {nombre:'Churrasco',         precio:45},
-  {nombre:'Biffe de Chorizo',  precio:52},
-  {nombre:'Lomo Fino',         precio:56},
-  {nombre:'Lomo de Cerdo',     precio:36},
-  {nombre:'Chuleta',           precio:34},
-  {nombre:'Filete de Pollo',   precio:34},
-  {nombre:'Chorizo',           precio:7}
+  // CORTES
+  {nombre:'Churrasco',            categoria:'Cortes',       precio:45},
+  {nombre:'Biffe de Chorizo',     categoria:'Cortes',       precio:52},
+  {nombre:'Lomo Fino',            categoria:'Cortes',       precio:56},
+  {nombre:'Lomo de Cerdo',        categoria:'Cortes',       precio:36},
+  {nombre:'Chuleta',              categoria:'Cortes',       precio:34},
+  {nombre:'Filete de Pollo',      categoria:'Cortes',       precio:34},
+  // GUARNICIONES
+  {nombre:'Chorizo',              categoria:'Guarniciones', precio:7},
+  {nombre:'1/2 Porcion de Papas', categoria:'Guarniciones', precio:5},
+  {nombre:'Porcion de Papas',     categoria:'Guarniciones', precio:10},
+  {nombre:'Porcion de Ensalada',  categoria:'Guarniciones', precio:10},
+  // BEBIDAS
+  {nombre:'Gaseosa 1L',           categoria:'Bebidas',      precio:11},
+  {nombre:'Gaseosa 1L 1/2',       categoria:'Bebidas',      precio:13},
+  {nombre:'Gaseosa Personal',     categoria:'Bebidas',      precio:5},
+  {nombre:'Gaseosa Gordita/Jumbo',categoria:'Bebidas',      precio:6},
+  {nombre:'Agua Mineral',         categoria:'Bebidas',      precio:3},
+  {nombre:'Frugo 1L',             categoria:'Bebidas',      precio:8},
+  {nombre:'Frugo 1L 1/2',         categoria:'Bebidas',      precio:10},
+  {nombre:'Chicha Morada 1/2L',   categoria:'Bebidas',      precio:7},
+  {nombre:'Chicha Morada 1L',     categoria:'Bebidas',      precio:13},
+  {nombre:'Maracuya 1/2L',        categoria:'Bebidas',      precio:7},
+  {nombre:'Maracuya 1L',          categoria:'Bebidas',      precio:13},
+  // TRAGOS
+  {nombre:'Cerveza',              categoria:'Tragos',       precio:13},
+  {nombre:'Heineken',             categoria:'Tragos',       precio:6},
+  {nombre:'Corcho Libre',         categoria:'Tragos',       precio:15},
+  {nombre:'Cogollo',              categoria:'Tragos',       precio:20},
+  {nombre:'Navarro Correa',       categoria:'Tragos',       precio:80},
+  {nombre:'Frontera',             categoria:'Tragos',       precio:60},
+  {nombre:'Intipalka Reserva',    categoria:'Tragos',       precio:70},
+  {nombre:'Intipalka',            categoria:'Tragos',       precio:55},
+  {nombre:'Tabernero Rose',       categoria:'Tragos',       precio:50},
+  {nombre:'Tabernero Borgoña',    categoria:'Tragos',       precio:50},
+  {nombre:'Querolo Rose',         categoria:'Tragos',       precio:50},
+  {nombre:'Querolo Borgoña',      categoria:'Tragos',       precio:50},
+  {nombre:'Queirolo Magdalena',   categoria:'Tragos',       precio:50},
+  {nombre:'Tacama Rose Semi-Seco',categoria:'Tragos',       precio:50},
+  {nombre:'Casillero del Diablo', categoria:'Tragos',       precio:55},
+  {nombre:'Trapiche',             categoria:'Tragos',       precio:70},
+  {nombre:'Finca de las Moras',   categoria:'Tragos',       precio:60},
+  // EXTRAS
+  {nombre:'Envase Gaseosa/Cerveza',categoria:'Extras',     precio:3},
+  {nombre:'Vaso Roto',            categoria:'Extras',       precio:4},
 ];
 
-function initProductosReserva(){
+function initProductosReserva(productosExistentes){
   var tbody=document.getElementById('res-productos-tbody'); if(!tbody) return;
   tbody.innerHTML='';
-  RESERVA_PRODUCTOS.forEach(function(prod, idx){
-    var tr=document.createElement('tr');
-    tr.style.borderBottom='1px solid var(--border)';
-    tr.innerHTML='<td style="padding:6px 10px;font-size:12px;color:var(--text);">'+prod.nombre+'</td>'
-      +'<td style="padding:6px 8px;text-align:center;font-size:12px;color:var(--muted);font-family:var(--mono);">S/ '+prod.precio.toFixed(2)+'</td>'
-      +'<td style="padding:4px 8px;text-align:center;">'
-        +'<input type="number" min="0" value="" placeholder="0" data-idx="'+idx+'"'
-        +' class="res-prod-cant"'
-        +' style="width:56px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);text-align:center;background:var(--surface2);outline:none;color:var(--text);">'
-      +'</td>'
-      +'<td class="res-prod-subtotal" data-idx="'+idx+'" style="padding:6px 10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--navy2);">—</td>';
-    tbody.appendChild(tr);
+  // Reset total
+  var totEl=document.getElementById('res-total-consumo');
+  if(totEl) totEl.textContent='S/ 0.00';
+  // Agrupar por categoría
+  var cats={};
+  RESERVA_PRODUCTOS.forEach(function(prod,idx){
+    var c=prod.categoria||'Otros';
+    if(!cats[c]) cats[c]=[];
+    cats[c].push({prod:prod,idx:idx});
   });
-  // Listener para recalcular al cambiar cantidad
-  tbody.addEventListener('input', function(e){
+  // Mapa de cantidades previas (para modo edición)
+  var cantPrev={};
+  if(productosExistentes&&productosExistentes.length){
+    productosExistentes.forEach(function(p){
+      cantPrev[p.nombre.toUpperCase()]=p.cantidad;
+    });
+  }
+  var CAT_ICONS={'Cortes':'🥩','Guarniciones':'🍟','Bebidas':'🥤','Tragos':'🍷','Extras':'➕'};
+  Object.keys(cats).forEach(function(cat){
+    // Separador de categoría
+    var sep=document.createElement('tr');
+    sep.innerHTML='<td colspan="4" style="padding:6px 10px 3px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);background:var(--surface2);">'+(CAT_ICONS[cat]||'')+'  '+cat+'</td>';
+    tbody.appendChild(sep);
+    cats[cat].forEach(function(item){
+      var prod=item.prod, idx=item.idx;
+      var cantPre=cantPrev[prod.nombre.toUpperCase()]||0;
+      var tr=document.createElement('tr');
+      tr.style.cssText='border-bottom:1px solid var(--border);';
+      tr.innerHTML='<td style="padding:5px 10px;font-size:12px;color:var(--text);">'+prod.nombre+'</td>'
+        +'<td style="padding:5px 8px;text-align:center;font-size:11px;color:var(--muted);font-family:var(--mono);">'+prod.precio.toFixed(2)+'</td>'
+        +'<td style="padding:3px 6px;text-align:center;">'
+          +'<input type="number" min="0" value="'+(cantPre>0?cantPre:'')+'" placeholder="0" data-idx="'+idx+'"'
+          +' class="res-prod-cant" autocomplete="off"'
+          +' style="width:52px;padding:4px 5px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);text-align:center;background:var(--surface2);outline:none;color:var(--text);">'
+        +'</td>'
+        +'<td class="res-prod-subtotal" data-idx="'+idx+'" style="padding:5px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:'+(cantPre>0?'var(--accent3)':'var(--muted)')+';">'+(cantPre>0?'S/ '+(cantPre*prod.precio).toFixed(2):'—')+'</td>';
+      tbody.appendChild(tr);
+    });
+  });
+  tbody.addEventListener('input',function(e){
     if(e.target.classList.contains('res-prod-cant')) recalcProductosReserva();
   });
+  // Recalc inicial si hay productos previos
+  if(productosExistentes&&productosExistentes.length) recalcProductosReserva();
 }
 
 function recalcProductosReserva(){
   var total=0;
-  document.querySelectorAll('#res-productos-tbody tr').forEach(function(tr, idx){
-    var inp=tr.querySelector('.res-prod-cant');
-    var subtEl=tr.querySelector('.res-prod-subtotal');
-    if(!inp||!subtEl) return;
+  document.querySelectorAll('#res-productos-tbody .res-prod-cant').forEach(function(inp){
+    var idx=parseInt(inp.getAttribute('data-idx'));
+    var subtEl=inp.closest('tr').querySelector('.res-prod-subtotal');
+    if(!subtEl) return;
     var cant=parseInt(inp.value)||0;
     var precio=RESERVA_PRODUCTOS[idx]?RESERVA_PRODUCTOS[idx].precio:0;
     var sub=cant*precio;
@@ -2893,12 +2980,12 @@ function recalcProductosReserva(){
 
 function getProductosSeleccionados(){
   var items=[];
-  document.querySelectorAll('#res-productos-tbody tr').forEach(function(tr, idx){
-    var inp=tr.querySelector('.res-prod-cant');
-    if(!inp) return;
+  document.querySelectorAll('#res-productos-tbody .res-prod-cant').forEach(function(inp){
     var cant=parseInt(inp.value)||0;
     if(cant<=0) return;
+    var idx=parseInt(inp.getAttribute('data-idx'));
     var prod=RESERVA_PRODUCTOS[idx];
+    if(!prod) return;
     items.push({nombre:prod.nombre, precio:prod.precio, cantidad:cant, subtotal:cant*prod.precio});
   });
   return items;
@@ -3171,17 +3258,15 @@ function imprimirTermica(reserva){
 
   // Imprimir via iframe oculto — sin abrir ventana nueva
   var iframe=document.createElement('iframe');
-  iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;';
+  iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;visibility:hidden;';
+  iframe.srcdoc=html;
   document.body.appendChild(iframe);
-  iframe.contentDocument.open();
-  iframe.contentDocument.write(html);
-  iframe.contentDocument.close();
   iframe.onload=function(){
     try{
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
     }catch(e){ showToast('⚠ Error al imprimir: '+e.message,true); }
-    setTimeout(function(){ document.body.removeChild(iframe); },2000);
+    setTimeout(function(){ try{document.body.removeChild(iframe);}catch(e){} },3000);
   };
   showToast('🧾 Enviando a impresora térmica...');
 }
@@ -3388,7 +3473,7 @@ function renderReservasLista(){
   var sorted=reservasRecords.slice().sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'');});
   sorted.forEach(function(r){
     var row=document.createElement('div');
-    row.style.cssText='display:grid;grid-template-columns:90px 1fr auto auto auto auto;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);';
+    row.style.cssText='display:grid;grid-template-columns:90px 1fr auto auto auto auto auto;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);';
     var col=ESTADO_COLORS[r.estado]||'#64748b';
     var bg=ESTADO_BG[r.estado]||'#f1f5f9';
 
@@ -3440,6 +3525,14 @@ function renderReservasLista(){
       });
     })(r, sel);
 
+    // Botón editar
+    var btnEdit=document.createElement('button');
+    btnEdit.className='btn-edit';
+    btnEdit.style.cssText='padding:5px 10px;font-size:11px;white-space:nowrap;min-height:30px;background:#f59e0b;color:#fff;border:none;border-radius:6px;cursor:pointer;';
+    btnEdit.textContent='✏️';
+    btnEdit.title='Editar reserva';
+    (function(reserva){ btnEdit.addEventListener('click',function(){ abrirEditarReserva(reserva); }); })(r);
+
     // Botón proforma PDF
     var btnPDF=document.createElement('button');
     btnPDF.className='btn-export';
@@ -3464,7 +3557,7 @@ function renderReservasLista(){
     var tdPDF=document.createElement('div');
     tdPDF.appendChild(btnPDF);
 
-    row.appendChild(tdF); row.appendChild(tdI); row.appendChild(tdE); row.appendChild(tdAcc); row.appendChild(tdPDF); row.appendChild(btnDel);
+    row.appendChild(tdF); row.appendChild(tdI); row.appendChild(tdE); row.appendChild(tdAcc); row.appendChild(tdPDF); row.appendChild(btnEdit); row.appendChild(btnDel);
     cont.appendChild(row);
   });
 }
@@ -3483,8 +3576,13 @@ function abrirModalReserva(fecha, reservasDelDia){
     var el=document.getElementById(id); if(el) el.value='';
   });
   document.getElementById('res-estado').value='Confirmada';
-  // Inicializar tabla de productos
-  initProductosReserva();
+  // Limpiar id de edición
+  var hidEdit=document.getElementById('res-edit-id');
+  if(hidEdit) hidEdit.value='';
+  var btnReg=document.querySelector('#modal-reserva .btn-save');
+  if(btnReg){btnReg.textContent='✓ Registrar Reserva';btnReg.style.background='#0ea5e9';}
+  // Inicializar tabla de productos vacía
+  initProductosReserva([]);
   // Mostrar reservas existentes del día
   var lista=document.getElementById('modal-reserva-lista'); lista.innerHTML='';
   if(reservasDelDia&&reservasDelDia.length){
@@ -3526,13 +3624,59 @@ async function confirmarReserva(){
   var descripcion=(document.getElementById('res-descripcion').value||'').trim();
   var adelanto=parseFloat(document.getElementById('res-adelanto').value)||0;
   var estado=document.getElementById('res-estado').value||'Pendiente';
+  var editId=(document.getElementById('res-edit-id').value||'').trim();
   if(!cliente){showToast('Ingresa el nombre del cliente',true);return;}
   var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var pp=fecha.split('-');
   var mes=MESES[parseInt(pp[1])-1], anio=pp[0];
-  var nuevaRes={fecha:fecha,cliente:cliente,comensales:comensales,telefono:telefono,
+  var productos=getProductosSeleccionados();
+  var reservaData={fecha:fecha,cliente:cliente,comensales:comensales,telefono:telefono,
     hora:hora,estado:estado,adelanto:adelanto,descripcion:descripcion,mes:mes,anio:anio,
-    productos:getProductosSeleccionados()};
+    productos:productos};
+
+  if(editId){
+    // ── MODO EDICIÓN — actualizar registro existente ──
+    reservaData.id=editId;
+    var idx=reservasRecords.findIndex(function(r){return r.id===editId;});
+    if(idx>=0) reservasRecords[idx]=Object.assign(reservasRecords[idx],reservaData);
+    // localStorage
+    try{
+      var ls=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];
+      var li=ls.findIndex(function(r){return r.id===editId;});
+      if(li>=0) ls[li]=Object.assign(ls[li],reservaData);
+      else ls.push(reservaData);
+      localStorage.setItem('cajaDiaria_reservas',JSON.stringify(ls));
+    }catch(e){}
+    // Notion
+    if(cfg.apiKey&&editId){
+      setSyncStatus('loading','Actualizando reserva...');
+      try{
+        var dbId=await ensureReservasDB();
+        var props={
+          'Nombre'     :{title:[{text:{content:cliente+' — '+fecha+(hora?' '+hora:'')}}]},
+          'Cliente'    :{rich_text:[{text:{content:cliente}}]},
+          'Comensales' :{number:comensales},
+          'Telefono'   :{rich_text:[{text:{content:telefono}}]},
+          'Hora'       :{rich_text:[{text:{content:hora}}]},
+          'Estado'     :{rich_text:[{text:{content:estado}}]},
+          'Adelanto'   :{number:adelanto},
+          'Descripcion':{rich_text:[{text:{content:descripcion.substring(0,2000)}}]},
+          'Productos'  :{rich_text:[{text:{content:JSON.stringify(productos).substring(0,2000)}}]},
+          'Fecha'      :{rich_text:[{text:{content:fecha}}]},
+          'Mes'        :{rich_text:[{text:{content:mes}}]},
+          'Año'        :{rich_text:[{text:{content:anio}}]}
+        };
+        await notionRequest('PATCH','/pages/'+editId,{properties:props});
+        setSyncStatus('ok','Sincronizado');
+      }catch(e){showToast('⚠ Error actualizando en Notion: '+e.message,false);}
+    }
+    renderReservasResumen(); renderReservasCalendar(); renderReservasLista();
+    showToast('✓ Reserva de '+cliente+' actualizada');
+    closeModal('modal-reserva');
+    return;
+  }
+
+  // ── MODO CREACIÓN ──
   if(cfg.apiKey){
     setSyncStatus('loading','Guardando reserva...');
     var dbId=await ensureReservasDB();
@@ -3578,6 +3722,28 @@ async function confirmarReserva(){
   closeModal('modal-reserva');
 }
 
+function abrirEditarReserva(reserva){
+  var MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  var pp=(reserva.fecha||"").split("-");
+  var lbl=pp.length===3?parseInt(pp[2])+" de "+MESES[parseInt(pp[1])-1]+" de "+pp[0]:(reserva.fecha||"—");
+  document.getElementById("modal-reserva-titulo").textContent="✏️ Editar — "+lbl;
+  document.getElementById("modal-reserva-fecha-lbl").textContent=lbl;
+  document.getElementById("modal-reserva-fecha-val").value=reserva.fecha||"";
+  document.getElementById("res-edit-id").value=reserva.id||"";
+  document.getElementById("res-nombre").value=reserva.cliente||"";
+  document.getElementById("res-comensales").value=reserva.comensales||"";
+  document.getElementById("res-telefono").value=reserva.telefono||"";
+  document.getElementById("res-hora").value=reserva.hora||"";
+  document.getElementById("res-descripcion").value=reserva.descripcion||"";
+  document.getElementById("res-adelanto").value=reserva.adelanto||"";
+  document.getElementById("res-estado").value=reserva.estado||"Confirmada";
+  var lista=document.getElementById("modal-reserva-lista");
+  if(lista)lista.innerHTML="";
+  initProductosReserva(reserva.productos||[]);
+  var btnReg=document.querySelector("#modal-reserva .btn-save");
+  if(btnReg){btnReg.textContent="💾 Guardar Cambios";btnReg.style.background="#059669";}
+  openModal("modal-reserva");
+}
 async function actualizarEstadoReserva(reserva, nuevoEstado, btnEl){
   if(btnEl){ btnEl.disabled=true; btnEl.textContent='Guardando...'; }
   // Actualizar en memoria
