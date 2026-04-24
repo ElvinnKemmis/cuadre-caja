@@ -268,164 +268,77 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
 }
 
 /* ════════════════════════════════════
-   RESPONSIVE COMPLETO — Tablet & Mobile
+   RESPONSIVE COMPLETO
 ════════════════════════════════════ */
 
-/* ── Tablet (≤ 768px) — nav como drawer lateral ── */
+/* ── Tablet / Mobile (≤ 768px) — nav como drawer ── */
 @media(max-width:768px){
   /* Header */
-  .app-header{
-    padding:0 14px;
-    height:56px;
-    position:sticky;top:0;z-index:200;
-  }
+  .app-header{padding:0 14px;height:56px;position:sticky;top:0;z-index:200;}
   .app-logo{padding-right:0;border-right:none;}
   .logo-text{font-size:13px;}
-
-  /* Mostrar hamburger */
   .hamburger-btn{display:flex;}
-
   /* Tabs → Drawer lateral */
-  .tabs{
-    position:fixed;
-    top:56px;left:0;bottom:0;
-    width:240px;
-    background:var(--accent);
-    flex-direction:column;
-    align-items:stretch;
-    padding:12px 0 24px;
-    overflow-y:auto;
-    transform:translateX(-100%);
-    transition:transform .28s cubic-bezier(.4,0,.2,1);
-    z-index:200;
-    box-shadow:4px 0 24px rgba(0,0,0,.3);
-    border-top:1px solid rgba(255,255,255,.08);
-    gap:2px;
-  }
+  .tabs{position:fixed;top:56px;left:0;bottom:0;width:240px;background:var(--accent);
+    flex-direction:column;align-items:stretch;padding:12px 0 24px;overflow-y:auto;
+    transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+    z-index:200;box-shadow:4px 0 24px rgba(0,0,0,.3);gap:2px;}
   .tabs.open{transform:translateX(0);}
-
-  .tab-btn{
-    width:100%;
-    justify-content:flex-start;
-    padding:13px 20px;
-    font-size:13px;
-    border-bottom:none;
-    border-left:3px solid transparent;
-    border-radius:0;
-    gap:10px;
-    white-space:normal;
-    text-align:left;
-  }
+  .tab-btn{width:100%;justify-content:flex-start;padding:13px 20px;font-size:13px;
+    border-bottom:none;border-left:3px solid transparent;border-radius:0;gap:10px;white-space:normal;text-align:left;}
   .tab-btn:hover{background:rgba(255,255,255,.08);}
-  .tab-btn.active{
-    color:#fff;
-    border-left-color:var(--accent3);
-    border-bottom-color:transparent;
-    background:rgba(255,255,255,.1);
-  }
-
-  /* Ocultar indicadores en header para dar espacio */
+  .tab-btn.active{color:#fff;border-left-color:var(--accent3);border-bottom-color:transparent;background:rgba(255,255,255,.1);}
   .sync-indicator,.day-pill{display:none;}
   .user-name,.user-role{display:none;}
-
-  /* Mostrar solo avatar + salir en hdr-right */
   .hdr-right{gap:8px;margin-left:auto;}
-
   /* Views */
   .view{padding:14px 12px;}
-
-  /* Banners y totales */
-  .total-banner{
-    flex-direction:column;align-items:flex-start;
-    gap:6px;padding:14px 16px;border-radius:10px;
-  }
+  .total-banner{flex-direction:column;align-items:flex-start;gap:6px;padding:14px 16px;border-radius:10px;}
   .total-val{font-size:26px;}
-
-  /* Sum bar */
   .sum-bar{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
-
-  /* Grids de formulario */
   .form-grid,.config-grid{grid-template-columns:1fr;}
-
-  /* Panels */
-  .panel{padding:14px 14px;}
+  .panel{padding:14px;}
   .panel-title{font-size:13px;gap:6px;flex-wrap:wrap;}
-
-  /* Cards */
   .card{padding:16px 14px;}
-
-  /* Rep header */
   .rep-hdr{flex-direction:column;align-items:flex-start;gap:10px;}
   .rep-actions{flex-wrap:wrap;}
-
-  /* Cortes grid */
+  /* Grids específicos */
   #cortes-grid{grid-template-columns:1fr!important;}
-
   /* Reservas */
   #reservas-resumen{grid-template-columns:repeat(2,1fr)!important;}
-  #reservas-lista-cont > div{
-    grid-template-columns:75px 1fr auto auto !important;
-    gap:6px !important; padding:10px 10px !important;
-  }
+  #reservas-lista-cont > div{grid-template-columns:70px 1fr!important;grid-template-rows:auto auto auto;gap:6px!important;padding:10px!important;}
+  #reservas-lista-cont > div > *:nth-child(n+3){grid-column:1/-1;}
   #modal-reserva .modal{max-width:98vw!important;margin:6px!important;}
   #modal-reserva .form-grid{grid-template-columns:1fr 1fr!important;}
-
-  /* Tablas: scroll horizontal */
+  /* Tablas scroll */
   .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  table{min-width:500px;}
-
+  .tbl-wrap table,.users-tbl-wrap table{min-width:480px;}
+  table:not(#res-productos-cats table){min-width:500px;}
   /* Modales */
-  .modal{
-    padding:20px 16px;margin:12px;
-    max-width:calc(100vw - 24px);
-    border-radius:12px;max-height:90vh;overflow-y:auto;
-  }
+  .modal{padding:20px 16px;margin:12px;max-width:calc(100vw - 24px);border-radius:12px;max-height:92vh;overflow-y:auto;}
   .modal-actions{flex-wrap:wrap;gap:8px;}
   .modal-actions button{flex:1;min-width:100px;text-align:center;justify-content:center;}
-
-  /* Toast */
+  /* Misc */
   .toast{bottom:16px;right:12px;left:12px;text-align:center;font-size:12px;padding:10px 16px;}
-
-  /* Fecha save bar */
   .fecha-save-bar{flex-direction:column;align-items:stretch;gap:10px;padding:14px;}
-
-  /* Calendarios */
   .cal-dia{min-height:48px;padding:4px 2px;border-radius:6px;}
   .cal-dia-num{font-size:11px;}
   .cal-dia-badge{font-size:9px;padding:1px 5px;}
-  .cal-dia-header{font-size:8px;}
-
-  /* Login */
   .login-box{padding:28px 20px;border-radius:16px;}
-
-  /* Botones */
   .btn-save,.btn-export,.btn-refresh{font-size:12px;padding:9px 14px;}
-
-  /* Config pre */
   .config-pre-box{padding:28px 20px;}
   .config-pre-grid{grid-template-columns:1fr;}
-
-  /* Prov input */
   .prov-input-nombre,.prov-input-dia{font-size:12px;padding:5px 7px;}
-
-  /* Rep hdr acciones */
   .rep-hdr > div:last-child{flex-wrap:wrap;gap:8px;}
+  /* Personal tabla scroll */
+  #tbody-personal{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  /* Gastos */
+  .gasto-form-row{grid-template-columns:1fr 1fr!important;}
+  .gasto-form-row .gf-desc{grid-column:1/-1;}
 }
 
 /* ── Mobile (≤ 600px) ── */
 @media(max-width:600px){
-  /* Reservas */
-  #reservas-resumen{grid-template-columns:1fr 1fr!important;}
-  #reservas-lista-cont > div{grid-template-columns:1fr!important;padding:10px 8px!important;}
-  #reservas-lista-cont .btn-save,#reservas-lista-cont .btn-export,
-  #reservas-lista-cont .btn-edit,#reservas-lista-cont .btn-del{
-    padding:5px 8px!important;font-size:10px!important;min-height:32px!important;
-  }
-  #modal-reserva .form-grid{grid-template-columns:1fr!important;}
-  #modal-reserva .field[style*="grid-column"]{grid-column:1!important;}
-  #modal-reserva table{min-width:unset!important;font-size:11px!important;}
-  #modal-reserva .res-prod-cant{width:44px!important;}
-
   .app-header{padding:0 10px;height:52px;}
   .tabs{top:52px;}
   .app-logo{gap:8px;}
@@ -434,72 +347,63 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   .btn-logout{padding:4px 8px;font-size:10px;}
   .user-pill{padding:3px 8px 3px 4px;}
   .user-avatar{width:22px;height:22px;font-size:10px;}
-
   .view{padding:10px 8px;}
   .total-val{font-size:22px;}
   .total-banner{padding:12px 14px;}
   .sum-bar{grid-template-columns:1fr 1fr;gap:8px;}
   .sc{padding:12px 14px;}
   .sc-val{font-size:16px;}
-
-  table{min-width:420px;}
+  .rep-title{font-size:16px;}
+  .panel{padding:12px;}
+  .panel-title{font-size:12px;flex-wrap:wrap;gap:6px;}
+  .panel-title > div{flex-wrap:wrap;gap:6px;}
+  .rep-hdr{gap:8px;}
+  .rep-hdr > div{flex-wrap:wrap;gap:6px;}
+  .fecha-save-bar{gap:8px;padding:12px;}
+  /* Tables */
+  table:not(#res-productos-cats table){min-width:420px;}
   thead th{padding:9px 8px;font-size:9px;}
   tbody td{padding:9px 8px;font-size:12px;}
   tbody td:first-child{padding-left:12px;}
-
-  .rep-title{font-size:16px;}
-  .panel{padding:12px;}
-  .panel-title{font-size:12px;}
-
+  /* Calendarios */
   .cal-dia{min-height:40px;padding:3px 2px;}
   .cal-dia-num{font-size:10px;margin-bottom:2px;}
-  .cal-dia-badge,.falta-badge,.permiso-badge,.descanso-badge,.vac-badge{
-    font-size:8px;padding:1px 4px;
-  }
-
-  #prov-semanas-container .panel,
-  #apoyos-semanas-container .panel,
-  #bebidas-semanas-container .panel{padding:12px 10px;}
-
+  .cal-dia-badge,.falta-badge,.permiso-badge,.descanso-badge,.vac-badge{font-size:8px;padding:1px 4px;}
+  /* Proveedores */
+  #prov-semanas-container .panel,#apoyos-semanas-container .panel,#bebidas-semanas-container .panel{padding:12px 10px;}
   .prov-input-nombre{font-size:11px;padding:5px 7px;}
   .prov-input-dia{font-size:11px;padding:4px 6px;width:60px;}
-
+  /* Modales */
   .modal{margin:8px;padding:16px 14px;max-width:calc(100vw - 16px);}
   .modal-title{font-size:14px;margin-bottom:14px;}
-
   .btn-save{font-size:13px;padding:12px 16px;}
   .btn-success,.btn-primary{font-size:12px;padding:9px 14px;}
   .add-btn{font-size:11px;padding:7px 10px;}
   .rm{width:26px;height:26px;font-size:15px;}
-
-  .gasto-form-row{
-    grid-template-columns:1fr 1fr !important;
-    grid-template-rows:auto auto auto;
-  }
+  /* Gastos form */
+  .gasto-form-row{grid-template-columns:1fr 1fr!important;grid-template-rows:auto auto auto;}
   .gasto-form-row .gf-fecha{grid-column:1;}
   .gasto-form-row .gf-cat{grid-column:2;}
   .gasto-form-row .gf-desc{grid-column:1/3;}
   .gasto-form-row .gf-monto{grid-column:1;}
   .gasto-form-row .rm{grid-column:2;justify-self:end;}
-
+  /* Personal */
   #tbody-personal .prov-input-nombre{font-size:11px;}
-  .panel-title{flex-wrap:wrap;gap:6px;}
-  .panel-title > div{flex-wrap:wrap;gap:6px;}
-  .rep-hdr{gap:8px;}
-  .rep-hdr > div{flex-wrap:wrap;gap:6px;}
   #res-detalle-trabajadores{grid-template-columns:1fr 1fr!important;}
-  .fecha-save-bar{gap:8px;padding:12px;}
-
+  /* Inputs */
   select{font-size:13px;padding:8px 10px;}
-  input[type=text],input[type=number],input[type=date],input[type=password]{
-    font-size:13px;padding:8px 10px;
-  }
-
+  input[type=text],input[type=number],input[type=date],input[type=password]{font-size:13px;padding:8px 10px;}
   #yape-calendar .cal-dia{min-height:44px;}
-
-  [style*="grid-template-columns:repeat(auto-fit"]{
-    grid-template-columns:1fr 1fr!important;
+  /* Reservas */
+  #reservas-resumen{grid-template-columns:1fr 1fr!important;}
+  #reservas-lista-cont > div{grid-template-columns:1fr!important;padding:10px 8px!important;}
+  #reservas-lista-cont .btn-save,#reservas-lista-cont .btn-export,
+  #reservas-lista-cont .btn-edit,#reservas-lista-cont .btn-del{
+    padding:5px 8px!important;font-size:10px!important;min-height:32px!important;
   }
+  #modal-reserva .form-grid{grid-template-columns:1fr!important;}
+  #res-productos-cats table{min-width:unset!important;}
+  #res-productos-cats .res-prod-cant{width:44px!important;}
 }
 
 /* ── Móvil pequeño (≤ 400px) ── */
@@ -517,43 +421,21 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
   .modal{margin:6px;padding:14px 12px;}
   .modal-actions{flex-direction:column;}
   .modal-actions button{width:100%;}
-  /* Drawer más estrecho */
   .tabs{width:220px;}
+  #reservas-resumen{grid-template-columns:1fr!important;}
 }
 
-/* ── Touch: tap targets más grandes ── */
+/* ── Touch: tap targets ── */
 @media(hover:none) and (pointer:coarse){
   .hamburger-btn{min-height:44px;min-width:44px;}
   .btn-save,.btn-success,.btn-primary,.btn-export,.btn-refresh{min-height:44px;}
   .add-btn{min-height:40px;}
   .rm,.btn-del,.btn-edit{min-width:36px;min-height:36px;}
-  input[type=text],input[type=number],input[type=date],
-  input[type=password],select{min-height:42px;}
+  input[type=text],input[type=number],input[type=date],input[type=password],select{min-height:42px;}
   .cal-dia{min-height:48px;}
   .modal-actions button{min-height:44px;}
   .tab-btn{min-height:48px;}
-}
-
-/* ── Tablas con scroll en cualquier pantalla chica ── */
-.tbl-wrap,
-.users-tbl-wrap,
-.scroll-x{
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-}
-.tbl-wrap table,
-.users-tbl-wrap table{
-  min-width:480px;
-}
-
-/* ── Rep hdr responsive general ── */
-.rep-hdr{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:22px;
-  flex-wrap:wrap;
-  gap:10px;
+  #res-productos-cats .res-prod-cant{min-height:40px;min-width:44px;}
 }
 
 </style>
@@ -1194,26 +1076,20 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
         </div>
       </div>
 
-      <!-- Tabla de productos -->
+      <!-- Tabla de productos colapsable por categoría -->
       <div style="margin-top:14px;">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:8px;">🥩 Productos (para proforma)</div>
-        <table style="width:100%;border-collapse:collapse;font-size:12px;">
-          <thead>
-            <tr style="background:var(--navy);color:rgba(255,255,255,.8);">
-              <th style="padding:7px 10px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;">Producto</th>
-              <th style="padding:7px 8px;text-align:center;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:70px;">P/U (S/)</th>
-              <th style="padding:7px 8px;text-align:center;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:70px;">Cant.</th>
-              <th style="padding:7px 8px;text-align:right;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:80px;">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody id="res-productos-tbody"></tbody>
-          <tfoot>
-            <tr style="background:var(--surface2);border-top:2px solid var(--border);">
-              <td colspan="3" style="padding:8px 10px;font-size:12px;font-weight:700;color:var(--navy2);">TOTAL CONSUMO</td>
-              <td id="res-total-consumo" style="padding:8px 10px;text-align:right;font-family:var(--mono);font-size:14px;font-weight:800;color:var(--navy2);">S/ 0.00</td>
-            </tr>
-          </tfoot>
-        </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);">🥩 Productos <span style="font-weight:400;">(para proforma)</span></span>
+          <div style="display:flex;gap:6px;">
+            <button type="button" onclick="expandirTodasCats(true)" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--muted);cursor:pointer;">+ Todo</button>
+            <button type="button" onclick="expandirTodasCats(false)" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--muted);cursor:pointer;">- Todo</button>
+          </div>
+        </div>
+        <div id="res-productos-cats" style="border:1px solid var(--border);border-radius:8px;overflow:hidden;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--navy);border-radius:0 0 8px 8px;margin-top:0;">
+          <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;">TOTAL CONSUMO</span>
+          <span id="res-total-consumo" style="font-family:var(--mono);font-size:16px;font-weight:800;color:#fff;">S/ 0.00</span>
+        </div>
       </div>
     </div>
     <div class="modal-actions" style="margin-top:16px;">
@@ -2913,80 +2789,191 @@ var RESERVA_PRODUCTOS = [
 ];
 
 function initProductosReserva(productosExistentes){
-  var tbody=document.getElementById('res-productos-tbody'); if(!tbody) return;
-  tbody.innerHTML='';
+  var cont=document.getElementById('res-productos-cats'); if(!cont) return;
+  cont.innerHTML='';
   // Reset total
   var totEl=document.getElementById('res-total-consumo');
   if(totEl) totEl.textContent='S/ 0.00';
-  // Agrupar por categoría
-  var cats={};
-  RESERVA_PRODUCTOS.forEach(function(prod,idx){
-    var c=prod.categoria||'Otros';
-    if(!cats[c]) cats[c]=[];
-    cats[c].push({prod:prod,idx:idx});
-  });
-  // Mapa de cantidades previas (para modo edición)
+
+  // Mapa de cantidades previas
   var cantPrev={};
   if(productosExistentes&&productosExistentes.length){
     productosExistentes.forEach(function(p){
-      cantPrev[p.nombre.toUpperCase()]=p.cantidad;
+      cantPrev[(p.nombre||'').toUpperCase()]=p.cantidad;
     });
   }
+
   var CAT_ICONS={'Cortes':'🥩','Guarniciones':'🍟','Bebidas':'🥤','Tragos':'🍷','Extras':'➕'};
-  Object.keys(cats).forEach(function(cat){
-    // Separador de categoría
-    var sep=document.createElement('tr');
-    sep.innerHTML='<td colspan="4" style="padding:6px 10px 3px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);background:var(--surface2);">'+(CAT_ICONS[cat]||'')+'  '+cat+'</td>';
-    tbody.appendChild(sep);
+  var CAT_COLORS={'Cortes':'#b45309','Guarniciones':'#059669','Bebidas':'#0ea5e9','Tragos':'#8b5cf6','Extras':'#64748b'};
+
+  // Agrupar
+  var cats={}, catOrder=[];
+  RESERVA_PRODUCTOS.forEach(function(prod,idx){
+    var c=prod.categoria||'Otros';
+    if(!cats[c]){cats[c]=[];catOrder.push(c);}
+    cats[c].push({prod:prod,idx:idx});
+  });
+
+  catOrder.forEach(function(cat,ci){
+    var color=CAT_COLORS[cat]||'#64748b';
+    var icon=CAT_ICONS[cat]||'';
+    // Calcular si hay items seleccionados en esta categoría
+    var itemsConCant=cats[cat].filter(function(item){
+      return (cantPrev[(item.prod.nombre||'').toUpperCase()]||0)>0;
+    });
+    // Expandir si hay items seleccionados o es la primera categoría
+    var expanded=itemsConCant.length>0||(ci===0);
+
+    var catId='res-cat-'+ci;
+    var bodyId='res-catbody-'+ci;
+
+    // Header de categoría (clickable)
+    var hdr=document.createElement('div');
+    hdr.id=catId;
+    hdr.setAttribute('data-cat',ci);
+    hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:9px 14px;cursor:pointer;'
+      +'background:'+(expanded?color+'18':'var(--surface2)')+';'
+      +'border-bottom:1px solid var(--border);user-select:none;transition:background .15s;';
+    hdr.innerHTML='<div style="display:flex;align-items:center;gap:8px;">'
+      +'<span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:'+color+';">'+icon+' '+cat+'</span>'
+      +(itemsConCant.length?'<span style="background:'+color+';color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 7px;">'+itemsConCant.length+'</span>':'')
+      +'</div>'
+      +'<span class="cat-arrow" style="font-size:11px;color:'+color+';transition:transform .2s;transform:'+(expanded?'rotate(180deg)':'rotate(0deg)')+';">▼</span>';
+
+    // Body de categoría
+    var body=document.createElement('div');
+    body.id=bodyId;
+    body.style.cssText='display:'+(expanded?'block':'none')+';';
+
+    // Tabla de productos de esta categoría
+    var table=document.createElement('table');
+    table.style.cssText='width:100%;border-collapse:collapse;';
+    var thead=document.createElement('thead');
+    thead.innerHTML='<tr style="background:'+color+'11;">'
+      +'<th style="padding:5px 10px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:'+color+';width:50%;">Producto</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:'+color+';width:22%;">P/U</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:'+color+';width:14%;">Cant.</th>'
+      +'<th style="padding:5px 8px;text-align:right;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:'+color+';width:14%;">Sub</th>'
+      +'</tr>';
+    table.appendChild(thead);
+    var tbody=document.createElement('tbody');
+
     cats[cat].forEach(function(item){
       var prod=item.prod, idx=item.idx;
-      var cantPre=cantPrev[prod.nombre.toUpperCase()]||0;
+      var cantPre=cantPrev[(prod.nombre||'').toUpperCase()]||0;
       var tr=document.createElement('tr');
       tr.style.cssText='border-bottom:1px solid var(--border);';
-      tr.innerHTML='<td style="padding:5px 10px;font-size:12px;color:var(--text);">'+prod.nombre+'</td>'
-        +'<td style="padding:5px 8px;text-align:center;font-size:11px;color:var(--muted);font-family:var(--mono);">'+prod.precio.toFixed(2)+'</td>'
+      tr.innerHTML='<td style="padding:6px 10px;font-size:12px;color:var(--text);">'+prod.nombre+'</td>'
+        +'<td style="padding:6px 8px;text-align:center;font-size:11px;color:var(--muted);font-family:var(--mono);">'+prod.precio.toFixed(2)+'</td>'
         +'<td style="padding:3px 6px;text-align:center;">'
-          +'<input type="number" min="0" value="'+(cantPre>0?cantPre:'')+'" placeholder="0" data-idx="'+idx+'"'
-          +' class="res-prod-cant" autocomplete="off"'
-          +' style="width:52px;padding:4px 5px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);text-align:center;background:var(--surface2);outline:none;color:var(--text);">'
+          +'<input type="number" min="0" value="'+(cantPre>0?cantPre:'')+'" placeholder="0"'
+          +' data-idx="'+idx+'" class="res-prod-cant" autocomplete="off"'
+          +' style="width:50px;padding:4px 5px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--mono);text-align:center;background:var(--surface2);outline:none;color:var(--text);">'
         +'</td>'
-        +'<td class="res-prod-subtotal" data-idx="'+idx+'" style="padding:5px 8px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;color:'+(cantPre>0?'var(--accent3)':'var(--muted)')+';">'+(cantPre>0?'S/ '+(cantPre*prod.precio).toFixed(2):'—')+'</td>';
+        +'<td class="res-prod-subtotal" data-idx="'+idx+'" style="padding:6px 8px;text-align:right;font-family:var(--mono);font-size:11px;font-weight:600;color:'+(cantPre>0?color:'var(--muted)')+';">'
+          +(cantPre>0?'S/'+( cantPre*prod.precio).toFixed(2):'—')
+        +'</td>';
       tbody.appendChild(tr);
     });
+    table.appendChild(tbody);
+    body.appendChild(table);
+    cont.appendChild(hdr);
+    cont.appendChild(body);
+
+    // Toggle al hacer clic en header
+    (function(h,b,col){
+      h.addEventListener('click',function(){
+        var open=b.style.display!=='none';
+        b.style.display=open?'none':'block';
+        var arr=h.querySelector('.cat-arrow');
+        if(arr) arr.style.transform=open?'rotate(0deg)':'rotate(180deg)';
+        h.style.background=open?'var(--surface2)':col+'18';
+      });
+    })(hdr,body,color);
   });
-  tbody.addEventListener('input',function(e){
+
+  // Listener global en el contenedor
+  cont.addEventListener('input',function(e){
     if(e.target.classList.contains('res-prod-cant')) recalcProductosReserva();
   });
+
   // Recalc inicial si hay productos previos
   if(productosExistentes&&productosExistentes.length) recalcProductosReserva();
 }
 
+function expandirTodasCats(abrir){
+  var cont=document.getElementById('res-productos-cats'); if(!cont) return;
+  cont.querySelectorAll('[id^="res-catbody-"]').forEach(function(body,i){
+    body.style.display=abrir?'block':'none';
+    var hdr=document.getElementById('res-cat-'+i);
+    if(hdr){
+      var arr=hdr.querySelector('.cat-arrow');
+      if(arr) arr.style.transform=abrir?'rotate(180deg)':'rotate(0deg)';
+    }
+  });
+}
+
 function recalcProductosReserva(){
   var total=0;
-  document.querySelectorAll('#res-productos-tbody .res-prod-cant').forEach(function(inp){
+  document.querySelectorAll('#res-productos-cats .res-prod-cant').forEach(function(inp){
     var idx=parseInt(inp.getAttribute('data-idx'));
-    var subtEl=inp.closest('tr').querySelector('.res-prod-subtotal');
-    if(!subtEl) return;
+    var tr=inp.closest('tr');
+    var subtEl=tr?tr.querySelector('.res-prod-subtotal'):null;
     var cant=parseInt(inp.value)||0;
     var precio=RESERVA_PRODUCTOS[idx]?RESERVA_PRODUCTOS[idx].precio:0;
     var sub=cant*precio;
-    subtEl.textContent=cant>0?'S/ '+sub.toFixed(2):'—';
-    subtEl.style.color=cant>0?'var(--accent3)':'var(--muted)';
+    if(subtEl){
+      subtEl.textContent=cant>0?'S/'+sub.toFixed(2):'—';
+      var cat=RESERVA_PRODUCTOS[idx]?RESERVA_PRODUCTOS[idx].categoria:'';
+      var CAT_COLORS={'Cortes':'#b45309','Guarniciones':'#059669','Bebidas':'#0ea5e9','Tragos':'#8b5cf6','Extras':'#64748b'};
+      subtEl.style.color=cant>0?(CAT_COLORS[cat]||'var(--accent3)'):'var(--muted)';
+    }
     total+=sub;
+    // Badge del header de categoría
+    _updateCatBadge(inp);
   });
   var totEl=document.getElementById('res-total-consumo');
   if(totEl) totEl.textContent='S/ '+total.toFixed(2);
 }
 
+function _updateCatBadge(inp){
+  // Actualizar badge de cantidad en el header de la categoría
+  try{
+    var body=inp.closest('[id^="res-catbody-"]');
+    if(!body) return;
+    var bodyId=body.id; // res-catbody-N
+    var n=bodyId.replace('res-catbody-','');
+    var hdr=document.getElementById('res-cat-'+n);
+    if(!hdr) return;
+    var catEl=hdr.querySelector('span[style*="border-radius:10px"]');
+    // Contar items con cant > 0 en esta categoría
+    var count=0;
+    body.querySelectorAll('.res-prod-cant').forEach(function(i){ if(parseInt(i.value)>0) count++; });
+    if(catEl){
+      catEl.textContent=count||''; catEl.style.display=count?'':'none';
+    } else if(count>0){
+      // Crear badge
+      var idx=parseInt(inp.getAttribute('data-idx'));
+      var cat=RESERVA_PRODUCTOS[idx]?RESERVA_PRODUCTOS[idx].categoria:'';
+      var CAT_COLORS={'Cortes':'#b45309','Guarniciones':'#059669','Bebidas':'#0ea5e9','Tragos':'#8b5cf6','Extras':'#64748b'};
+      var col=CAT_COLORS[cat]||'#64748b';
+      var badge=document.createElement('span');
+      badge.style.cssText='background:'+col+';color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 7px;';
+      badge.textContent=count;
+      hdr.querySelector('div').appendChild(badge);
+    }
+  }catch(e){}
+}
+
 function getProductosSeleccionados(){
   var items=[];
-  document.querySelectorAll('#res-productos-tbody .res-prod-cant').forEach(function(inp){
+  document.querySelectorAll('#res-productos-cats .res-prod-cant').forEach(function(inp){
     var cant=parseInt(inp.value)||0;
     if(cant<=0) return;
     var idx=parseInt(inp.getAttribute('data-idx'));
     var prod=RESERVA_PRODUCTOS[idx];
     if(!prod) return;
-    items.push({nombre:prod.nombre, precio:prod.precio, cantidad:cant, subtotal:cant*prod.precio});
+    items.push({nombre:prod.nombre,precio:prod.precio,cantidad:cant,subtotal:cant*prod.precio});
   });
   return items;
 }
