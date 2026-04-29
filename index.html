@@ -1071,6 +1071,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
           <select id="res-estado" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;width:100%;color:var(--text);">
             <option value="Confirmada">✅ Confirmada</option>
             <option value="Pendiente">⏳ Pendiente</option>
+            <option value="Completada">🎉 Completada</option>
             <option value="Cancelada">❌ Cancelada</option>
           </select>
         </div>
@@ -2725,8 +2726,21 @@ var reservasRecords = [];
 var resCalAnio = new Date().getFullYear();
 var resCalMes  = new Date().getMonth();
 
-function resCalPrev(){ resCalMes--; if(resCalMes<0){resCalMes=11;resCalAnio--;} renderReservasCalendar(); }
-function resCalNext(){ resCalMes++; if(resCalMes>11){resCalMes=0;resCalAnio++;} renderReservasCalendar(); }
+function resCalPrev(){
+  resCalMes--; if(resCalMes<0){resCalMes=11;resCalAnio--;}
+  _syncResCalSelector(); loadReservas();
+}
+function resCalNext(){
+  resCalMes++; if(resCalMes>11){resCalMes=0;resCalAnio++;}
+  _syncResCalSelector(); loadReservas();
+}
+function _syncResCalSelector(){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var selM=document.getElementById('reservas-mes');
+  var selA=document.getElementById('reservas-anio');
+  if(selM) selM.value=MESES[resCalMes];
+  if(selA) selA.value=resCalAnio;
+}
 
 function initReservas(){
   var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -3347,7 +3361,12 @@ async function loadReservas(){
             productos:(function(){try{return JSON.parse(t('Productos')||'[]');}catch(e){return[];}})()
           };
         });
-        try{localStorage.setItem('cajaDiaria_reservas',JSON.stringify(reservasRecords));}catch(e){}
+        // Merge en localStorage — conservar otros meses, reemplazar el mes actual
+        try{
+          var lsAll=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];
+          var lsOtros=lsAll.filter(function(r){return !(r.mes===mes&&String(r.anio)===anio);});
+          localStorage.setItem('cajaDiaria_reservas',JSON.stringify(lsOtros.concat(reservasRecords)));
+        }catch(e){}
       }catch(e){
         try{reservasRecords=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];}catch(e2){reservasRecords=[];}
         reservasRecords=reservasRecords.filter(function(r){return r.mes===mes&&String(r.anio)===anio;});
@@ -3373,13 +3392,15 @@ function renderReservasResumen(){
   var confirmadas=reservasRecords.filter(function(r){return r.estado==='Confirmada';}).length;
   var pendientes=reservasRecords.filter(function(r){return r.estado==='Pendiente';}).length;
   var canceladas=reservasRecords.filter(function(r){return r.estado==='Cancelada';}).length;
+  var completadas=reservasRecords.filter(function(r){return r.estado==='Completada';}).length;
   var totalComensales=reservasRecords.reduce(function(s,r){return s+(r.comensales||0);},0);
   var totalAdelanto=reservasRecords.reduce(function(s,r){return s+(r.adelanto||0);},0);
   var cards=[
     {icon:'📅',label:'Total Reservas',val:total,color:'#0ea5e9',bg:'#e0f2fe'},
     {icon:'✅',label:'Confirmadas',val:confirmadas,color:'#10b981',bg:'#d1fae5'},
     {icon:'⏳',label:'Pendientes',val:pendientes,color:'#f59e0b',bg:'#fef3c7'},
-    {icon:'👥',label:'Total Comensales',val:totalComensales,color:'#8b5cf6',bg:'#ede9fe'},
+    {icon:'🎉',label:'Completadas',val:completadas,color:'#8b5cf6',bg:'#ede9fe'},
+    {icon:'👥',label:'Total Comensales',val:totalComensales,color:'#0369a1',bg:'#e0f2fe'},
     {icon:'💰',label:'Adelantos',val:'S/ '+totalAdelanto.toFixed(2),color:'#059669',bg:'#d1fae5'}
   ];
   cont.innerHTML='';
@@ -3455,8 +3476,8 @@ function renderReservasLista(){
   cont.innerHTML='';
   if(!reservasRecords.length){ if(empty)empty.style.display='block'; return; }
   if(empty)empty.style.display='none';
-  var ESTADO_COLORS={Confirmada:'#10b981',Pendiente:'#f59e0b',Cancelada:'#ef4444'};
-  var ESTADO_BG={Confirmada:'#d1fae5',Pendiente:'#fef3c7',Cancelada:'#fee2e2'};
+  var ESTADO_COLORS={Confirmada:'#10b981',Pendiente:'#f59e0b',Completada:'#8b5cf6',Cancelada:'#ef4444'};
+  var ESTADO_BG={Confirmada:'#d1fae5',Pendiente:'#fef3c7',Completada:'#ede9fe',Cancelada:'#fee2e2'};
   var sorted=reservasRecords.slice().sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'');});
   sorted.forEach(function(r){
     var row=document.createElement('div');
@@ -3486,7 +3507,7 @@ function renderReservasLista(){
     // Select de estado para actualizar
     var sel=document.createElement('select');
     sel.style.cssText='padding:5px 8px;border:1.5px solid '+col+';border-radius:8px;font-size:12px;font-family:var(--font);background:'+bg+';color:'+col+';font-weight:700;outline:none;cursor:pointer;min-width:120px;';
-    ['Confirmada','Pendiente','Cancelada'].forEach(function(e){
+    ['Confirmada','Pendiente','Completada','Cancelada'].forEach(function(e){
       var o=document.createElement('option'); o.value=e; o.textContent=e;
       if(e===r.estado) o.selected=true;
       sel.appendChild(o);
@@ -3577,7 +3598,7 @@ function abrirModalReserva(fecha, reservasDelDia){
     tit.style.cssText='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:8px;';
     tit.textContent='Reservas de este día'; lista.appendChild(tit);
     reservasDelDia.forEach(function(r){
-      var ESTADO_COLORS={Confirmada:'#10b981',Pendiente:'#f59e0b',Cancelada:'#ef4444'};
+      var ESTADO_COLORS={Confirmada:'#10b981',Pendiente:'#f59e0b',Completada:'#8b5cf6',Cancelada:'#ef4444'};
       var col=ESTADO_COLORS[r.estado]||'#64748b';
       var row=document.createElement('div');
       row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #bae6fd;border-radius:8px;margin-bottom:6px;background:#f0f9ff;';
@@ -3664,16 +3685,16 @@ async function confirmarReserva(){
   }
 
   // ── MODO CREACIÓN ──
+  var nuevaRes=reservaData;
   if(cfg.apiKey){
     setSyncStatus('loading','Guardando reserva...');
     var dbId=await ensureReservasDB();
     if(dbId){
-      // Asegurar que la columna Productos exista en la BD
       try{
         await notionRequest('PATCH','/databases/'+dbId,{
           properties:{'Productos':{rich_text:{}}}
         });
-      }catch(e){ /* columna ya existe o sin permisos — continuar */ }
+      }catch(e){}
       try{
         var props={
           'Nombre'     :{title:[{text:{content:cliente+' — '+fecha+(hora?' '+hora:'')}}]},
@@ -3695,9 +3716,10 @@ async function confirmarReserva(){
       }catch(e){ showToast('⚠ Error guardando en Notion: '+e.message,false); }
     }
   }
-  // localStorage — guardar completo con productos
   try{
     var ls=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];
+    // Eliminar si ya existía (por id) y re-agregar actualizado
+    ls=ls.filter(function(r){return r.id!==nuevaRes.id;});
     ls.push(nuevaRes);
     localStorage.setItem('cajaDiaria_reservas',JSON.stringify(ls));
   }catch(e){}
@@ -3773,7 +3795,11 @@ async function eliminarReserva(id){
     try{ await notionRequest('PATCH','/pages/'+id,{archived:true}); setSyncStatus('ok','Sincronizado'); }catch(e){}
   }
   reservasRecords=reservasRecords.filter(function(r){return r.id!==id;});
-  try{localStorage.setItem('cajaDiaria_reservas',JSON.stringify(reservasRecords));}catch(e){}
+  try{
+    var ls=JSON.parse(localStorage.getItem('cajaDiaria_reservas'))||[];
+    ls=ls.filter(function(r){return r.id!==id;});
+    localStorage.setItem('cajaDiaria_reservas',JSON.stringify(ls));
+  }catch(e){}
   renderReservasResumen();
   renderReservasCalendar();
   renderReservasLista();
