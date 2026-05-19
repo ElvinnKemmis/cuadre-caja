@@ -952,14 +952,22 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
     <div class="panel-title" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
       <span>🗓️ Resumen de cortesías por día</span>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <button class="btn-refresh" onclick="loadCortesias()" style="padding:7px 14px;font-size:12px;">↺ Actualizar</button>
+        <button class="btn-refresh" onclick="cortesiasCache={};loadCortesias()" style="padding:7px 14px;font-size:12px;">↺ Actualizar</button>
         <button class="btn-export" id="btn-export-cortesias" onclick="abrirModalDescargaCortesias()" style="padding:8px 16px;font-size:12px;">⬇ Descargar Excel</button>
       </div>
     </div>
     <!-- Navegación mes/año del calendario -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
       <button class="btn-refresh" onclick="cortCalPrev()" style="padding:6px 14px;font-size:13px;">◀</button>
-      <span id="cort-cal-titulo" style="font-size:15px;font-weight:600;color:var(--navy2);"></span>
+      <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:center;flex-wrap:wrap;">
+        <select id="cort-sel-mes" onchange="cortSelChange()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;">
+          <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
+          <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
+          <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+        </select>
+        <input type="number" id="cort-sel-anio" value="2026" min="2020" max="2099" onchange="cortSelChange()" style="width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface2);outline:none;"/>
+        <span id="cort-cal-titulo" style="font-size:14px;font-weight:600;color:var(--navy2);display:none;"></span>
+      </div>
       <button class="btn-refresh" onclick="cortCalNext()" style="padding:6px 14px;font-size:13px;">▶</button>
     </div>
     <!-- Grid calendario -->
@@ -1650,6 +1658,7 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.5);margin-bottom:2px;">Resumen del mes</div>
       <div id="beb-resumen-titulo" style="font-size:17px;font-weight:700;color:#fff;"></div>
     </div>
+    <!-- Fila de productos -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(0,0,0,.15);">
       <div style="background:rgba(255,255,255,.1);padding:12px 16px;">
         <div style="font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">🍹 Chicha</div>
@@ -1667,9 +1676,24 @@ tbody td:first-child{padding-left:22px;font-family:var(--mono);}
         <div style="font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">🍺 Cerveza</div>
         <div id="beb-res-cerveza" style="font-family:var(--mono);font-size:14px;font-weight:700;color:#fff;">0 · S/ 0</div>
       </div>
-      <div style="background:rgba(0,0,0,.2);padding:12px 16px;">
-        <div style="font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">💰 Total mes</div>
-        <div id="beb-res-total" style="font-family:var(--mono);font-size:18px;font-weight:700;color:#d8f3dc;">S/ 0.00</div>
+    </div>
+    <!-- Fila de totales importantes -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:rgba(0,0,0,.2);">
+      <div style="background:rgba(255,255,255,.08);padding:12px 16px;">
+        <div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">💵 Venta bruta</div>
+        <div id="beb-res-bruto" style="font-family:var(--mono);font-size:16px;font-weight:700;color:#fff;">S/ 0.00</div>
+      </div>
+      <div style="background:rgba(255,165,0,.15);padding:12px 16px;">
+        <div style="font-size:10px;color:rgba(255,200,100,.8);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">➕ Adicionales</div>
+        <div id="beb-res-adicional" style="font-family:var(--mono);font-size:16px;font-weight:700;color:#fde68a;">S/ 0.00</div>
+      </div>
+      <div style="background:rgba(139,92,246,.2);padding:12px 16px;">
+        <div style="font-size:10px;color:rgba(196,181,253,.8);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">➖ Deudas/Pagos</div>
+        <div id="beb-res-deuda" style="font-family:var(--mono);font-size:16px;font-weight:700;color:#c4b5fd;">S/ 0.00</div>
+      </div>
+      <div style="background:rgba(0,0,0,.25);padding:12px 16px;">
+        <div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">✅ Neto del mes</div>
+        <div id="beb-res-total" style="font-family:var(--mono);font-size:18px;font-weight:800;color:#d8f3dc;">S/ 0.00</div>
       </div>
     </div>
   </div>
@@ -2263,6 +2287,7 @@ function switchTab(t){
     // Asegurar que el calendario apunte al mes actual al abrir
     cortCalAnio=new Date().getFullYear();
     cortCalMes=new Date().getMonth();
+    _syncCortSelector();
     loadCortesias();
   }
   if(t==='reservas') initReservas();
@@ -4706,34 +4731,57 @@ async function guardarCortesias(){
     if(cfg.apiKey){try{setSyncStatus('loading','Guardando '+(i+1)+'/'+filas.length+'...');var dbId=(cfg.cortesiasDbId||CORTEIAS_DB_ID).replace(/-/g,'');await notionRequest('POST','/pages',{parent:{database_id:dbId},properties:{'Fecha':{title:[{text:{content:lbl}}]},'Fecha ISO':{rich_text:[{text:{content:fechaInput}}]},'Cantidad':{number:fila.cantidad},'Detalle':{rich_text:[{text:{content:fila.detalle}}]}}});}catch(e){errores++;setSyncStatus('err','Error sync');}}}
   if(btn){btn.disabled=false;btn.innerHTML='🎁 Guardar todas las cortesías';}
   if(errores>0)showToast('Guardado local con '+errores+' error(es)',true);else if(cfg.apiKey){setSyncStatus('ok','Sincronizado');showToast('✓ '+filas.length+' cortesía(s) guardadas: '+lbl);}else showToast(filas.length+' cortesía(s) guardadas localmente');
-  document.getElementById('cortesias-filas').innerHTML='';cortesiaFilaCount=0;document.getElementById('cortesia-fecha').value=localDateStr();addFilaCortesia();loadCortesias();
+  document.getElementById('cortesias-filas').innerHTML='';cortesiaFilaCount=0;document.getElementById('cortesia-fecha').value=localDateStr();addFilaCortesia();
+  // Invalidar cache del mes guardado para forzar recarga
+  var fechaGuardada=document.getElementById('cortesia-fecha')?document.getElementById('cortesia-fecha').value:'';
+  if(fechaGuardada){var ck=fechaGuardada.substring(0,7);delete cortesiasCache[ck];}
+  // Limpiar cache del mes activo del calendario
+  var ckCal=String(cortCalAnio)+'-'+String(cortCalMes+1).padStart(2,'0');
+  delete cortesiasCache[ckCal];
+  loadCortesias();
 }
+// Cache de cortesías por "YYYY-MM" para no recargar al navegar
+var cortesiasCache = {};
+
 async function loadCortesias(){
   document.getElementById('cortesias-body').innerHTML='';
+
+  var anoStr  = String(cortCalAnio);
+  var mesStr  = String(cortCalMes + 1).padStart(2,'0');
+  var cacheKey = anoStr + '-' + mesStr;
+  var prefijo  = cacheKey + '-';
+
+  // ── Si ya está en cache, renderizar directo sin ir a Notion ──
+  if(cortesiasCache[cacheKey]){
+    cortesiasRecords = cortesiasCache[cacheKey];
+    renderCalendarioCortesias();
+    return;
+  }
+
+  // Mostrar indicador de carga en el calendario
+  var cal = document.getElementById('cortesias-calendar');
+  if(cal) cal.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted);font-size:13px;">⏳ Cargando...</div>';
+
   cortesiasRecords = [];
 
   if(cfg.apiKey){
     try{
       var dbId=(cfg.cortesiasDbId||CORTEIAS_DB_ID).replace(/-/g,'');
 
-      var anoStr = String(cortCalAnio);
-      var mesStr = String(cortCalMes + 1).padStart(2,'0');
-      var prefijo = anoStr + '-' + mesStr + '-'; // ej: "2026-04-"
-
-      // Mapa de nombres de mes en español → número
       var MESES_NUM = {
         'enero':'01','febrero':'02','marzo':'03','abril':'04',
         'mayo':'05','junio':'06','julio':'07','agosto':'08',
         'septiembre':'09','octubre':'10','noviembre':'11','diciembre':'12'
       };
 
-      // Traer TODOS los registros (sin filtro de fecha) para no perder
-      // los que no tienen Fecha ISO guardado
+      // ── Filtrar en Notion por Fecha ISO con starts_with ──
+      // Esto es mucho más rápido que traer todo y filtrar en cliente
       var allResults = [];
       var cursor = undefined;
       do {
         var queryOpts = {
-          sorts: [{property:'Fecha ISO', direction:'ascending'}],
+          filter: { property:'Fecha ISO', rich_text:{ starts_with: prefijo } },
+          sorts:  [{ property:'Fecha ISO', direction:'ascending' }],
           page_size: 100
         };
         if(cursor) queryOpts.start_cursor = cursor;
@@ -4742,69 +4790,60 @@ async function loadCortesias(){
         cursor = result.has_more ? result.next_cursor : undefined;
       } while(cursor);
 
-      var allMapped = allResults.map(function(page){
-        var p = page.properties;
-        var lbl = p.Fecha && p.Fecha.title && p.Fecha.title[0]
-          ? p.Fecha.title[0].plain_text || p.Fecha.title[0].text.content : '';
-        var detalle = p.Detalle && p.Detalle.rich_text && p.Detalle.rich_text[0]
-          ? p.Detalle.rich_text[0].text.content : '';
-        var cantidad = p.Cantidad && p.Cantidad.number != null ? p.Cantidad.number : 0;
-
-        // Leer Fecha ISO
-        var fechaISO = p['Fecha ISO'] && p['Fecha ISO'].rich_text && p['Fecha ISO'].rich_text[0]
-          ? p['Fecha ISO'].rich_text[0].text.content : '';
-
-        // Si no hay Fecha ISO, parsear desde el label (ej: "1 de Abril de 2026")
-        if(!fechaISO && lbl){
-          var limpio = lbl.toLowerCase().replace(/ de /g, ' ').trim();
+      // Si no encontró nada con Fecha ISO, buscar los que no tienen Fecha ISO
+      // (registros viejos) — solo una vez, en segundo plano
+      if(allResults.length === 0){
+        var sinISO = [];
+        var cursor2 = undefined;
+        do {
+          var q2 = {
+            filter: { property:'Fecha ISO', rich_text:{ is_empty: true } },
+            page_size: 100
+          };
+          if(cursor2) q2.start_cursor = cursor2;
+          var r2 = await notionRequest('POST','/databases/'+dbId+'/query', q2);
+          sinISO = sinISO.concat(r2.results);
+          cursor2 = r2.has_more ? r2.next_cursor : undefined;
+        } while(cursor2);
+        // Parsear y filtrar por mes
+        sinISO.forEach(function(page){
+          var p = page.properties;
+          var lbl = p.Fecha&&p.Fecha.title&&p.Fecha.title[0]?p.Fecha.title[0].plain_text||p.Fecha.title[0].text.content:'';
+          if(!lbl) return;
+          var limpio = lbl.toLowerCase().replace(/ de /g,' ').trim();
           var partes = limpio.split(/\s+/);
-          if(partes.length >= 3){
-            var dia  = partes[0].padStart(2,'0');
-            var mes  = MESES_NUM[partes[1]] || '01';
-            var anio = partes[2];
-            fechaISO = anio + '-' + mes + '-' + dia;
-          }
-        }
-
-        // Si tampoco hay label pero hay fecha en otra propiedad, intentar parsearla
-        if(!fechaISO) return null;
-
-        return {
-          pageId    : page.id,
-          fechaLabel: lbl,
-          fecha     : fechaISO,
-          cantidad  : cantidad,
-          detalle   : detalle
-        };
-      }).filter(function(r){ return r && r.fecha; });
-
-      // Filtrar solo el mes/año activo del calendario (client-side)
-      cortesiasRecords = allMapped.filter(function(r){
-        return r.fecha.startsWith(prefijo);
-      });
-
-      // Actualizar Fecha ISO en Notion para los registros que no la tenían
-      // (silenciosamente en segundo plano para no bloquear la UI)
-      allMapped.forEach(function(r){
-        var original = allResults.find(function(p){ return p.id === r.pageId; });
-        if(!original) return;
-        var tieneISO = original.properties['Fecha ISO'] &&
-          original.properties['Fecha ISO'].rich_text &&
-          original.properties['Fecha ISO'].rich_text[0] &&
-          original.properties['Fecha ISO'].rich_text[0].text.content;
-        if(!tieneISO && r.fecha){
-          // Guardar Fecha ISO para que próximas cargas sean más eficientes
-          notionRequest('PATCH','/pages/'+r.pageId,{
-            properties:{'Fecha ISO':{rich_text:[{text:{content:r.fecha}}]}}
+          if(partes.length < 3) return;
+          var fechaISO = partes[2]+'-'+(MESES_NUM[partes[1]]||'01')+'-'+partes[0].padStart(2,'0');
+          if(!fechaISO.startsWith(prefijo)) return;
+          // Backfill silencioso
+          notionRequest('PATCH','/pages/'+page.id,{
+            properties:{'Fecha ISO':{rich_text:[{text:{content:fechaISO}}]}}
           }).catch(function(){});
-        }
-      });
+          allResults.push(page);
+          page._fechaISO = fechaISO;
+        });
+      }
 
-      // Cache local
+      cortesiasRecords = allResults.map(function(page){
+        var p = page.properties;
+        var lbl = p.Fecha&&p.Fecha.title&&p.Fecha.title[0]?p.Fecha.title[0].plain_text||p.Fecha.title[0].text.content:'';
+        var detalle = p.Detalle&&p.Detalle.rich_text&&p.Detalle.rich_text[0]?p.Detalle.rich_text[0].text.content:'';
+        var cantidad = p.Cantidad&&p.Cantidad.number!=null?p.Cantidad.number:0;
+        var fechaISO = page._fechaISO ||
+          (p['Fecha ISO']&&p['Fecha ISO'].rich_text&&p['Fecha ISO'].rich_text[0]?p['Fecha ISO'].rich_text[0].text.content:'');
+        if(!fechaISO) return null;
+        return { pageId:page.id, fechaLabel:lbl, fecha:fechaISO, cantidad:cantidad, detalle:detalle };
+      }).filter(function(r){ return r && r.fecha && r.fecha.startsWith(prefijo); });
+
+      // Guardar en cache por mes
+      cortesiasCache[cacheKey] = cortesiasRecords;
+
+      // Cache local (solo mes actual para no llenar)
       try{ localStorage.setItem('cajaDiaria_cortesias', JSON.stringify(cortesiasRecords)); }catch(e){}
 
     }catch(e){
       try{ cortesiasRecords = JSON.parse(localStorage.getItem('cajaDiaria_cortesias'))||[]; }catch(e2){ cortesiasRecords=[]; }
+      cortesiasRecords = cortesiasRecords.filter(function(r){ return r.fecha && r.fecha.startsWith(prefijo); });
       showToast('Datos locales. Error: '+e.message, true);
     }
   } else {
@@ -4821,18 +4860,36 @@ function renderCortesias(){
 }
 
 // ── Calendario de cortesías ──
+function cortSelChange(){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var selM=document.getElementById('cort-sel-mes');
+  var selA=document.getElementById('cort-sel-anio');
+  if(selM) cortCalMes=MESES.indexOf(selM.value);
+  if(selA) cortCalAnio=parseInt(selA.value)||new Date().getFullYear();
+  loadCortesias();
+}
+
 var cortCalAnio = new Date().getFullYear();
 var cortCalMes  = new Date().getMonth(); // 0-based
 
 function cortCalPrev(){
   cortCalMes--;
   if(cortCalMes < 0){ cortCalMes = 11; cortCalAnio--; }
-  renderCalendarioCortesias();
+  _syncCortSelector();
+  loadCortesias();
 }
 function cortCalNext(){
   cortCalMes++;
   if(cortCalMes > 11){ cortCalMes = 0; cortCalAnio++; }
-  renderCalendarioCortesias();
+  _syncCortSelector();
+  loadCortesias();
+}
+function _syncCortSelector(){
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var selM=document.getElementById('cort-sel-mes');
+  var selA=document.getElementById('cort-sel-anio');
+  if(selM) selM.value=MESES[cortCalMes];
+  if(selA) selA.value=cortCalAnio;
 }
 
 function renderCalendarioCortesias(){
@@ -5167,12 +5224,13 @@ function initPersonal() {
   vacCalAnio  = hoy.getFullYear();
   vacCalMes   = hoy.getMonth();
   renderPersonalCalendar();
-  if (!document.querySelector('#apoyos-semanas-container .apoyo-sem-panel')) agregarSemanaApoyos();
+  // Limpiar contenedores para forzar recarga limpia
+  var apoyosCont = document.getElementById('apoyos-semanas-container');
+  if(apoyosCont) apoyosCont.innerHTML = '';
   // Limpiar tabla antes de cargar para evitar filas duplicadas
   var tbody = document.getElementById('tbody-personal');
   if (tbody) tbody.innerHTML = '';
   cargarPersonalDelMes();
-  loadApoyosDiarios();
   loadVacaciones();
   loadEventos('faltas');
   loadEventos('permisos');
@@ -6669,14 +6727,22 @@ function cargarPersonalDelMes(){
   var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   persCalMes = MESES.indexOf(mes);
   if(persCalMes < 0) persCalMes = new Date().getMonth();
-  // Actualizar semanas de apoyos: mantener nombres, resetear montos
-  actualizarApoyosSemanalesPorMes(mes, anio);
+
+  // ── Limpiar COMPLETAMENTE los contenedores al cambiar de mes ──
+  // Esto evita que queden paneles de meses anteriores
+  var apoyosCont = document.getElementById('apoyos-semanas-container');
+  if(apoyosCont) apoyosCont.innerHTML = '';
+  var provCont = document.getElementById('prov-semanas-container');
+  if(provCont) provCont.innerHTML = '';
+
   // Actualizar calendario de vacaciones al mismo mes
   vacCalAnio = parseInt(anio);
   vacCalMes  = persCalMes;
   renderCalUnificado();
   loadPersonal();
   loadApoyosDiarios();
+  // Cargar apoyos semanales del nuevo mes (desde cero ya que limpiamos el contenedor)
+  cargarApoyosSemanalesDelMes(mes, String(anio));
 }
 
 function actualizarApoyosSemanalesPorMes(mes, anio){
@@ -8047,25 +8113,41 @@ function actualizarResumenBebidas(){
   var mes=document.getElementById('bebidas-mes')?document.getElementById('bebidas-mes').value:'';
   var anio=document.getElementById('bebidas-anio')?document.getElementById('bebidas-anio').value:'';
   var titEl=document.getElementById('beb-resumen-titulo'); if(titEl) titEl.textContent=mes+' '+anio;
-  var totPorProd={CHICHA:{u:0,s:0},MARACUYA:{u:0,s:0},VINOS:{u:0,s:0},CERVEZA:{u:0,s:0}};
   var dk=['lun','mar','mie','jue','vie','sab','dom'];
+  var totPorProd={CHICHA:{u:0,s:0},MARACUYA:{u:0,s:0},VINOS:{u:0,s:0},CERVEZA:{u:0,s:0}};
+  var totalBruto=0, totalAdicional=0, totalDeuda=0, totalNeto=0;
+
   document.querySelectorAll('#bebidas-semanas-container .bebida-sem-panel').forEach(function(panel){
     PRODUCTOS_BEBIDAS.forEach(function(prod){
       var pk=prod.toLowerCase();
       var sumaU=0;
       dk.forEach(function(d){var inp=panel.querySelector('.beb-u-'+pk+'-'+d);sumaU+=inp?(parseFloat(inp.value)||0):0;});
+      var soles=sumaU*BEB_PRECIOS[prod];
+      var adicional=parseFloat((panel.querySelector('.beb-adicional-'+pk)||{}).value||0)||0;
+      var pago=parseFloat((panel.querySelector('.beb-pago-'+pk)||{}).value||0)||0;
       totPorProd[prod].u+=sumaU;
-      totPorProd[prod].s+=sumaU*BEB_PRECIOS[prod];
+      totPorProd[prod].s+=soles;
+      totalBruto+=soles;
+      totalAdicional+=adicional;
+      totalDeuda+=pago;
+      totalNeto+=(soles+adicional)-pago;
     });
   });
-  var total=0;
+
   var map={CHICHA:'chicha',MARACUYA:'maracuya',VINOS:'vinos',CERVEZA:'cerveza'};
   Object.keys(totPorProd).forEach(function(prod){
-    var v=totPorProd[prod]; total+=v.s;
+    var v=totPorProd[prod];
     var el=document.getElementById('beb-res-'+map[prod]);
     if(el) el.textContent=v.u+' unid · S/ '+v.s.toFixed(0);
   });
-  var totEl=document.getElementById('beb-res-total'); if(totEl) totEl.textContent='S/ '+total.toFixed(2);
+  var elBruto=document.getElementById('beb-res-bruto'); if(elBruto) elBruto.textContent='S/ '+totalBruto.toFixed(2);
+  var elAd=document.getElementById('beb-res-adicional'); if(elAd) elAd.textContent='S/ '+totalAdicional.toFixed(2);
+  var elDeuda=document.getElementById('beb-res-deuda'); if(elDeuda) elDeuda.textContent='S/ '+totalDeuda.toFixed(2);
+  var totEl=document.getElementById('beb-res-total');
+  if(totEl){
+    totEl.textContent='S/ '+totalNeto.toFixed(2);
+    totEl.style.color=totalNeto>=0?'#d8f3dc':'#fca5a5';
+  }
 }
 
 // ── Guardar semana en Notion (UPSERT por producto+semana) ──
